@@ -85,7 +85,7 @@ export async function onRequestPost(context) {
   }
 
   if (Date.now() - parseInt(tsStr, 10) > OTP_TTL_MS) {
-    return new Response(JSON.stringify({ error: "Kód vypršel. Klikněte na „Odeslat znovu"." }), {
+    return new Response(JSON.stringify({ error: "Kód vypršel. Klikněte na 'Odeslat znovu'." }), {
       status: 400, headers: { "Content-Type": "application/json" }
     });
   }
