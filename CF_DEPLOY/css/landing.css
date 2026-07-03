@@ -1017,7 +1017,7 @@ html { scroll-behavior: smooth; }
   font-size: 18px;
   font-weight: 700;
   letter-spacing: .06em;
-  text-transform: uppercase;
+  text-transform: none;
   color: #f0c870;
   margin-bottom: 14px;
 }
