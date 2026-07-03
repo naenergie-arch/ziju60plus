@@ -85,11 +85,13 @@ body{background:#fbf4e7;min-height:100vh;display:flex;align-items:flex-start;jus
 </head>
 <body>
 
-<div style="text-align:center;padding:16px 0 8px;"><a href="#" onclick="history.back();return false;" style="color:#b07a3a;font-size:14px;text-decoration:none;">← Zpět na hlavní stránku</a></div>
+<div style="display:flex;flex-direction:column;align-items:center;width:100%;max-width:500px">
+<div style="text-align:center;padding:16px 0 8px;width:100%;"><a href="#" onclick="history.back();return false;" style="color:#b07a3a;font-size:14px;text-decoration:none;">← Zpět na hlavní stránku</a></div>
 
-<div class="qwrap" id="quiz">
+<div class="qwrap" id="quiz" style="width:100%">
   <div class="qprog" id="prog"></div>
   <div id="qbody"></div>
+</div>
 </div>
 
 <script>
