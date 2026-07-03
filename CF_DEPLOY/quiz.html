@@ -1,0 +1,512 @@
+﻿<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Váš osobní profil – Žiju 60 plus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#fbf4e7;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:32px 16px 60px;font-family:'Montserrat',sans-serif}
+.qwrap{background:#fff8f0;border-radius:24px;padding:36px 28px 32px;width:100%;max-width:500px;border:1.5px solid #f0ddb8}
+.qprog{display:flex;gap:7px;justify-content:center;margin-bottom:32px}
+.qdot{height:6px;border-radius:3px;background:#edd8a8;transition:background .35s,width .35s;width:22px}
+.qdot.active{background:#ff8a3d;width:38px}
+.qdot.done{background:#c8a060}
+.qillus{text-align:center;font-size:56px;margin-bottom:14px;line-height:1;user-select:none}
+.qlabel{font-size:11px;font-weight:700;letter-spacing:.12em;color:#b07840;text-transform:uppercase;text-align:center;margin-bottom:8px}
+.qtitle{font-size:21px;color:#3a2008;text-align:center;margin-bottom:6px;line-height:1.4;font-style:italic;font-family:Georgia,serif}
+.qsub{font-size:13px;color:#a07040;text-align:center;margin-bottom:26px;line-height:1.55}
+.qcards{display:flex;flex-direction:column;gap:10px}
+.qcard{background:#fff;border:1.5px solid #e8d0a8;border-radius:16px;padding:15px 18px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:border-color .18s,background .18s,box-shadow .18s}
+.qcard:hover{border-color:#ff8a3d;background:#fffaf4}
+.qcard.selected{border-color:#ff8a3d;background:#fff6ec;box-shadow:0 0 0 3px #ffd0a840}
+.qcard-icon{font-size:28px;flex-shrink:0;line-height:1}
+.qcard-text{flex:1}
+.qcard-main{font-size:15px;color:#3a2008;font-family:Georgia,serif;font-style:italic;margin-bottom:2px}
+.qcard-hint{font-size:12px;color:#a07040;line-height:1.4}
+.qcard-check{width:24px;height:24px;border-radius:50%;border:1.5px solid #e0c898;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all .18s;color:#fff}
+.qcard.selected .qcard-check{background:#ff8a3d;border-color:#ff8a3d}
+
+/* Gender výběr */
+.gender-cards{display:flex;gap:14px}
+.gender-card{flex:1;background:#fff;border:1.5px solid #e8d0a8;border-radius:20px;padding:28px 16px;cursor:pointer;text-align:center;transition:border-color .18s,background .18s,box-shadow .18s}
+.gender-card:hover{border-color:#ff8a3d;background:#fffaf4}
+.gender-card.selected{border-color:#ff8a3d;background:#fff6ec;box-shadow:0 0 0 3px #ffd0a840}
+.gender-icon{font-size:40px;margin-bottom:10px}
+.gender-label{font-size:16px;color:#3a2008;font-family:Georgia,serif;font-style:italic;font-weight:700}
+
+/* Jméno input */
+.qname-wrap{position:relative;margin-bottom:4px}
+.qname{width:100%;background:#fff;border:1.5px solid #e8d0a8;border-radius:16px;padding:16px 20px;font-size:18px;font-family:Georgia,serif;font-style:italic;color:#3a2008;outline:none;transition:border-color .18s;text-align:center}
+.qname:focus{border-color:#ff8a3d}
+.qname::placeholder{color:#c8a878;font-style:italic}
+
+/* Textarea */
+.qtextarea-wrap{position:relative}
+.qtextarea{width:100%;background:#fff;border:1.5px solid #e8d0a8;border-radius:16px;padding:16px 18px;font-size:15px;font-family:Georgia,serif;font-style:italic;color:#3a2008;resize:vertical;min-height:130px;outline:none;line-height:1.6;transition:border-color .18s}
+.qtextarea:focus{border-color:#ff8a3d}
+.qtextarea::placeholder{color:#c8a878;font-style:italic}
+.qhints{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.qhint{background:#fff8ee;border:1px solid #e8d0a8;border-radius:999px;padding:6px 14px;font-size:12px;color:#a07040;cursor:pointer;transition:background .15s,border-color .15s;user-select:none}
+.qhint:hover{background:#ffecd6;border-color:#ff8a3d;color:#c06020}
+
+.qnav{display:flex;justify-content:space-between;align-items:center;margin-top:28px}
+.qbtn{border:none;border-radius:999px;padding:13px 30px;font-size:15px;cursor:pointer;font-family:Georgia,serif;font-style:italic;font-weight:700;transition:opacity .18s,transform .1s}
+.qbtn:active{transform:scale(.97)}
+.qbtn-back{background:transparent;color:#a07040;border:1.5px solid #e0c898;font-weight:400}
+.qbtn-back:hover{background:#f5e8d0}
+.qbtn-next{background:#ff8a3d;color:#fff}
+.qbtn-next:hover{background:#ff7a1f}
+.qbtn-next:disabled{background:#e8d0a8;color:#b8a080;cursor:default}
+.qstep{font-size:12px;color:#b07840;text-align:center}
+
+/* Email gate */
+.egate{text-align:center}
+.egate-icon{font-size:52px;margin-bottom:14px;line-height:1}
+.egate h2{font-family:Georgia,serif;font-size:22px;font-style:italic;color:#3a2008;margin-bottom:8px;font-weight:normal}
+.egate-sub{font-size:14px;color:#a07040;line-height:1.6;margin-bottom:28px}
+.egate-input{width:100%;background:#fff;border:1.5px solid #e8d0a8;border-radius:16px;padding:16px 18px;font-size:17px;font-family:Georgia,serif;color:#3a2008;outline:none;transition:border-color .18s;text-align:center}
+.egate-input:focus{border-color:#ff8a3d}
+.egate-input::placeholder{color:#c8a878;font-style:italic}
+.egate-btn{width:100%;margin-top:14px;background:#ff8a3d;color:#fff;border:none;border-radius:999px;padding:15px;font-size:16px;font-family:Georgia,serif;font-style:italic;font-weight:700;cursor:pointer;transition:background .18s}
+.egate-btn:hover{background:#ff7a1f}
+.egate-btn:disabled{background:#e8d0a8;color:#b8a080;cursor:default}
+.egate-err{color:#c03030;font-size:13px;margin-top:10px;min-height:18px}
+.egate-resend{background:none;border:none;color:#a07040;font-size:13px;cursor:pointer;text-decoration:underline;margin-top:10px}
+.egate-resend:hover{color:#ff8a3d}
+.otp-boxes{display:flex;gap:10px;justify-content:center;margin:20px 0}
+.otp-box{width:52px;height:64px;border:1.5px solid #e8d0a8;border-radius:14px;font-size:28px;font-weight:700;color:#3a2008;text-align:center;background:#fff;outline:none;transition:border-color .18s;font-family:Georgia,serif;caret-color:transparent}
+.otp-box:focus{border-color:#ff8a3d}
+</style>
+</head>
+<body>
+
+<div class="qwrap" id="quiz">
+  <div class="qprog" id="prog"></div>
+  <div id="qbody"></div>
+</div>
+
+<script>
+const steps = [
+  {
+    icon: "🌸", label: "Začínáme",
+    q: "Jak vás máme oslovovat?",
+    sub: "Váš profil bude osobní — začněme jménem.",
+    key: "jmeno",
+    name: true
+  },
+  {
+    icon: "🌸", label: "Kdo jste",
+    q: "Jste muž nebo žena?",
+    sub: "Ať vás profil oslovuje správně.",
+    key: "pohlavi",
+    gender: true
+  },
+  {
+    icon: "🌅", label: "Energie a pohyb",
+    q: "Jak vypadá váš den, pokud jde o pohyb?",
+    sub: "Každý pohyb se počítá.",
+    key: "pohyb",
+    cards: [
+      {icon:"🚶", main:"Hýbu se každý den", hint:"Procházka, cvičení, práce na zahradě…", val:3},
+      {icon:"🪑", main:"Občas se rozejdu", hint:"Záleží na náladě nebo počasí", val:2},
+      {icon:"😔", main:"Skoro se nehýbu", hint:"Chybí mi energie nebo motivace", val:1}
+    ]
+  },
+  {
+    icon: "☀️", label: "Energie a nálada",
+    q: "Jak se cítíte v průběhu dne?",
+    sub: "Buďte k sobě upřímní — tady je to bezpečné.",
+    key: "nalada",
+    cards: [
+      {icon:"😊", main:"Většinou dobře", hint:"Mám energii a chuť do věcí", val:3},
+      {icon:"😐", main:"Kolísám", hint:"Dny jsou různé — lepší i horší", val:2},
+      {icon:"😮‍💨", main:"Cítím se unavený/á", hint:"Nedostatek energie je moje každodenní téma", val:1}
+    ]
+  },
+  {
+    icon: "🤝", label: "Spojení s lidmi",
+    q: "Jak jste v kontaktu s druhými?",
+    sub: "Vztahy jsou jeden z pilířů vitality.",
+    key: "spojeni",
+    cards: [
+      {icon:"👥", main:"Jsem v živém kontaktu", hint:"Rodina, přátelé, komunita — jsem mezi lidmi", val:3},
+      {icon:"📱", main:"Spíše zpovzdálí", hint:"Voláme, píšeme, ale setkáváme se méně", val:2},
+      {icon:"🏠", main:"Jsem více sám/sama", hint:"Chybí mi blízkost s druhými", val:1}
+    ]
+  },
+  {
+    icon: "🌙", label: "Spánek a regenerace",
+    q: "Jaký je váš spánek?",
+    sub: "Spánek je základ všeho ostatního.",
+    key: "spanek",
+    cards: [
+      {icon:"😴", main:"Spím dobře", hint:"Usínám bez problémů, ráno vstávám svěží", val:3},
+      {icon:"🌛", main:"Spánek mám průměrný", hint:"Někdy se budím, ale ráno to ujde", val:2},
+      {icon:"😵", main:"Spánek mi nefunguje", hint:"Usínání, buzení nebo únava ráno", val:1}
+    ]
+  },
+  {
+    icon: "🌱", label: "Chuť do života",
+    q: "Jak velkou chuť máte dělat věci, které vás těší?",
+    sub: "Motivace se dá probudit — pojďme na to.",
+    key: "motivace",
+    cards: [
+      {icon:"🔥", main:"Těším se na dny", hint:"Mám plány, koníčky, co mě baví", val:3},
+      {icon:"🕯️", main:"Někdy ano, někdy ne", hint:"Záblesky radosti přicházejí a odcházejí", val:2},
+      {icon:"🌫️", main:"Chuť mi chybí", hint:"Nevím co chci — nebo k tomu nemám sílu", val:1}
+    ]
+  },
+  {
+    icon: "🎨", label: "Co vás baví",
+    q: "Co vás v životě těší nebo bavilo?",
+    sub: "Příroda, lidé, rukodělná práce, hudba, cestování, učení… Klidně víc věcí.",
+    key: "zalib",
+    cards: [
+      {icon:"🌿", main:"Příroda a pohyb venku", hint:"Výlety, zahrada, procházky, cyklistika…", val:"A,G"},
+      {icon:"👐", main:"Lidé a společnost", hint:"Přátelé, komunita, setkávání, pomoc druhým", val:"B,F"},
+      {icon:"🎭", main:"Kultura a zážitky", hint:"Divadlo, hudba, výstavy, filmy, cestování", val:"C,G"},
+      {icon:"🖐️", main:"Tvorba a řemeslo", hint:"Rukodělné práce, vaření, zahrada, opravování", val:"E,H"},
+      {icon:"📚", main:"Vzdělávání a projekty", hint:"Čtení, kurzy, počítač, nové věci, plánování", val:"D,I"}
+    ]
+  },
+  {
+    icon: "✍️", label: "Vaše slova",
+    q: "Napište nám o sobě cokoliv navíc",
+    sub: "Čím více nám sdělíte, tím přesnější profil dostanete. Vše je nepovinné.",
+    key: "text",
+    free: true
+  }
+];
+
+const HINTS = [
+  "Mám vnoučata a chtěl/a bych s nimi více zažívat",
+  "Chybí mi pravidelný pohyb, nevím kde začít",
+  "Rád/ráda tvořím rukama — šití, malování, dřevo…",
+  "Baví mě hudba, divadlo, výstavy",
+  "Chci se naučit pracovat s počítačem nebo AI",
+  "Mám zdravotní omezení, ale chci zůstat aktivní",
+  "Hledám lidi podobného věku a zájmů",
+  "Mám rád/ráda přírodu, výlety, procházky",
+  "Chtěl/a bych cestovat, ale nevím jak na to",
+  "Chci se lépe stravovat a zhubnout",
+  "Trápí mě osamělost nebo pocit zbytečnosti",
+  "Mám zálibu, o které bych chtěl/a vědět víc"
+];
+
+let cur = 0;
+let ans = new Array(steps.length).fill(null);
+
+function render() {
+  const s = steps[cur];
+  const totalVisible = steps.length;
+
+  document.getElementById('prog').innerHTML = steps.map((_, i) =>
+    `<div class="qdot${i < cur ? ' done' : i === cur ? ' active' : ''}"></div>`
+  ).join('');
+
+  let html = `<div class="qillus">${s.icon}</div>
+<div class="qlabel">${s.label}</div>
+<div class="qtitle">${s.q}</div>
+<div class="qsub">${s.sub}</div>`;
+
+  if (s.name) {
+    html += `<div class="qname-wrap">
+      <input class="qname" id="nameinput" type="text" maxlength="40"
+        placeholder="Vaše křestní jméno…" value="${ans[cur] || ''}"
+        oninput="ans[${cur}]=this.value.trim();updateNext()">
+    </div>`;
+  } else if (s.gender) {
+    const sel = ans[cur];
+    html += `<div class="gender-cards">
+      <div class="gender-card${sel==='muz' ? ' selected':''}" onclick="pickGender('muz')">
+        <div class="gender-icon">👨</div>
+        <div class="gender-label">Muž</div>
+      </div>
+      <div class="gender-card${sel==='zena' ? ' selected':''}" onclick="pickGender('zena')">
+        <div class="gender-icon">👩</div>
+        <div class="gender-label">Žena</div>
+      </div>
+    </div>`;
+  } else if (s.free) {
+    html += `<div class="qtextarea-wrap">
+      <textarea class="qtextarea" id="freetext"
+        placeholder="Napište cokoli — každé slovo pomáhá vytvořit přesnější profil…">${ans[cur] || ''}</textarea>
+      <div class="qhints" id="hints"></div>
+    </div>`;
+  } else {
+    html += `<div class="qcards">` + s.cards.map((c, i) => {
+      const sel = ans[cur] === i;
+      return `<div class="qcard${sel ? ' selected' : ''}" onclick="pick(${i})">
+        <span class="qcard-icon">${c.icon}</span>
+        <div class="qcard-text">
+          <div class="qcard-main">${c.main}</div>
+          <div class="qcard-hint">${c.hint}</div>
+        </div>
+        <div class="qcard-check">${sel ? '✓' : ''}</div>
+      </div>`;
+    }).join('') + `</div>`;
+  }
+
+  const canNext = s.name ? (ans[cur] && ans[cur].length > 0) :
+                  s.free ? true :
+                  ans[cur] !== null;
+  const isLast = cur === steps.length - 1;
+  html += `<div class="qnav">
+    <button class="qbtn qbtn-back" onclick="back()" style="${cur === 0 ? 'visibility:hidden' : ''}">← Zpět</button>
+    <span class="qstep">${cur + 1} / ${steps.length}</span>
+    <button class="qbtn qbtn-next" id="nextbtn" onclick="goNext()" ${!canNext ? 'disabled' : ''}>
+      ${isLast ? 'Zobrazit můj profil →' : 'Dál →'}
+    </button>
+  </div>`;
+
+  document.getElementById('qbody').innerHTML = html;
+
+  if (s.name) {
+    document.getElementById('nameinput').focus();
+    document.getElementById('nameinput').addEventListener('keydown', e => {
+      if (e.key === 'Enter' && ans[cur]) goNext();
+    });
+  }
+  if (s.free) {
+    document.getElementById('freetext').addEventListener('input', function() {
+      ans[cur] = this.value;
+    });
+    // Render hint chips
+    const hintsEl = document.getElementById('hints');
+    hintsEl.innerHTML = HINTS.map(h =>
+      `<span class="qhint" onclick="addHint(this,'${h.replace(/'/g,"\\'")}')">+ ${h}</span>`
+    ).join('');
+  }
+}
+
+function addHint(el, text) {
+  const ta = document.getElementById('freetext');
+  const sep = ta.value && !ta.value.endsWith(' ') && !ta.value.endsWith('\n') ? ' ' : '';
+  ta.value += sep + text + '. ';
+  ans[cur] = ta.value;
+  el.style.opacity = '0.4';
+  el.style.pointerEvents = 'none';
+}
+
+function updateNext() {
+  const btn = document.getElementById('nextbtn');
+  if (btn) btn.disabled = !(ans[cur] && ans[cur].length > 0);
+}
+
+function pickGender(v) { ans[cur] = v; render(); }
+function pick(i) { ans[cur] = i; render(); }
+function back() { if (cur > 0) { cur--; render(); } }
+
+function goNext() {
+  if (steps[cur].free) { ans[cur] = document.getElementById('freetext')?.value || ''; }
+  if (cur < steps.length - 1) {
+    cur++;
+    render();
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  } else {
+    showEmailGate();
+  }
+}
+
+// ── EMAIL GATE ──────────────────────────────────────────────
+let otpToken = '';
+let gateEmail = '';
+
+function showEmailGate() {
+  document.getElementById('quiz').innerHTML = `
+    <div class="egate">
+      <div class="egate-icon">✉️</div>
+      <h2>Téměř hotovo!</h2>
+      <p class="egate-sub">Zadejte svůj email a my vám zašleme ověřovací kód.<br>
+        Váš profil zobrazíme hned po ověření.</p>
+      <input class="egate-input" id="gateEmailInput" type="email"
+        placeholder="vas@email.cz" autocomplete="email">
+      <button class="egate-btn" id="gateSendBtn" onclick="sendOtp()">
+        Odeslat kód →
+      </button>
+      <div class="egate-err" id="gateErr"></div>
+    </div>`;
+  document.getElementById('gateEmailInput').focus();
+  document.getElementById('gateEmailInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') sendOtp();
+  });
+}
+
+async function sendOtp() {
+  const input = document.getElementById('gateEmailInput');
+  const btn   = document.getElementById('gateSendBtn');
+  const err   = document.getElementById('gateErr');
+  const email = input.value.trim().toLowerCase();
+  err.textContent = '';
+
+  if (!email || !email.includes('@') || !email.includes('.')) {
+    err.textContent = 'Zadejte platný email.';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Odesíláme…';
+
+  try {
+    const res  = await fetch('/api/send-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    const data = await res.json();
+    if (!res.ok) { err.textContent = data.error || 'Chyba. Zkuste to znovu.'; btn.disabled = false; btn.textContent = 'Odeslat kód →'; return; }
+    otpToken  = data.token;
+    gateEmail = email;
+    showOtpVerify();
+  } catch (_) {
+    err.textContent = 'Chyba připojení. Zkontrolujte internet.';
+    btn.disabled = false;
+    btn.textContent = 'Odeslat kód →';
+  }
+}
+
+function showOtpVerify() {
+  document.getElementById('quiz').innerHTML = `
+    <div class="egate">
+      <div class="egate-icon">🔐</div>
+      <h2>Zadejte kód z emailu</h2>
+      <p class="egate-sub">Odeslali jsme 6-místný kód na<br><strong>${gateEmail}</strong></p>
+      <div class="otp-boxes" id="otpBoxes">
+        <input class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]">
+        <input class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]">
+        <input class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]">
+        <input class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]">
+        <input class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]">
+        <input class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]">
+      </div>
+      <button class="egate-btn" id="otpVerifyBtn" onclick="verifyOtp()" disabled>
+        Potvrdit a zobrazit profil →
+      </button>
+      <div class="egate-err" id="otpErr"></div>
+      <button class="egate-resend" onclick="showEmailGate()">← Zadat jiný email</button>
+      &nbsp;·&nbsp;
+      <button class="egate-resend" onclick="resendOtp()">Odeslat kód znovu</button>
+    </div>`;
+  initOtpBoxes();
+}
+
+function initOtpBoxes() {
+  const boxes = Array.from(document.querySelectorAll('.otp-box'));
+  boxes.forEach((box, i) => {
+    box.addEventListener('input', e => {
+      const val = e.target.value.replace(/\D/g, '');
+      box.value = val ? val[val.length - 1] : '';
+      if (box.value && i < boxes.length - 1) boxes[i + 1].focus();
+      checkOtpComplete(boxes);
+    });
+    box.addEventListener('keydown', e => {
+      if (e.key === 'Backspace' && !box.value && i > 0) boxes[i - 1].focus();
+    });
+    box.addEventListener('paste', e => {
+      e.preventDefault();
+      const pasted = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '');
+      boxes.forEach((b, j) => { b.value = pasted[j] || ''; });
+      if (pasted.length >= 6) { boxes[5].focus(); checkOtpComplete(boxes); }
+      else if (pasted.length > 0) boxes[Math.min(pasted.length, 5)].focus();
+    });
+  });
+  boxes[0].focus();
+}
+
+function checkOtpComplete(boxes) {
+  const full = boxes.every(b => b.value);
+  document.getElementById('otpVerifyBtn').disabled = !full;
+}
+
+async function verifyOtp() {
+  const boxes  = Array.from(document.querySelectorAll('.otp-box'));
+  const otp    = boxes.map(b => b.value).join('');
+  const btn    = document.getElementById('otpVerifyBtn');
+  const err    = document.getElementById('otpErr');
+  err.textContent = '';
+
+  if (otp.length < 6) { err.textContent = 'Zadejte všech 6 číslic.'; return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Ověřujeme…';
+
+  try {
+    const res  = await fetch('/api/verify-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: gateEmail, otp, token: otpToken }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      err.textContent = data.error || 'Nesprávný kód.';
+      btn.disabled = false;
+      btn.textContent = 'Potvrdit a zobrazit profil →';
+      boxes.forEach(b => b.value = '');
+      boxes[0].focus();
+      return;
+    }
+    // OTP ok – ulož email a přejdi na výsledek
+    sessionStorage.setItem('ziju_email', gateEmail);
+    saveLead();
+    submitQuiz();
+  } catch (_) {
+    err.textContent = 'Chyba připojení. Zkuste to znovu.';
+    btn.disabled = false;
+    btn.textContent = 'Potvrdit a zobrazit profil →';
+  }
+}
+
+async function resendOtp() {
+  showEmailGate();
+  // Předvyplníme email
+  setTimeout(() => {
+    const input = document.getElementById('gateEmailInput');
+    if (input) { input.value = gateEmail; }
+  }, 50);
+}
+
+function saveLead() {
+  // Fire-and-forget – neblokuje přechod na profil
+  const jmeno   = ans[0] || '';
+  const pohlavi = ans[1] || 'muz';
+  const scores  = {};
+  steps.forEach((s, i) => {
+    if (i < 2) return;
+    if (!s.free && !s.gender && !s.name && ans[i] !== null) scores[s.key] = s.cards[ans[i]].val;
+    if (s.free) scores[s.key] = ans[i] || '';
+  });
+  const total = Object.values(scores).filter(v => typeof v === 'number').reduce((a, b) => a + b, 0);
+  fetch('/api/save-lead', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: gateEmail, jmeno, pohlavi, ...scores, total }),
+  }).catch(() => {});
+}
+
+function submitQuiz() {
+  const jmeno   = ans[0] || '';
+  const pohlavi = ans[1] || 'muz';
+  const scores  = {};
+  steps.forEach((s, i) => {
+    if (i < 2) return;
+    if (!s.free && !s.gender && !s.name && ans[i] !== null) scores[s.key] = s.cards[ans[i]].val;
+    if (s.free) scores[s.key] = ans[i] || '';
+  });
+  const total  = Object.values(scores).filter(v => typeof v === 'number').reduce((a, b) => a + b, 0);
+  const params = new URLSearchParams();
+  params.set('jmeno', jmeno);
+  params.set('pohlavi', pohlavi);
+  Object.entries(scores).forEach(([k, v]) => params.set(k, v));
+  params.set('total', total);
+  window.location.href = '/result.html?' + params.toString();
+}
+
+render();
+</script>
+</body>
+</html>
+

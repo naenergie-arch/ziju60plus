@@ -1,0 +1,47 @@
+.quiz-wrap {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 40px 24px 60px;
+}
+
+.quiz-wrap h1 {
+  text-align: center;
+  font-size: 26px;
+}
+
+fieldset {
+  border: 1px solid #d7e6ee;
+  border-radius: 16px;
+  background: #fff;
+  padding: 16px 20px;
+  margin-bottom: 18px;
+}
+
+legend {
+  font-weight: 600;
+  font-size: 18px;
+  padding: 0 6px;
+  color: #20323c;
+}
+
+label {
+  display: block;
+  font-size: 17px;
+  padding: 8px 0;
+  cursor: pointer;
+}
+
+input[type="radio"] {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+
+button.btn-start {
+  display: block;
+  width: 100%;
+  border: none;
+  cursor: pointer;
+  margin-top: 10px;
+}
