@@ -68,7 +68,7 @@ export async function onRequestPost(context) {
           Pokud jste o kód nežádali, tento email ignorujte.
         </p>
         <hr style="border:none;border-top:1px solid #edd8a8;margin:24px 0">
-        <p style="color:#c0a070;font-size:12px;margin:0">Tým Žiju 60 plus · ziju60plus.cz</p>
+        <p style="color:#c0a070;font-size:12px;margin:0">Tým Žiju60plus</p>
       </td></tr>
     </table>
   </td></tr>
