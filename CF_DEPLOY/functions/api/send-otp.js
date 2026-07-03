@@ -45,6 +45,7 @@ export async function onRequestPost(context) {
     },
     body: JSON.stringify({
       from: FROM_EMAIL,
+      reply_to: "info@ziju60plus.cz",
       to: email,
       subject: `${otp} – váš kód pro Žiju 60 plus`,
       html: `<!DOCTYPE html>
