@@ -1,0 +1,96 @@
+.result-wrap {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 40px 24px 60px;
+  text-align: center;
+}
+
+.result-wrap h1 {
+  font-size: 26px;
+  margin-bottom: 28px;
+}
+
+.insight-box {
+  background: linear-gradient(135deg, #fff7ec, #fff0e0);
+  border: 1px solid #ffd9a8;
+  border-radius: 18px;
+  padding: 22px 24px;
+  margin-bottom: 32px;
+  text-align: left;
+  font-size: 17px;
+  color: #5a3410;
+  min-height: 28px;
+}
+
+.insight-box .insight-loading {
+  text-align: center;
+  color: #8a6a45;
+  font-style: italic;
+  margin: 0;
+}
+
+.insight-box .insight-text {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.rows {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  text-align: left;
+}
+
+.card {
+  border-radius: 16px;
+  padding: 18px 18px;
+  border: 1px solid #c2e0fb;
+  background: #e0f2ff;
+  box-shadow: 0 3px 8px rgba(0,0,0,.06);
+}
+
+.card .h {
+  font-weight: 700;
+  margin: 0 0 8px;
+  color: #20323c;
+  font-size: 18px;
+}
+
+.card .benefit {
+  font-size: 14px;
+  color: #2a5a3a;
+  margin-top: 8px;
+}
+
+.card .links {
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.card .links a {
+  color: #0aa;
+  font-weight: 600;
+}
+
+.card p {
+  margin: 0;
+  font-size: 15px;
+}
+
+.note {
+  color: #4b5563;
+  margin-top: 24px;
+  font-size: 15px;
+}
+
+.btn-continue {
+  display: inline-block;
+  margin-top: 32px;
+  background: #0aa;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 600;
+  padding: 16px 40px;
+  border-radius: 999px;
+  text-decoration: none;
+}

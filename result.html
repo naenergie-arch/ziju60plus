@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Váš osobní profil – Žiju 60 plus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#fbf4e7;min-height:100vh;font-family:'Montserrat',sans-serif;color:#3a2008}
+
+/* ── LOADER ── */
+#loader{position:fixed;inset:0;background:#fbf4e7;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;transition:opacity .6s}
+#loader.hide{opacity:0;pointer-events:none}
+.loader-icon{font-size:52px;animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.8}50%{transform:scale(1.15);opacity:1}}
+.loader-text{margin-top:20px;font-size:15px;color:#a07040;font-family:Georgia,serif;font-style:italic;text-align:center;line-height:1.7}
+.loader-dots span{animation:blink 1.4s infinite both}
+.loader-dots span:nth-child(2){animation-delay:.2s}
+.loader-dots span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:0}40%{opacity:1}}
+
+/* ── LAYOUT ── */
+.page{max-width:640px;margin:0 auto;padding:32px 20px 80px}
+
+/* ── HEADER ── */
+.profile-header{text-align:center;padding:40px 24px 32px;background:linear-gradient(160deg,#fff8f0 0%,#ffecd6 100%);border-radius:28px;border:1.5px solid #f0ddb8;margin-bottom:24px;position:relative;overflow:hidden}
+.profile-header::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:radial-gradient(circle,#ffd0a830 0%,transparent 70%);pointer-events:none}
+.profile-badge{display:inline-flex;align-items:center;gap:8px;background:#fff8ee;border:1px solid #e8d0a8;border-radius:999px;padding:6px 16px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#b07840;margin-bottom:20px}
+.profile-greeting{font-size:28px;font-family:Georgia,serif;font-style:italic;color:#3a2008;line-height:1.3;margin-bottom:12px}
+.profile-date{font-size:12px;color:#b07840;margin-bottom:24px}
+.vitality-bars{display:flex;gap:10px;justify-content:center;margin-bottom:8px}
+.vbar-wrap{display:flex;flex-direction:column;align-items:center;gap:6px}
+.vbar-label{font-size:10px;font-weight:600;color:#b07840;text-transform:uppercase;letter-spacing:.06em}
+.vbar-bg{width:36px;height:80px;background:#f0ddb8;border-radius:18px;position:relative;overflow:hidden}
+.vbar-fill{position:absolute;bottom:0;left:0;right:0;border-radius:18px;transition:height 1s cubic-bezier(.4,0,.2,1)}
+.vbar-icon{font-size:16px}
+
+/* ── POSTŘEH ── */
+.postreh-card{background:#fff;border:1.5px solid #e8d0a8;border-radius:22px;padding:28px 24px;margin-bottom:20px;position:relative}
+.postreh-card::before{content:'"';position:absolute;top:12px;left:20px;font-size:72px;font-family:Georgia,serif;color:#ffd0a8;line-height:1;pointer-events:none}
+.postreh-text{font-size:16px;font-family:Georgia,serif;font-style:italic;color:#3a2008;line-height:1.75;padding-top:28px}
+.silna-box{display:flex;gap:12px;margin-top:20px;padding-top:20px;border-top:1px solid #f0ddb8}
+.silna-item{flex:1;background:#f8f4ee;border-radius:14px;padding:14px 16px}
+.silna-klic{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#b07840;margin-bottom:6px}
+.silna-val{font-size:13px;color:#3a2008;line-height:1.5;font-family:Georgia,serif;font-style:italic}
+
+/* ── TÝDENNÍ TÉMA ── */
+.tema-header{text-align:center;margin:28px 0 16px}
+.tema-tag{display:inline-block;background:#ff8a3d;color:#fff;border-radius:999px;padding:8px 22px;font-size:13px;font-weight:700;letter-spacing:.04em}
+.tema-sub{font-size:13px;color:#a07040;margin-top:8px}
+
+/* ── DOPORUČENÍ ── */
+.rec-list{display:flex;flex-direction:column;gap:14px;margin-bottom:32px}
+.rec-card{background:#fff;border:1.5px solid #e8d0a8;border-radius:20px;padding:20px;display:flex;gap:16px;align-items:flex-start;transition:box-shadow .18s,border-color .18s}
+.rec-card:hover{border-color:#ff8a3d;box-shadow:0 4px 20px #ff8a3d18}
+.rec-num{width:36px;height:36px;border-radius:50%;background:#fff8ee;border:1.5px solid #e8d0a8;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#b07840;flex-shrink:0}
+.rec-body{flex:1}
+.rec-top{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.rec-icon{font-size:24px}
+.rec-title{font-size:15px;font-family:Georgia,serif;font-style:italic;color:#3a2008;font-weight:700}
+.rec-desc{font-size:13px;color:#6b4c2a;line-height:1.6}
+.rec-kat{display:inline-block;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#b07840;margin-top:8px;background:#f8f0e4;border-radius:6px;padding:3px 8px}
+
+/* ── CENÍK ── */
+.cenik-section{margin-top:8px}
+.cenik-title{font-size:20px;font-family:Georgia,serif;font-style:italic;color:#3a2008;text-align:center;margin-bottom:8px}
+.cenik-sub{font-size:14px;color:#a07040;text-align:center;line-height:1.6;margin-bottom:24px}
+.price-cards{display:flex;flex-direction:column;gap:14px}
+.price-card{background:#fff;border:1.5px solid #e8d0a8;border-radius:20px;padding:22px 20px;position:relative}
+.price-card.featured{border-color:#ff8a3d;box-shadow:0 4px 24px #ff8a3d22}
+.price-badge-top{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#ff8a3d;color:#fff;font-size:11px;font-weight:700;border-radius:999px;padding:4px 14px;white-space:nowrap}
+.price-name{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#b07840;margin-bottom:6px}
+.price-amount{font-size:28px;font-weight:700;color:#3a2008;margin-bottom:4px}
+.price-amount span{font-size:14px;font-weight:400;color:#a07040}
+.price-desc{font-size:13px;color:#6b4c2a;line-height:1.5;margin-bottom:16px}
+.price-btn{display:block;width:100%;background:#ff8a3d;color:#fff;border:none;border-radius:999px;padding:13px;font-size:15px;font-family:Georgia,serif;font-style:italic;font-weight:700;cursor:pointer;text-align:center;transition:background .18s}
+.price-btn:hover{background:#ff7a1f}
+.price-card.featured .price-btn{background:#3a2008}
+.price-card.featured .price-btn:hover{background:#5a3018}
+.price-note{text-align:center;font-size:12px;color:#b07840;margin-top:20px}
+
+/* ── NOTICE ── */
+.saved-notice{background:#f0f8f0;border:1px solid #b8d8b8;border-radius:14px;padding:12px 18px;font-size:13px;color:#3a6030;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.saved-notice a{color:#ff8a3d;font-weight:600;white-space:nowrap;text-decoration:none;font-size:12px}
+.saved-notice a:hover{text-decoration:underline}
+
+@media(max-width:480px){
+  .vitality-bars{gap:6px}
+  .vbar-bg{width:28px;height:64px}
+  .profile-greeting{font-size:22px}
+  .silna-box{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<div id="loader">
+  <div class="loader-icon">🌸</div>
+  <div class="loader-text">
+    Čteme vaše odpovědi a připravujeme váš profil<br>
+    <span class="loader-dots"><span>.</span><span>.</span><span>.</span></span>
+  </div>
+</div>
+
+<div class="page" id="page" style="display:none">
+  <div id="savedNotice"></div>
+  <div id="profileHeader" class="profile-header"></div>
+  <div id="postreh" class="postreh-card" style="display:none"></div>
+  <div id="temaWrap" class="tema-header" style="display:none"></div>
+  <div id="recList" class="rec-list"></div>
+  <div id="cenikSection" class="cenik-section" style="display:none"></div>
+</div>
+
+<script>
+const STORAGE_KEY = 'ziju60_profil';
+
+const KAT_LABELS = {
+  pohyb:'Pohyb', lide:'Lidé a vztahy', kultura:'Kultura',
+  tvorba:'Tvorba', vzdelani:'Vzdělávání', priroda:'Příroda',
+  rodina:'Rodina', spanek:'Spánek', jidlo:'Stravování', smysl:'Smysl života'
+};
+
+// ── Vokativ (5. pád) pro česká jména ──────────────────────────────
+function toVokativ(jmeno, jeZena) {
+  if (!jmeno) return '';
+  const j = jmeno.trim();
+  const low = j.toLowerCase();
+
+  // Lookup table pro nejčastější jména (muž → vokativ)
+  const muzLookup = {
+    'jan':'Jane','josef':'Josefe','petr':'Petře','pavel':'Pavle',
+    'martin':'Martine','tomáš':'Tomáši','ondřej':'Ondřeji','jakub':'Jakube',
+    'lukáš':'Lukáši','michal':'Michale','david':'Davide','karel':'Karle',
+    'jiří':'Jiří','miroslav':'Miroslav','zdeněk':'Zdeňku','vladimír':'Vladimíre',
+    'robert':'Roberte','richard':'Richarde','milan':'Milane','libor':'Libore',
+    'roman':'Romane','marek':'Marku','filip':'Filipe','radek':'Radku',
+    'tomáš':'Tomáši','stanislav':'Stanislave','jaroslav':'Jaroslav',
+    'ladislav':'Ladislave','václav':'Václave','františek':'Františku',
+  };
+  // Lookup pro ženská jména
+  const zenaLookup = {
+    'jana':'Jano','marie':'Marie','eva':'Evo','petra':'Petro','lenka':'Lenko',
+    'monika':'Moniko','jitka':'Jitko','anna':'Anno','alena':'Aleno','věra':'Věro',
+    'helena':'Heleno','hana':'Hano','irena':'Ireno','kateřina':'Kateřino',
+    'lucie':'Lucie','markéta':'Markéto','tereza':'Terezo','zuzana':'Zuzano',
+    'martina':'Martino','ivana':'Ivano','dagmar':'Dagmar','ilona':'Ilono',
+    'radka':'Radko','renata':'Renato','miroslava':'Miroslavo','jiřina':'Jiřino',
+  };
+
+  if (jeZena && zenaLookup[low]) return zenaLookup[low];
+  if (!jeZena && muzLookup[low]) return muzLookup[low];
+
+  // Obecná pravidla
+  if (low.endsWith('a') && !jeZena) return j.slice(0,-1) + 'o'; // Míla→Mílo, Honza→Honzo
+  if (low.endsWith('a')) return j.slice(0,-1) + 'o'; // ženy: Jana→Jano
+  if (!jeZena) {
+    // Muž končící na souhlásku → přidej -e s palatalizací
+    if (low.endsWith('k')) return j.slice(0,-1) + 'ku';
+    if (low.endsWith('h') || low.endsWith('g')) return j.slice(0,-1) + 'hu';
+    if (low.endsWith('r')) return j + 'e';
+    if (low.endsWith('l')) return j + 'e';
+    if (low.endsWith('n')) return j + 'e';
+    if (low.endsWith('t')) return j + 'e';
+    if (low.endsWith('d')) return j + 'e';
+    if (low.endsWith('b')) return j + 'e';
+    if (low.endsWith('p')) return j + 'e';
+    if (low.endsWith('v')) return j + 'e';
+    if (low.endsWith('f')) return j + 'e';
+    if (low.endsWith('š') || low.endsWith('č') || low.endsWith('ž')) return j + 'i';
+  }
+  return j; // fallback – ponech jak je
+}
+
+function barColor(val) {
+  if (val >= 3) return '#52c060';
+  if (val >= 2) return '#ff8a3d';
+  return '#e05050';
+}
+function barHeight(val) { return Math.round((val / 3) * 100) + '%'; }
+
+// URL params
+const params = new URLSearchParams(location.search);
+const urlJmeno   = params.get('jmeno') || '';
+const urlPohlavi = params.get('pohlavi') || 'muz';
+const urlPohyb    = parseInt(params.get('pohyb'))    || 2;
+const urlNalada   = parseInt(params.get('nalada'))   || 2;
+const urlSpojeni  = parseInt(params.get('spojeni'))  || 2;
+const urlSpanek   = parseInt(params.get('spanek'))   || 2;
+const urlMotivace = parseInt(params.get('motivace')) || 2;
+const urlText     = params.get('text') || '';
+const urlZalib    = params.get('zalib') || '';
+
+// Uložený profil
+function loadSaved() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const obj = JSON.parse(raw);
+    if (Date.now() - (obj.ts||0) > 7*24*3600*1000) return null;
+    return obj;
+  } catch { return null; }
+}
+function saveProfile(data) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({...data, ts:Date.now()})); } catch {}
+}
+function clearSaved() {
+  try { localStorage.removeItem(STORAGE_KEY); } catch {}
+}
+
+// Render header – vždy z dat profilu (ne URL)
+function renderHeader(data) {
+  const jmeno   = data.jmeno   || urlJmeno;
+  const pohlavi = data.pohlavi || urlPohlavi;
+  const jeZena  = pohlavi === 'zena';
+  const vok     = toVokativ(jmeno, jeZena);
+  const osloveni = vok
+    ? (jeZena ? `milá ${vok}` : `milý ${vok}`)
+    : (jeZena ? 'milá čtenářko' : 'milý čtenáři');
+
+  // Skóre z dat (uložena při generování)
+  const pohyb    = data.pohyb    ?? urlPohyb;
+  const nalada   = data.nalada   ?? urlNalada;
+  const spojeni  = data.spojeni  ?? urlSpojeni;
+  const spanek   = data.spanek   ?? urlSpanek;
+  const motivace = data.motivace ?? urlMotivace;
+
+  const vitals = [
+    {label:'Pohyb',  val:pohyb,    icon:'🚶'},
+    {label:'Nálada', val:nalada,   icon:'☀️'},
+    {label:'Lidé',   val:spojeni,  icon:'🤝'},
+    {label:'Spánek', val:spanek,   icon:'🌙'},
+    {label:'Chuť',   val:motivace, icon:'🌱'},
+  ];
+  const dateStr = new Date(data.ts || Date.now()).toLocaleDateString('cs-CZ',{day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('profileHeader').innerHTML = `
+    <div class="profile-badge">🌸 Osobní profil vitality</div>
+    <div class="profile-greeting">Dobrý den, ${osloveni}!</div>
+    <div class="profile-date">Váš profil ze dne ${dateStr}</div>
+    <div class="vitality-bars">
+      ${vitals.map(v=>`
+        <div class="vbar-wrap">
+          <div class="vbar-icon">${v.icon}</div>
+          <div class="vbar-bg"><div class="vbar-fill" style="height:${barHeight(v.val)};background:${barColor(v.val)}"></div></div>
+          <div class="vbar-label">${v.label}</div>
+        </div>`).join('')}
+    </div>`;
+}
+
+function renderPostreh(data) {
+  const el = document.getElementById('postreh');
+  el.style.display = '';
+  el.innerHTML = `
+    <div class="postreh-text">${data.postreh||''}</div>
+    <div class="silna-box">
+      <div class="silna-item">
+        <div class="silna-klic">✨ Vaše silná stránka</div>
+        <div class="silna-val">${data.silna_stranka||''}</div>
+      </div>
+      <div class="silna-item">
+        <div class="silna-klic">🌱 Největší příležitost</div>
+        <div class="silna-val">${data.prilezitost||''}</div>
+      </div>
+    </div>`;
+}
+
+function renderTema(data) {
+  const el = document.getElementById('temaWrap');
+  el.style.display = '';
+  el.innerHTML = `
+    <div class="tema-tag">🗓 ${data.tydenni_tema||'Váš první týden'}</div>
+    <div class="tema-sub">Inspirace na příštích 7 dní z Knihovny života – vyberte si, co vám sedí</div>`;
+}
+
+function renderRec(data) {
+  const el = document.getElementById('recList');
+  const items = (data.doporuceni||[]).slice(0,5);
+  el.innerHTML = items.map((r,i)=>`
+    <div class="rec-card">
+      <div class="rec-num">${i+1}</div>
+      <div class="rec-body">
+        <div class="rec-top">
+          <span class="rec-icon">${r.ikona||'🌸'}</span>
+          <span class="rec-title">${r.nazev||''}</span>
+        </div>
+        <div class="rec-desc">${r.popis||''}</div>
+        ${r.kat?`<span class="rec-kat">${KAT_LABELS[r.kat]||r.kat}</span>`:''}
+      </div>
+    </div>`).join('');
+}
+
+function renderCenik() {
+  const el = document.getElementById('cenikSection');
+  el.style.display = '';
+  el.innerHTML = `
+    <div class="cenik-title">Chcete nový profil každý týden?</div>
+    <div class="cenik-sub">S předplatným dostanete každý týden aktualizovaná doporučení<br>přesně pro vás. Prvních 7 dní zdarma.</div>
+    <div class="price-cards">
+      <div class="price-card featured">
+        <div class="price-badge-top">⭐ Nejoblíbenější</div>
+        <div class="price-name">7 dní zdarma → 30 dní</div>
+        <div class="price-amount">299 Kč <span>/ měsíc</span></div>
+        <div class="price-desc">Zkuste bez rizika. Zrušit můžete kdykoliv před koncem zkušební doby.</div>
+        <button class="price-btn" data-plan="trial30">Začít zdarma →</button>
+      </div>
+      <div class="price-card featured" style="margin-top:8px">
+        <div class="price-badge-top">💚 Nejlepší hodnota</div>
+        <div class="price-name">7 dní zdarma → 90 dní</div>
+        <div class="price-amount">699 Kč <span>/ 3 měsíce</span></div>
+        <div class="price-desc">Tři měsíce doporučení, statistik a průvodce Knihovnou života.</div>
+        <button class="price-btn" data-plan="trial90">Začít zdarma →</button>
+      </div>
+    </div>
+    <div class="price-note">💾 Váš profil je uložen v tomto prohlížeči po dobu 7 dní</div>`;
+
+  // Wire checkout buttons
+  el.querySelectorAll('[data-plan]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      btn.textContent = 'Přesměrováváme…';
+      btn.disabled = true;
+      try {
+        const r = await fetch('/api/create-checkout', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({plan: btn.dataset.plan})
+        });
+        const d = await r.json();
+        if (d.url) window.location.href = d.url;
+        else throw new Error(d.error || 'Chyba');
+      } catch(e) {
+        btn.textContent = 'Chyba – zkuste znovu';
+        btn.disabled = false;
+      }
+    });
+  });
+}
+
+async function generateProfile() {
+  const answers = {
+    jmeno: urlJmeno, pohlavi: urlPohlavi,
+    pohyb: urlPohyb, nalada: urlNalada, spojeni: urlSpojeni,
+    spanek: urlSpanek, motivace: urlMotivace, text: urlText, zalib: urlZalib
+  };
+  const res = await fetch('/api/diagnosticky-postreh', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({answers})
+  });
+  if (!res.ok) throw new Error('AI chyba ' + res.status);
+  const data = await res.json();
+  // Ulož i skóre do profilu
+  return {
+    ...data,
+    jmeno: urlJmeno, pohlavi: urlPohlavi,
+    pohyb: urlPohyb, nalada: urlNalada, spojeni: urlSpojeni,
+    spanek: urlSpanek, motivace: urlMotivace
+  };
+}
+
+async function init() {
+  const saved = loadSaved();
+
+  // Pokud přišel z kvízu (má URL params s jménem) a uložený profil je JINÉHO člověka → vygeneruj nový
+  const savedName = saved?.jmeno || '';
+  const hasNewParams = urlJmeno && (urlJmeno !== savedName || !saved?.postreh);
+
+  if (saved && saved.postreh && !hasNewParams) {
+    const expiry = new Date(saved.ts + 7*24*3600*1000).toLocaleDateString('cs-CZ');
+    document.getElementById('savedNotice').innerHTML = `
+      <div class="saved-notice">
+        💾 Zobrazujeme váš uložený profil. Platí do ${expiry}.
+        <a href="/quiz.html" onclick="localStorage.removeItem('${STORAGE_KEY}')">Vytvořit nový profil →</a>
+      </div>`;
+    showProfile(saved);
+    return;
+  }
+
+  // Vygeneruj nový
+  try {
+    const data = await generateProfile();
+    saveProfile(data);
+    showProfile(data);
+  } catch(e) {
+    document.getElementById('loader').innerHTML = `
+      <div style="text-align:center;padding:40px 20px">
+        <div style="font-size:40px;margin-bottom:16px">😔</div>
+        <div style="font-size:16px;color:#a07040;font-family:Georgia,serif;font-style:italic">
+          Omlouváme se, profil se nepodařilo načíst.<br>
+          <a href="/quiz.html" style="color:#ff8a3d">Zkuste to znovu →</a>
+        </div>
+      </div>`;
+  }
+}
+
+function showProfile(data) {
+  renderHeader(data);
+  renderPostreh(data);
+  renderTema(data);
+  renderRec(data);
+  renderCenik();
+  document.getElementById('page').style.display = '';
+  const loader = document.getElementById('loader');
+  loader.classList.add('hide');
+  setTimeout(()=>loader.style.display='none', 700);
+  window.scrollTo({top:0});
+}
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+[build]
+  functions = "netlify/functions"
+  publish = "."
+
+[[redirects]]
+  from = "/api/create-checkout"
+  to = "/.netlify/functions/create-checkout"
+  status = 200
+
+[[redirects]]
+  from = "/api/stripe-webhook"
+  to = "/.netlify/functions/stripe-webhook"
+  status = 200
+
+[[redirects]]
+  from = "/api/diagnosticky-postreh"
+  to = "/.netlify/functions/diagnosticky-postreh"
+  status = 200
+
+[[redirects]]
+  from = "/api/customer-portal"
+  to = "/.netlify/functions/customer-portal"
+  status = 200
+
+[[redirects]]
+  from = "/api/get-session"
+  to = "/.netlify/functions/get-session"
+  status = 200

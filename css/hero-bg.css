@@ -1,0 +1,153 @@
+body.bg-hero {
+  margin: 0;
+  min-height: 100vh;
+}
+
+.hero-bg {
+  position: relative;
+  max-width: 1080px;
+  height: 820px;
+  margin: 0 auto;
+  overflow: hidden;
+  border-radius: 0 0 28px 28px;
+}
+
+/* Koláž jako absolutní vrstva za obsahem */
+.collage-grid {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 4px;
+}
+
+.hero-bg .collage-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 25%;
+  display: block;
+}
+
+.hero-bg .collage-photo:nth-child(3) {
+  object-position: center 35%;
+}
+
+.hero-bg-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  max-width: 620px;
+  width: 88%;
+  margin: 0 auto;
+  padding: 40px 32px 36px;
+  text-align: center;
+  color: #3a1a00;
+  background: rgba(255, 248, 234, .82);
+  backdrop-filter: blur(16px) saturate(130%);
+  -webkit-backdrop-filter: blur(16px) saturate(130%);
+  border-radius: 28px;
+  border: 1.5px solid rgba(240, 192, 96, .55);
+  box-shadow: 0 12px 40px rgba(100,60,0,.18);
+}
+
+.hero-bg-content .logo {
+  width: 110px;
+  margin: 0 auto 18px;
+  display: block;
+  filter: drop-shadow(0 2px 8px rgba(180,100,0,.2));
+}
+
+.hero-bg-content h1 {
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 14px;
+  color: #c05000;
+  text-shadow: none;
+}
+
+.hero-bg-content p {
+  font-size: 18px;
+  margin-bottom: 28px;
+  color: #6b3a10;
+  text-shadow: none;
+  font-style: italic;
+}
+
+.hero-bg-content .btn-start {
+  display: inline-block;
+  background: #ff8a3d;
+  color: #fff;
+  font-size: 19px;
+  font-weight: 700;
+  padding: 16px 44px;
+  border-radius: 999px;
+  text-decoration: none;
+  box-shadow: 0 6px 20px rgba(200,80,0,.25);
+}
+
+.hero-bg-content .btn-start:hover {
+  background: #ff7a1f;
+}
+
+.variant-label {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 3;
+  background: rgba(255,255,255,.9);
+  color: #20323c;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 14px;
+}
+
+@media (max-width: 640px) {
+  /* Na mobilu: obsah nahoře, koláž dole – žádné překrývání */
+  .hero-bg {
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    border-radius: 0;
+    overflow: hidden;
+  }
+
+  /* Obsah jde první (order -1) */
+  .hero-bg-content {
+    order: -1;
+    position: relative;
+    top: auto; left: auto;
+    transform: none;
+    width: 100%;
+    max-width: 100%;
+    padding: 36px 22px 32px;
+    border-radius: 0;
+    border: none;
+    background: #fff8ea;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow: none;
+    border-bottom: 1.5px solid #f0ddb8;
+  }
+
+  .hero-bg-content h1 {
+    font-size: 26px;
+  }
+
+  .hero-bg-content .logo {
+    width: 84px;
+  }
+
+  /* Koláž pod obsahem – kompaktní výška */
+  .collage-grid {
+    position: relative;
+    inset: auto;
+    height: 280px;
+    order: 0;
+    overflow: hidden;
+  }
+}

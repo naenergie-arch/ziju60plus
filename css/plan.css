@@ -1,0 +1,57 @@
+.plan-wrap {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 40px 24px 60px;
+  text-align: center;
+}
+
+.plan-wrap h1 {
+  font-size: 26px;
+  margin-bottom: 28px;
+}
+
+.days {
+  display: grid;
+  gap: 14px;
+  text-align: left;
+}
+
+.day-card {
+  border-radius: 16px;
+  padding: 16px 18px;
+  border: 1px solid #d7e6ee;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  box-shadow: 0 3px 8px rgba(0,0,0,.05);
+}
+
+.day-card.done {
+  background: #e6f8ee;
+  border-color: #b8e6c9;
+}
+
+.day-card .label {
+  flex: 1;
+}
+
+.day-card .day-name {
+  font-weight: 700;
+  font-size: 16px;
+  color: #20323c;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.day-card .task {
+  font-size: 15px;
+  color: #3a4a55;
+}
+
+.day-card input[type="checkbox"] {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}

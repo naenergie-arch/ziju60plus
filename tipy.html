@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Archiv tipů – Žiju 60 plus</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Montserrat', sans-serif;
+  background: #fbf4e7;
+  color: #3a2008;
+  min-height: 100vh;
+}
+
+/* HEADER */
+.arch-header {
+  background: #2a1a08;
+  padding: 20px 24px;
+  text-align: center;
+}
+.arch-header a {
+  color: #f0c870;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: .05em;
+}
+.arch-header a:hover { text-decoration: underline; }
+.arch-logo {
+  color: #f0c870;
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+/* HERO */
+.arch-hero {
+  text-align: center;
+  padding: 48px 24px 32px;
+  background: linear-gradient(180deg, #fff8ee 0%, #fbf4e7 100%);
+  border-bottom: 1px solid #edd8a8;
+}
+.arch-hero h1 {
+  font-family: Georgia, serif;
+  font-size: 28px;
+  font-style: italic;
+  font-weight: normal;
+  color: #3a2008;
+  margin-bottom: 10px;
+}
+.arch-hero p {
+  font-size: 15px;
+  color: #7a5030;
+  max-width: 500px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+.arch-count {
+  display: inline-block;
+  margin-top: 16px;
+  background: #f0c870;
+  color: #3a1a00;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 6px 18px;
+  border-radius: 999px;
+}
+
+/* GRID */
+.arch-grid {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 32px 20px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tip-card {
+  background: #fff9ee;
+  border: 1.5px solid #edd8a8;
+  border-radius: 16px;
+  padding: 22px 24px;
+  box-shadow: 0 2px 10px rgba(160,100,0,.07);
+}
+.tip-card-date {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #b07840;
+  margin-bottom: 8px;
+}
+.tip-card-text {
+  font-size: 16px;
+  color: #3a2008;
+  line-height: 1.65;
+  margin-bottom: 12px;
+  font-family: Georgia, serif;
+  font-style: italic;
+}
+.tip-card-source {
+  font-size: 13px;
+  color: #1a6a9a;
+}
+.tip-card-source a {
+  color: #1a6a9a;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.tip-card-translate {
+  display: block;
+  font-size: 11px;
+  color: #aaa;
+  font-style: italic;
+  margin-top: 4px;
+}
+
+/* TODAY badge */
+.tip-card--today {
+  border-color: #f0c060;
+  background: linear-gradient(135deg, #fffde8, #fff9ee);
+  box-shadow: 0 4px 20px rgba(200,150,0,.15);
+}
+.tip-card--today .tip-card-date {
+  color: #c07000;
+}
+
+.loading {
+  text-align: center;
+  padding: 60px 24px;
+  color: #b07840;
+  font-size: 16px;
+  font-style: italic;
+}
+
+.arch-back {
+  text-align: center;
+  padding: 0 0 40px;
+}
+.arch-back a {
+  color: #1a6a9a;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.arch-back a:hover { text-decoration: underline; }
+
+@media (max-width: 600px) {
+  .arch-hero h1 { font-size: 22px; }
+  .tip-card-text { font-size: 15px; }
+}
+</style>
+</head>
+<body>
+
+<header class="arch-header">
+  <div class="arch-logo">Žiju 60 plus</div>
+  <a href="/">← Zpět na hlavní stránku</a>
+</header>
+
+<div class="arch-hero">
+  <h1>Moudrosti na zlatém podnosu</h1>
+  <p>Každý den jeden příspěvek ze světových zdrojů. Tady najdete všechny, které již byly zobrazeny.</p>
+  <div class="arch-count" id="archCount">Načítáme…</div>
+</div>
+
+<div class="arch-grid" id="archGrid">
+  <div class="loading">Načítáme tipy…</div>
+</div>
+
+<div class="arch-back">
+  <a href="/">← Zpět na hlavní stránku</a>
+</div>
+
+<script>
+const TIPY_SHEET_ID = "1_bDZt1PwvIZgkIKVUJBEr8fk4477JHiEsZgQJRTge0U";
+const TIPY_SHEET_NAME = "Typy dne";
+const LAUNCH_DATE = new Date("2026-07-01");
+
+function tipyCsvUrl() {
+  return "https://docs.google.com/spreadsheets/d/" + TIPY_SHEET_ID +
+    "/gviz/tq?tqx=out:csv&sheet=" + encodeURIComponent(TIPY_SHEET_NAME);
+}
+
+function parseTipyCSV(text) {
+  const rows = [];
+  let row = [], cell = "", q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i], n = text[i + 1];
+    if (c === '"') {
+      if (q && n === '"') { cell += '"'; i++; }
+      else q = !q;
+    } else if (c === "," && !q) {
+      row.push(cell); cell = "";
+    } else if ((c === "\n" || c === "\r") && !q) {
+      if (cell !== "" || row.length) { row.push(cell); rows.push(row.slice()); }
+      row.length = 0; cell = "";
+    } else {
+      cell += c;
+    }
+  }
+  if (cell !== "" || row.length) { row.push(cell); rows.push(row); }
+  if (!rows.length) return [];
+  const header = rows[0];
+  return rows.slice(1).map(r => {
+    const obj = {};
+    header.forEach((h, idx) => obj[h.trim()] = (r[idx] || "").trim());
+    return obj;
+  });
+}
+
+function daysSinceLaunch() {
+  return Math.max(0, Math.floor((new Date() - LAUNCH_DATE) / 86400000));
+}
+
+function formatDate(daysOffset) {
+  const d = new Date(LAUNCH_DATE);
+  d.setDate(d.getDate() + daysOffset);
+  return d.toLocaleDateString("cs-CZ", { day: "numeric", month: "long", year: "numeric" });
+}
+
+async function loadArchive() {
+  const grid = document.getElementById("archGrid");
+  const countEl = document.getElementById("archCount");
+  try {
+    const res = await fetch(tipyCsvUrl());
+    const text = await res.text();
+    const rows = parseTipyCSV(text).filter(r => r.Text);
+    if (!rows.length) { grid.innerHTML = "<div class='loading'>Žádné tipy nenalezeny.</div>"; return; }
+
+    const days = daysSinceLaunch();
+    const todayIdx = days % rows.length;
+
+    // Sestavíme seznam zobrazených tipů (dnes + minulé), od nejnovějšího
+    const shown = [];
+    for (let d = days; d >= 0; d--) {
+      const idx = d % rows.length;
+      shown.push({ day: d, tip: rows[idx] });
+    }
+
+    const n = shown.length;
+    const tvar = n === 1 ? "příspěvek" : n <= 4 ? "příspěvky" : "příspěvků";
+    countEl.textContent = `Celkem zobrazeno: ${n} ${tvar}`;
+
+    grid.innerHTML = shown.map(({ day, tip }) => {
+      const isToday = day === days;
+      const zdrojUrl   = tip.Zdroj_URL || tip.Zdroj_url || tip.URL || "";
+      const zdrojNazev = tip.Zdroj_nazev || tip.Zdroj || "vědecká studie";
+      const dateLabel  = isToday ? "Příspěvek ze dne " + formatDate(day) : formatDate(day);
+
+      let sourceHtml = "";
+      if (zdrojUrl) {
+        sourceHtml = `Zdroj: <a href="${zdrojUrl}" target="_blank" rel="noopener">${zdrojNazev}</a>
+          <span class="tip-card-translate">Stránka je v angličtině – Chrome a Edge ji přeloží automaticky.</span>`;
+      } else if (zdrojNazev) {
+        sourceHtml = `Zdroj: ${zdrojNazev}`;
+      }
+
+      return `
+        <div class="tip-card${isToday ? " tip-card--today" : ""}">
+          <div class="tip-card-date">${isToday ? "✦ " : ""}${dateLabel}</div>
+          <div class="tip-card-text">${tip.Text}</div>
+          ${sourceHtml ? `<div class="tip-card-source">${sourceHtml}</div>` : ""}
+        </div>`;
+    }).join("");
+
+  } catch (e) {
+    grid.innerHTML = "<div class='loading'>Tipy se nepodařilo načíst. Zkuste to prosím znovu.</div>";
+  }
+}
+
+loadArchive();
+</script>
+</body>
+</html>
