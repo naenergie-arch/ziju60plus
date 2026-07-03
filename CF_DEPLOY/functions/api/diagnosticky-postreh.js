@@ -78,7 +78,7 @@ NAPIŠ VALIDNÍ JSON s těmito klíči (bez dalšího textu):
   ]
 }
 
-Pole "doporuceni" musí mít přesně 5 položek.
+Pole "doporuceni" musí mít přesně 7 položek – jeden tip na každý den.
 ${allCats.length ? `Zohledni zájmové kategorie: ${allCats.join(", ")}` : ""}`;
 
   try {

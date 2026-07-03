@@ -277,7 +277,7 @@ function renderTema(data) {
 
 function renderRec(data) {
   const el = document.getElementById('recList');
-  const items = (data.doporuceni||[]).slice(0,5);
+  const items = (data.doporuceni||[]).slice(0,7);
   el.innerHTML = items.map((r,i)=>`
     <div class="rec-card">
       <div class="rec-num">${i+1}</div>
