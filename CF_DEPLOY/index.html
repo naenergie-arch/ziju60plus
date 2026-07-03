@@ -513,7 +513,9 @@
       „Vážení a milí.<br><br>
       Je mi 68 let.<br>
       Před pěti lety mi srdce pracovalo na třiatřicet procent. Prodělal jsem čtyři operace.
-      Doslova mě v nemocnici zachránili.<br><br>
+      Doslova mě v nemocnici zachránili.
+
+      <span id="authorMore" style="display:none"><br><br>
       Dneska jezdím dvakrát týdně na kole. Patnáct až pětadvacet kilometrů na jízdu.
       Už žádné prášky na srdce, žádné ředění krve. Chodím do fitka, do sauny, do vířivky.<br><br>
       Na delší procházky to zatím není – artróza čtvrtého stupně v koleni mi dovolí tak kilometr.
@@ -543,7 +545,17 @@
       doporučení. Je to zkušenost mnohých, která může otevřít naději v mnohém i vám.<br>
       Je to projekt někoho, kdo si mnohé sám prošel a stále prochází.<br><br>
       Jsem rád, že jste tady. Držím vám palce."
+      <br><br><button onclick="toggleAuthor(false)" style="background:none;border:none;color:#b07a3a;font-size:14px;cursor:pointer;font-family:inherit;padding:0;">▲ Sbalit</button>
+      </span>
+
+      <span id="authorLess"><br><br><button onclick="toggleAuthor(true)" style="background:none;border:none;color:#b07a3a;font-size:14px;cursor:pointer;font-family:inherit;padding:0;">Číst celý příběh ▼</button></span>"
     </blockquote>
+    <script>
+    function toggleAuthor(expand) {
+      document.getElementById('authorMore').style.display = expand ? 'inline' : 'none';
+      document.getElementById('authorLess').style.display = expand ? 'none' : 'inline';
+    }
+    </script>
     <p class="author-signature">Váš Jan</p>
   </div>
 </section>
