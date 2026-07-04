@@ -395,10 +395,10 @@ function renderPostreh(data) {
         <div class="silna-klic">✨ Vaše silná stránka</div>
         <div class="silna-val">${data.silna_stranka||''}</div>
       </div>
-      <div class="silna-item">
+      ${data.prilezitost ? `<div class="silna-item">
         <div class="silna-klic">🌱 Největší příležitost</div>
-        <div class="silna-val">${data.prilezitost||''}</div>
-      </div>
+        <div class="silna-val">${data.prilezitost}</div>
+      </div>` : ''}
     </div>`;
 }
 
