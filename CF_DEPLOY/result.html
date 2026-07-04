@@ -142,6 +142,15 @@ body{background:#fbf4e7;min-height:100vh;font-family:'Montserrat',sans-serif;col
 .price-card.featured .price-btn:hover{background:#5a3018}
 .price-note{text-align:center;font-size:12px;color:#b07840;margin-top:20px}
 
+/* ── Access strip ── */
+.access-strip{background:#fff;border:1.5px solid #e8d0a8;border-radius:22px;padding:28px 24px;text-align:center}
+.access-strip.active{border-color:#52c060;background:#f0fbf2}
+.access-strip.expired{border-color:#e05050;background:#fff8f8}
+.access-days{font-size:16px;font-family:Georgia,serif;font-style:italic;color:#3a2008;margin-bottom:10px}
+.access-sub{font-size:13px;color:#a07040;margin-bottom:16px;line-height:1.6}
+.access-btns{display:flex;flex-direction:column;gap:10px;align-items:center}
+.btn-later{background:none;border:none;color:#b07840;font-size:13px;cursor:pointer;font-family:inherit;text-decoration:underline;padding:4px}
+
 /* ── NOTICE ── */
 .saved-notice{background:#f0f8f0;border:1px solid #b8d8b8;border-radius:14px;padding:12px 18px;font-size:13px;color:#3a6030;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .saved-notice a{color:#ff8a3d;font-weight:600;white-space:nowrap;text-decoration:none;font-size:12px}
@@ -492,49 +501,116 @@ function renderCoach() {
     </div>`;
 }
 
+// ── Přístupová úroveň dle localStorage ───────────────────────────
+const ACCESS_KEY = 'ziju60_access';
+const DAY_MS = 24 * 3600 * 1000;
+
+function getAccessLevel() {
+  const profile = loadSaved();
+  const profileAge = profile ? Date.now() - (profile.ts || 0) : Infinity;
+  let paid = null;
+  try { paid = JSON.parse(localStorage.getItem(ACCESS_KEY) || 'null'); } catch {}
+
+  if (paid?.level === 'yearly') return 'yearly';
+  if (paid?.level === '90d') {
+    return (Date.now() - paid.ts < 90 * DAY_MS) ? 'active90' : 'expired90';
+  }
+  if (paid?.level === '30d') {
+    return (Date.now() - paid.ts < 30 * DAY_MS) ? 'active30' : 'expired30';
+  }
+  return profileAge < 7 * DAY_MS ? 'free_active' : 'free_expired';
+}
+
+function daysLeft(ts, totalDays) {
+  return Math.max(0, totalDays - Math.floor((Date.now() - ts) / DAY_MS));
+}
+
+async function startCheckout(plan) {
+  const btn = document.querySelector(`[data-plan="${plan}"]`);
+  if (btn) { btn.textContent = 'Přesměrováváme…'; btn.disabled = true; }
+  try {
+    const r = await fetch('/api/create-checkout', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ plan })
+    });
+    const d = await r.json();
+    if (d.url) window.location.href = d.url;
+    else throw new Error(d.error || 'Chyba');
+  } catch {
+    if (btn) { btn.textContent = 'Chyba – zkuste znovu'; btn.disabled = false; }
+  }
+}
+
 function renderCenik() {
   const el = document.getElementById('cenikSection');
   el.style.display = '';
-  el.innerHTML = `
-    <div class="cenik-title">Chcete nový profil každý týden?</div>
-    <div class="cenik-sub">S předplatným dostanete každý týden aktualizovaná doporučení<br>přesně pro vás. Prvních 7 dní zdarma.</div>
-    <div class="price-cards">
-      <div class="price-card featured">
-        <div class="price-badge-top">7 dní zdarma</div>
-        <div class="price-name">7 dní zdarma → 30 dní</div>
-        <div class="price-amount">299 Kč <span>/ měsíc</span></div>
-        <div class="price-desc">Zkuste bez rizika. Zrušit můžete kdykoliv před koncem zkušební doby.</div>
-        <button class="price-btn" data-plan="trial30">Začít zdarma →</button>
-      </div>
-      <div class="price-card featured" style="margin-top:8px">
-        <div class="price-badge-top">💚 Nejlepší hodnota</div>
-        <div class="price-name">7 dní zdarma → 90 dní</div>
-        <div class="price-amount">699 Kč <span>/ 3 měsíce</span></div>
-        <div class="price-desc">Tři měsíce doporučení, statistik a průvodce Knihovnou života.</div>
-        <button class="price-btn" data-plan="trial90">Začít zdarma →</button>
-      </div>
-    </div>
-    <div class="price-note">💾 Váš profil je uložen v tomto prohlížeči po dobu 7 dní</div>`;
+  const level = getAccessLevel();
+  const paid = (() => { try { return JSON.parse(localStorage.getItem(ACCESS_KEY) || 'null'); } catch { return null; } })();
+  const profile = loadSaved();
 
-  // Wire checkout buttons
-  el.querySelectorAll('[data-plan]').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      btn.textContent = 'Přesměrováváme…';
-      btn.disabled = true;
-      try {
-        const r = await fetch('/api/create-checkout', {
-          method:'POST', headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({plan: btn.dataset.plan})
-        });
-        const d = await r.json();
-        if (d.url) window.location.href = d.url;
-        else throw new Error(d.error || 'Chyba');
-      } catch(e) {
-        btn.textContent = 'Chyba – zkuste znovu';
-        btn.disabled = false;
-      }
-    });
-  });
+  let html = '';
+
+  if (level === 'free_active') {
+    const left = daysLeft(profile?.ts || Date.now(), 7);
+    html = `
+      <div class="access-strip">
+        <div class="access-days">⏳ Zbývá vám <strong>${left} ${left === 1 ? 'den' : left < 5 ? 'dny' : 'dní'}</strong> z bezplatného profilu</div>
+        <div class="access-btns">
+          <button class="price-btn" data-plan="access30" onclick="startCheckout('access30')">Chci pokračovat – 30 dní za 299 Kč →</button>
+          <button class="btn-later" onclick="document.getElementById('cenikSection').style.display='none'">Zatím nechci</button>
+        </div>
+        <div class="price-note">Po 30 dnech možnost prodloužit na 90 dní za pouhých 400 Kč</div>
+      </div>`;
+
+  } else if (level === 'free_expired') {
+    html = `
+      <div class="access-strip expired">
+        <div class="access-days">🔒 Vaše bezplatné období skončilo</div>
+        <div class="access-sub">Váš profil je stále uložen. Pro přístup k doporučením pokračujte:</div>
+        <button class="price-btn" data-plan="access30" onclick="startCheckout('access30')">Aktivovat přístup – 30 dní za 299 Kč →</button>
+        <div class="price-note">Po 30 dnech možnost prodloužit na 90 dní za pouhých 400 Kč</div>
+      </div>`;
+
+  } else if (level === 'active30') {
+    const left = daysLeft(paid.ts, 30);
+    html = `
+      <div class="access-strip active">
+        <div class="access-days">✅ Přístup aktivní – zbývá <strong>${left} ${left === 1 ? 'den' : left < 5 ? 'dny' : 'dní'}</strong></div>
+        <div class="access-sub">Chcete prodloužit na 90 dní? Doplatíte jen 400 Kč.</div>
+        <button class="price-btn" data-plan="upgrade90" onclick="startCheckout('upgrade90')">Prodloužit na 90 dní – doplatek 400 Kč →</button>
+      </div>`;
+
+  } else if (level === 'expired30') {
+    html = `
+      <div class="access-strip expired">
+        <div class="access-days">🔒 Váš 30denní přístup skončil</div>
+        <div class="access-sub">Prodloužte na 90 dní za zvýhodněných 400 Kč:</div>
+        <button class="price-btn" data-plan="upgrade90" onclick="startCheckout('upgrade90')">Prodloužit na 90 dní – 400 Kč →</button>
+      </div>`;
+
+  } else if (level === 'active90') {
+    const left = daysLeft(paid.ts, 90);
+    html = `
+      <div class="access-strip active">
+        <div class="access-days">✅ Přístup aktivní – zbývá <strong>${left} ${left === 1 ? 'den' : left < 5 ? 'dny' : 'dní'}</strong></div>
+      </div>`;
+
+  } else if (level === 'expired90') {
+    html = `
+      <div class="access-strip expired">
+        <div class="access-days">🔒 Váš 90denní přístup skončil</div>
+        <div class="access-sub">Pokračujte s ročním předplatným za výhodných 499 Kč/rok:</div>
+        <button class="price-btn" data-plan="yearly" onclick="startCheckout('yearly')">Roční předplatné – 499 Kč/rok →</button>
+      </div>`;
+
+  } else if (level === 'yearly') {
+    html = `
+      <div class="access-strip active">
+        <div class="access-days">✅ Roční předplatné aktivní</div>
+      </div>`;
+  }
+
+  el.innerHTML = html;
 }
 
 async function generateProfile() {

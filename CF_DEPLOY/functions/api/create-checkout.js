@@ -1,17 +1,15 @@
 const TAX_RATE_ID = "txr_1TmaxLF5lonqYFYRVXAdkm3K";
 
 const PRICES = {
-  trial30:  "price_1To0pWF5lonqYFYRvyYB3yd6",
-  trial90:  "price_1To0pXF5lonqYFYRoEw1DEtd",
-  direct30: "price_1To0pXF5lonqYFYRAtNHT8d6",
-  direct90: "price_1To0pXF5lonqYFYR6NI9L3r4",
+  access30:  "price_1TpXu0F5lonqYFYR5hFJ4Zuc",  // 299 Kč – 30 dní, jednorázová
+  upgrade90: "price_1TpXu0F5lonqYFYRr4j9yHwi",  // 400 Kč – upgrade na 90 dní, jednorázová
+  yearly:    "price_1TpXu1F5lonqYFYRINrKBtdy",  // 499 Kč/rok – roční předplatné
 };
 
 const PLAN_LABELS = {
-  trial30:  "7 dní zdarma → pak 30 dní (299 Kč)",
-  trial90:  "7 dní zdarma → pak 90 dní (699 Kč)",
-  direct30: "30 dní (299 Kč)",
-  direct90: "90 dní (699 Kč)",
+  access30:  "Přístup na 30 dní (299 Kč)",
+  upgrade90: "Upgrade na 90 dní (400 Kč)",
+  yearly:    "Roční předplatné (499 Kč/rok)",
 };
 
 export async function onRequestPost(context) {
@@ -20,21 +18,21 @@ export async function onRequestPost(context) {
   const STRIPE_KEY = env.STRIPE_SECRET_KEY;
   const SITE_URL = "https://ziju60plus.cz";
 
-  let plan = "trial30";
+  let plan = "access30";
   try {
     const body = await request.json();
     if (body.plan && PRICES[body.plan]) plan = body.plan;
   } catch (_) {}
 
   const priceId = PRICES[plan];
-  const isSubscription = plan.startsWith("trial");
+  const isSubscription = plan === "yearly";
 
   let sessionConfig = {
     payment_method_types: ["card"],
     billing_address_collection: "auto",
     tax_id_collection: { enabled: true },
     success_url: `${SITE_URL}/dekujeme.html?session_id={CHECKOUT_SESSION_ID}&plan=${plan}`,
-    cancel_url: `${SITE_URL}/#cenik`,
+    cancel_url: `${SITE_URL}/result.html`,
     metadata: { plan, plan_label: PLAN_LABELS[plan] },
   };
 
@@ -42,8 +40,6 @@ export async function onRequestPost(context) {
     sessionConfig.mode = "subscription";
     sessionConfig.line_items = [{ price: priceId, quantity: 1 }];
     sessionConfig.subscription_data = {
-      trial_period_days: 7,
-      trial_settings: { end_behavior: { missing_payment_method: "cancel" } },
       metadata: { plan, plan_label: PLAN_LABELS[plan] },
     };
   } else {

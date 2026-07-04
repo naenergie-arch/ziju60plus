@@ -77,16 +77,29 @@
 
 <script>
 const PLAN_MESSAGES = {
-  trial30:  "7 dní zdarma aktivováno ✓<br>8. den bude strženo <strong>299 Kč</strong> (30 dní přístupu).",
-  trial90:  "7 dní zdarma aktivováno ✓<br>8. den bude strženo <strong>699 Kč</strong> (90 dní přístupu).",
-  direct30: "Platba <strong>299 Kč</strong> přijata ✓<br>Máte 30 dní plného přístupu.",
-  direct90: "Platba <strong>699 Kč</strong> přijata ✓<br>Máte 90 dní plného přístupu.<br>Po skončení vám nabídneme roční plán za 499 Kč.",
+  access30:  "Platba <strong>299 Kč</strong> přijata ✓<br>Máte 30 dní plného přístupu.",
+  upgrade90: "Platba <strong>400 Kč</strong> přijata ✓<br>Přístup prodloužen na 90 dní.",
+  yearly:    "Platba <strong>499 Kč/rok</strong> přijata ✓<br>Roční předplatné aktivováno.",
+};
+
+const PLAN_ACCESS = {
+  access30:  '30d',
+  upgrade90: '90d',
+  yearly:    'yearly',
 };
 
 (async () => {
   const params = new URLSearchParams(window.location.search);
-  const plan = params.get("plan") || "trial30";
+  const plan = params.get("plan") || "access30";
   const sessionId = params.get("session_id");
+
+  // Ulož přístupovou úroveň do localStorage
+  const level = PLAN_ACCESS[plan];
+  if (level) {
+    try {
+      localStorage.setItem('ziju60_access', JSON.stringify({ level, ts: Date.now() }));
+    } catch (_) {}
+  }
 
   const planInfo = document.getElementById("plan-info");
   planInfo.innerHTML = PLAN_MESSAGES[plan] || "Váš plán byl aktivován.";
