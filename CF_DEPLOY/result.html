@@ -258,13 +258,22 @@ body{background:#fbf4e7;min-height:100vh;font-family:'Montserrat',sans-serif;col
   </div>
   <div id="previewSection"></div>
   <div id="coachSection"></div>
-  <div id="installBanner" style="display:none;background:#fff;border:1.5px solid #e8d0a8;border-radius:20px;padding:20px 22px;margin-bottom:20px;text-align:center">
+  <div id="installBanner" style="background:#fff9ee;border:1.5px solid #e8d0a8;border-radius:20px;padding:20px 22px;margin-bottom:20px;text-align:center">
     <div style="font-size:22px;margin-bottom:6px">📱</div>
     <div style="font-size:15px;font-family:Georgia,serif;font-style:italic;color:#3a2008;margin-bottom:6px">Mějte profil vždy po ruce</div>
-    <div style="font-size:13px;color:#a07040;margin-bottom:14px">Uložte si Žiju60plus jako ikonu na plochu telefonu nebo počítače</div>
-    <button id="installBtn" class="price-btn" style="width:auto;padding:12px 28px;font-size:15px">Přidat na plochu →</button>
-    <div style="font-size:11px;color:#b07840;margin-top:10px">
-      iPhone: Sdílet → „Přidat na plochu" &nbsp;·&nbsp; Android: Menu (⋮) → „Přidat na plochu"
+    <div style="font-size:13px;color:#a07040;margin-bottom:14px">Uložte si Žiju60plus jako ikonu na plochu</div>
+    <!-- Android: dynamické tlačítko -->
+    <button id="installBtn" class="price-btn" style="display:none;width:auto;padding:12px 28px;font-size:15px;margin-bottom:12px">Přidat na plochu →</button>
+    <!-- iOS: statický návod -->
+    <div id="iosHint" style="display:none;background:#fff8ee;border:1px solid #f0ddb8;border-radius:12px;padding:12px 16px;font-size:13px;color:#7a5010;line-height:1.7;text-align:left">
+      <strong>iPhone / iPad:</strong><br>
+      1. Klepněte na ikonu <strong>Sdílet</strong> (čtverec se šipkou nahoru) v dolní liště Safari<br>
+      2. Přejeďte dolů a klepněte na <strong>„Přidat na plochu"</strong><br>
+      3. Potvrďte tlačítkem <strong>„Přidat"</strong>
+    </div>
+    <!-- Desktop Chrome: text pokud nenastane beforeinstallprompt -->
+    <div id="desktopHint" style="display:none;font-size:12px;color:#b07840;margin-top:8px">
+      Chrome: ikona ⊕ v adresním řádku → „Nainstalovat"
     </div>
   </div>
   <div id="cenikSection" class="cenik-section" style="display:none"></div>
@@ -783,11 +792,26 @@ function showProfile(data) {
 init();
 
 // ── PWA install prompt ────────────────────────────────────────────
+const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+
+if (isInStandaloneMode) {
+  // Už je nainstalováno – schovat banner
+  document.getElementById('installBanner').style.display = 'none';
+} else if (isIos) {
+  // iOS: ukáž ruční návod
+  document.getElementById('iosHint').style.display = 'block';
+} else {
+  // Android/Desktop: čekej na beforeinstallprompt
+  document.getElementById('desktopHint').style.display = 'block';
+}
+
 let deferredInstallPrompt = null;
 window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault();
   deferredInstallPrompt = e;
-  document.getElementById('installBanner').style.display = '';
+  document.getElementById('installBtn').style.display = 'inline-block';
+  document.getElementById('desktopHint').style.display = 'none';
 });
 document.getElementById('installBtn')?.addEventListener('click', async () => {
   if (!deferredInstallPrompt) return;
