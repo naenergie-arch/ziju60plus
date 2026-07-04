@@ -36,7 +36,8 @@ PRAVIDLA:
 - Věty mají být překvapivé – člověk si má říct "jak to ví?"
 - Tón: teplý, poetický, trochu dojemný. Jako moudrý přítel co vás dobře vidí.
 - Každá věta na nový řádek. Žádné uvozovky, žádné čísla, žádné odrážky.
-- Začni první větou která obsahuje jméno: "${osloveni}"
+- Začni první větou která obsahuje PŘESNĚ toto oslovení (nezměněné, ani písmeno): "${osloveni}"
+- KRITICKÉ: jméno osoby je přesně "${jmeno}" — neměň ho, neskloňuj jinak, nenahrazuj
 
 DATA Z DOTAZNÍKU:
 - Pohyb: ${pohyb}/3 ${pohyb===3?"(aktivní)":pohyb===2?"(občasný)":"(chybí)"}
