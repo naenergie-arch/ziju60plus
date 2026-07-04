@@ -1,4 +1,10 @@
-// Volání Stripe Checkout pro všechny 4 varianty plánu
+// Plány, které vedou na kvíz (7 dní zdarma, bez karty)
+const QUIZ_REDIRECTS = {
+  trial30: '/quiz.html?plan=30d',
+  trial90: '/quiz.html?plan=90d',
+};
+
+// Volání Stripe Checkout pro placené varianty plánu
 async function startCheckout(plan) {
   const btn = document.querySelector(`[data-plan="${plan}"]`);
   if (btn) {
@@ -32,7 +38,12 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.dataset.label = btn.textContent;
     btn.addEventListener("click", (e) => {
       e.preventDefault();
-      startCheckout(btn.dataset.plan);
+      const plan = btn.dataset.plan;
+      if (QUIZ_REDIRECTS[plan]) {
+        window.location.href = QUIZ_REDIRECTS[plan];
+      } else {
+        startCheckout(plan);
+      }
     });
   });
 });

@@ -22,6 +22,7 @@ body{background:#fbf4e7;min-height:100vh;display:flex;align-items:flex-start;jus
 .qdot.active{background:#ff8a3d;width:38px}
 .qdot.done{background:#c8a060}
 .qillus{text-align:center;font-size:56px;margin-bottom:14px;line-height:1;user-select:none}
+.quiz-free-banner{background:#fff8ee;border:1.5px solid #f0c870;border-radius:12px;padding:10px 16px;font-size:13px;color:#7a5010;text-align:center;margin-bottom:20px;line-height:1.5}
 .qlabel{font-size:11px;font-weight:700;letter-spacing:.12em;color:#b07840;text-transform:uppercase;text-align:center;margin-bottom:8px}
 .qtitle{font-size:21px;color:#3a2008;text-align:center;margin-bottom:6px;line-height:1.4;font-style:italic;font-family:Georgia,serif}
 .qsub{font-size:13px;color:#a07040;text-align:center;margin-bottom:26px;line-height:1.55}
@@ -235,7 +236,8 @@ function render() {
     `<div class="qdot${i < cur ? ' done' : i === cur ? ' active' : ''}"></div>`
   ).join('');
 
-  let html = `<div class="qillus">${s.icon}</div>
+  let html = `${cur === 0 ? `<div class="quiz-free-banner">🎁 Pojďte si vše nejdříve vyzkoušet — <strong>7 dní zdarma</strong>, bez zadání karty</div>` : ''}
+<div class="qillus">${s.icon}</div>
 <div class="qlabel">${s.label}</div>
 <div class="qtitle">${s.q}</div>
 <div class="qsub">${s.sub}</div>
@@ -588,6 +590,14 @@ function submitQuiz() {
   params.set('total', total);
   window.location.href = '/wow1.html?' + params.toString();
 }
+
+// Uložení preference plánu z URL (?plan=30d nebo ?plan=90d)
+(function() {
+  const plan = new URLSearchParams(window.location.search).get('plan');
+  if (plan) {
+    try { localStorage.setItem('ziju60_plan_pref', plan); } catch(_) {}
+  }
+})();
 
 render();
 </script>
