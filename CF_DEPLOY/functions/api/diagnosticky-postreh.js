@@ -227,37 +227,32 @@ ${allCats.length ? `Zohledni zájmové kategorie: ${allCats.join(', ')}` : ''}`;
 
     const doporuceni = (parsed.doporuceni || []).slice(0, 7);
 
-    // ── Přiřadit odkazy z Knihovny života ───────────────────────────
+    // ── Přiřadit odkazy z Knihovny života (bez blokující HEAD validace) ─
     if (knihovna) {
       const linkSets = doporuceni.map(r => pickLinks(knihovna, r.kat));
 
-      // HEAD validace všech odkazů najednou
-      const checks = linkSets.flatMap((pair, i) =>
-        pair.map(async (link, j) => {
-          if (!link) return { i, j, ok: true };
-          const ok = await headCheck(link.url);
-          return { i, j, ok, link };
-        })
-      );
-      const results = await Promise.all(checks);
-
-      const deadLinks = results
-        .filter(r => !r.ok && r.link)
-        .map(r => ({ den: r.i + 1, nazev: r.link.nazev, url: r.link.url }));
-
-      // Připnout validované odkazy ke kartám
+      // Přiřaď odkazy rovnou bez čekání na HEAD check
       doporuceni.forEach((r, i) => {
         const [l1, l2] = linkSets[i];
-        const res1 = results.find(x => x.i === i && x.j === 0);
-        const res2 = results.find(x => x.i === i && x.j === 1);
-        r.odkaz1 = (res1?.ok !== false) ? l1 : null;
-        r.odkaz2 = (res2?.ok !== false) ? l2 : null;
+        r.odkaz1 = l1 || null;
+        r.odkaz2 = l2 || null;
       });
 
-      // Notifikace admina na pozadí
-      if (deadLinks.length) {
-        waitUntil(notifyDeadLinks(deadLinks, env));
-      }
+      // HEAD validace + notifikace admina proběhne na pozadí, neblokuje odpověď
+      waitUntil((async () => {
+        const checks = linkSets.flatMap((pair, i) =>
+          pair.map(async (link, j) => {
+            if (!link) return { i, j, ok: true };
+            const ok = await headCheck(link.url);
+            return { i, j, ok, link };
+          })
+        );
+        const results = await Promise.all(checks);
+        const deadLinks = results
+          .filter(r => !r.ok && r.link)
+          .map(r => ({ den: r.i + 1, nazev: r.link.nazev, url: r.link.url }));
+        if (deadLinks.length) await notifyDeadLinks(deadLinks, env);
+      })());
     }
 
     return new Response(JSON.stringify({
