@@ -2,6 +2,11 @@
 <html lang="cs">
 <head>
 <meta charset="UTF-8">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#ff8a3d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Žiju60plus">
+  <link rel="apple-touch-icon" href="/favicon.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Váš příběh – Žiju 60 plus</title>
 <style>
@@ -213,5 +218,6 @@ function buildFilm(vety){
 
 loadFilm();
 </script>
+<script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(()=>{});</script>
 </body>
 </html>

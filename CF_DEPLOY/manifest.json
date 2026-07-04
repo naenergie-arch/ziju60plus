@@ -1,0 +1,17 @@
+{
+  "name": "Žiju60plus – Profil vitality",
+  "short_name": "Žiju60plus",
+  "description": "Váš personalizovaný plán vitality pro 60+",
+  "start_url": "/result.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fbf4e7",
+  "theme_color": "#ff8a3d",
+  "lang": "cs",
+  "icons": [
+    { "src": "/favicon.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/img/logo.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ],
+  "screenshots": [],
+  "categories": ["health", "lifestyle"]
+}
