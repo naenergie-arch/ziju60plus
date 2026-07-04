@@ -57,8 +57,8 @@ body{min-height:100vh;background:#0a0814;font-family:Georgia,'Times New Roman',s
 .music-hint.hidden{opacity:0;pointer-events:none}
 
 /* Přeskočit — vpravo dole, samostatně */
-.btn-skip{position:fixed;bottom:22px;right:24px;z-index:30;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.38);font-size:13px;font-family:Arial,sans-serif;padding:10px 20px;border-radius:20px;cursor:pointer;transition:all .3s}
-.btn-skip:hover{background:rgba(255,255,255,.14);color:#fff}
+.btn-skip{position:fixed;bottom:20px;right:20px;z-index:200;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.6);font-size:15px;font-family:Arial,sans-serif;padding:12px 24px;border-radius:24px;cursor:pointer;transition:all .3s;-webkit-tap-highlight-color:transparent}
+.btn-skip:hover,.btn-skip:active{background:rgba(255,255,255,.25);color:#fff}
 
 /* Overlay */
 #overlay{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:100;transition:opacity .8s ease}
@@ -167,11 +167,8 @@ function showPlanBtn(){
 }
 
 function skipFilm(){
-  if(!filmStarted){ goToResult(); return; }
-  // Zobraz všechny věty okamžitě
   vetaTimers.forEach(t=>clearTimeout(t));
-  document.querySelectorAll('.film-veta').forEach(el=>el.classList.add('visible'));
-  showPlanBtn();
+  goToResult();
 }
 
 // ── Načtení vět z API ──
