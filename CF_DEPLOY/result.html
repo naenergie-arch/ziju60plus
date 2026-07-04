@@ -129,6 +129,11 @@ body{background:#fbf4e7;min-height:100vh;font-family:'Montserrat',sans-serif;col
 .car-dot.active{background:#ff8a3d;transform:scale(1.25)}
 .car-progress{font-size:12px;color:#b07840;font-weight:600;margin-left:4px}
 
+/* ── PLÁN 7 DNÍ – wrapper ── */
+.plan7-wrap{background:linear-gradient(160deg,#fff8f0 0%,#fff3e6 100%);border:2px solid #f0c870;border-radius:28px;padding:24px 20px 20px;margin-bottom:24px;box-shadow:0 4px 20px rgba(240,160,0,.1)}
+.plan7-heading{font-family:Georgia,serif;font-style:italic;font-size:22px;color:#3a2008;text-align:center;margin-bottom:4px}
+.plan7-heading-line{width:48px;height:3px;background:linear-gradient(90deg,#ff8a3d,#f0c060);border-radius:2px;margin:0 auto 16px}
+
 /* ── CENÍK ── */
 .cenik-section{margin-top:8px}
 .cenik-title{font-size:20px;font-family:Georgia,serif;font-style:italic;color:#3a2008;text-align:center;margin-bottom:8px}
@@ -239,8 +244,12 @@ body{background:#fbf4e7;min-height:100vh;font-family:'Montserrat',sans-serif;col
   <div id="savedNotice"></div>
   <div id="profileHeader" class="profile-header"></div>
   <div id="postreh" class="postreh-card" style="display:none"></div>
-  <div id="temaWrap" class="tema-header" style="display:none"></div>
-  <div id="recList" class="carousel-wrap"></div>
+  <div class="plan7-wrap">
+    <div class="plan7-heading">Toto je plán pro vašich 7 dní</div>
+    <div class="plan7-heading-line"></div>
+    <div id="temaWrap" class="tema-header" style="display:none"></div>
+    <div id="recList" class="carousel-wrap"></div>
+  </div>
   <div id="previewSection"></div>
   <div id="coachSection"></div>
   <div id="installBanner" style="display:none;background:#fff;border:1.5px solid #e8d0a8;border-radius:20px;padding:20px 22px;margin-bottom:20px;text-align:center">
