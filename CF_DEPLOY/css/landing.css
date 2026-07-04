@@ -722,6 +722,7 @@ html { scroll-behavior: smooth; }
 .audio-play-btn:active { transform: scale(.95); }
 .audio-wave-wrap { flex: 1; min-width: 0; }
 #waveform { width: 100%; }
+#waveform canvas, #waveform wave { touch-action: pan-y !important; }
 .audio-time-row {
   display: flex;
   justify-content: space-between;
