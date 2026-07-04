@@ -390,11 +390,13 @@ function renderRec(data) {
     // Tip odborníka
     const tipHtml = r.tip ? `<div class="rec-tip">💡 ${r.tip}</div>` : '';
 
-    // 2 odkazy — odkaz vede na YouTube vyhledávání
-    const link = (label) => label
-      ? `<a class="rec-link" href="https://www.youtube.com/results?search_query=${encodeURIComponent(label+' pro seniory')}" target="_blank" rel="noopener">🔗 ${label}</a>`
-      : '';
-    const odkazyHtml = (r.odkaz1||r.odkaz2)
+    // 2 odkazy z Knihovny života (objekt {nazev, url})
+    const link = (obj) => {
+      if (!obj || !obj.url) return '';
+      const safe = obj.url.replace(/"/g, '%22');
+      return `<a class="rec-link" href="${safe}" target="_blank" rel="noopener">🔗 ${obj.nazev || 'Více informací'}</a>`;
+    };
+    const odkazyHtml = (r.odkaz1?.url || r.odkaz2?.url)
       ? `<div class="rec-links">${link(r.odkaz1)}${link(r.odkaz2)}</div>` : '';
 
     return `<div class="rec-card">
