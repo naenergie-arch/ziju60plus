@@ -32,11 +32,13 @@ export async function onRequestPost(context) {
   const prompt = `Jsi empatický filmový vypravěč. Píšeš krásnou, správnou češtinou pro seniory 60+.
 Napiš 4 krátké poetické věty — jako hlas dokumentárního filmu o tomto člověku.
 
-JAZYK:
-- Výhradně spisovná čeština, přirozená, bez chyb.
+JAZYK — PŘÍSNÁ PRAVIDLA:
+- Výhradně spisovná čeština. ŽÁDNÁ anglická slova (rhythm→rytmus, energy→energie, feeling→pocit atd.).
+- ŽÁDNÁ vymyšlená, neexistující nebo nejasná slova. Pouze běžná česká slovní zásoba.
 - VŽDY vykání: Vy, Vás, Váš, Vám. NIKDY tykání.
 - ${jeZena ? "Osoba je ŽENA — ženský rod všude (byla, cítila, dokázala)." : "Osoba je MUŽ — mužský rod všude (byl, cítil, dokázal)."}
 - Velké písmeno na začátku každé věty.
+- Věk piš přirozeně: "v šedesáti osmi letech" nebo "ve svých 68 letech" — NIKDY jako součet čísel.
 
 OSLOVENÍ:
 - ${jmenoPokyn}
