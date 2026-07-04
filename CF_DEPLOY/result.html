@@ -134,6 +134,11 @@ body{background:#fbf4e7;min-height:100vh;font-family:'Montserrat',sans-serif;col
 .plan7-heading{font-family:Georgia,serif;font-style:italic;font-size:22px;color:#3a2008;text-align:center;margin-bottom:4px}
 .plan7-heading-line{width:48px;height:3px;background:linear-gradient(90deg,#ff8a3d,#f0c060);border-radius:2px;margin:0 auto 16px}
 .carousel-swipe-hint{text-align:center;font-size:13px;color:#b07840;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:8px;opacity:.8}
+#reactionStats{margin-top:16px;background:#fff9ee;border:1.5px solid #e8d0a8;border-radius:16px;padding:14px 16px;text-align:center}
+.rstats-title{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#b07840;margin-bottom:10px}
+.rstats-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.rstats-item{font-size:13px;padding:5px 12px;border-radius:999px;color:#5a3a10}
+.rstats-done{background:#e8f8e0}.rstats-vah{background:#fff8e0}.rstats-later{background:#f0f0ff}.rstats-open{background:#f5f0e8}
 .swipe-hand{font-size:18px;animation:nudge 1.8s ease-in-out infinite}
 .swipe-hand.left{animation-delay:.3s;transform:scaleX(-1);display:inline-block}
 @keyframes nudge{0%,100%{transform:translateX(0)}50%{transform:translateX(6px)}}
@@ -475,9 +480,9 @@ function renderRec(data) {
   const cardsHtml = items.map((r,i) => {
     const sel = reactions[i] || '';
     const rBtns = [
-      {e:'🌟', label:'Skvělé!'},
-      {e:'🤔', label:'Nevím'},
-      {e:'⏳', label:'Udělám later'},
+      {e:'🌟', label:'Splněno!'},
+      {e:'🤔', label:'Váhám'},
+      {e:'⏳', label:'Příště'},
     ].map(rb => `
       <button class="reaction-btn${sel===rb.e?' selected':''}" data-idx="${i}" data-emoji="${rb.e}" onclick="pickReaction(${i},'${rb.e}')">
         <span class="r-emoji">${rb.e}</span>${rb.label}
@@ -535,16 +540,47 @@ function renderRec(data) {
       <span class="swipe-hand left">👈</span>
       <span>přejeďte pro další den</span>
       <span class="swipe-hand">👉</span>
-    </div>`;
+    </div>
+    <div id="reactionStats" style="display:none"></div>`;
 
   initCarousel(items.length);
 }
 
 function pickReaction(idx, emoji) {
-  saveReaction(idx, emoji);
-  document.querySelectorAll(`.reaction-btn[data-idx="${idx}"]`).forEach(btn => {
-    btn.classList.toggle('selected', btn.dataset.emoji === emoji);
-  });
+  const reactions = loadReactions();
+  // Toggle: kliknutí na stejnou reakci ji zruší
+  if (reactions[idx] === emoji) {
+    delete reactions[idx];
+    try { localStorage.setItem(REACTION_KEY, JSON.stringify(reactions)); } catch {}
+    document.querySelectorAll(`.reaction-btn[data-idx="${idx}"]`).forEach(btn => btn.classList.remove('selected'));
+  } else {
+    saveReaction(idx, emoji);
+    document.querySelectorAll(`.reaction-btn[data-idx="${idx}"]`).forEach(btn => {
+      btn.classList.toggle('selected', btn.dataset.emoji === emoji);
+    });
+  }
+  renderReactionStats();
+}
+
+function renderReactionStats() {
+  const el = document.getElementById('reactionStats');
+  if (!el) return;
+  const reactions = loadReactions();
+  const vals = Object.values(reactions);
+  const splneno = vals.filter(v => v === '🌟').length;
+  const vaham   = vals.filter(v => v === '🤔').length;
+  const priste  = vals.filter(v => v === '⏳').length;
+  const total   = 7;
+  if (vals.length === 0) { el.style.display = 'none'; return; }
+  el.style.display = '';
+  el.innerHTML = `
+    <div class="rstats-title">Váš přehled 7 dní</div>
+    <div class="rstats-row">
+      <span class="rstats-item rstats-done">🌟 Splněno <strong>${splneno}</strong></span>
+      <span class="rstats-item rstats-vah">🤔 Váhám <strong>${vaham}</strong></span>
+      <span class="rstats-item rstats-later">⏳ Příště <strong>${priste}</strong></span>
+      <span class="rstats-item rstats-open">○ Bez reakce <strong>${total - vals.length}</strong></span>
+    </div>`;
 }
 
 function initCarousel(total) {
@@ -779,6 +815,7 @@ function showProfile(data) {
   renderPostreh(data);
   renderTema(data);
   renderRec(data);
+  renderReactionStats();
   renderPreview();
   renderCoach();
   renderCenik();
