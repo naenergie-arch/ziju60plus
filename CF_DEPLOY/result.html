@@ -172,10 +172,43 @@ body{background:#fbf4e7;min-height:100vh;font-family:'Montserrat',sans-serif;col
 <body>
 
 <div id="loader">
-  <div class="loader-icon">🌸</div>
+  <svg viewBox="0 0 160 160" width="140" height="140" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto 8px">
+    <!-- Robot tělo -->
+    <rect x="52" y="72" width="56" height="52" rx="8" fill="#f0c870" stroke="#c8960c" stroke-width="2"/>
+    <!-- Robot hlava -->
+    <rect x="48" y="36" width="64" height="44" rx="10" fill="#f5d888" stroke="#c8960c" stroke-width="2"/>
+    <!-- Anténa -->
+    <line x1="80" y1="36" x2="80" y2="22" stroke="#c8960c" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="80" cy="19" r="5" fill="#ff8a3d" stroke="#c8960c" stroke-width="1.5"/>
+    <!-- Oči – jedno normální, druhé přes lupu -->
+    <circle cx="66" cy="56" r="7" fill="#fff" stroke="#c8960c" stroke-width="1.5"/>
+    <circle cx="66" cy="56" r="4" fill="#3a2008"/>
+    <circle cx="68" cy="54" r="1.2" fill="#fff"/>
+    <!-- Úsměv -->
+    <path d="M68 68 Q80 75 92 68" fill="none" stroke="#c8960c" stroke-width="2" stroke-linecap="round"/>
+    <!-- Ruka s lupou (vpravo) -->
+    <line x1="108" y1="88" x2="126" y2="106" stroke="#c8960c" stroke-width="3" stroke-linecap="round"/>
+    <!-- Lupa – kruh -->
+    <circle cx="118" cy="96" r="18" fill="rgba(200,240,255,0.45)" stroke="#ff8a3d" stroke-width="3"/>
+    <!-- Malý člověk v lupě -->
+    <circle cx="118" cy="89" r="4" fill="#3a2008"/>
+    <line x1="118" y1="93" x2="118" y2="103" stroke="#3a2008" stroke-width="2" stroke-linecap="round"/>
+    <line x1="118" y1="96" x2="113" y2="100" stroke="#3a2008" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="118" y1="96" x2="123" y2="100" stroke="#3a2008" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="118" y1="103" x2="115" y2="109" stroke="#3a2008" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="118" y1="103" x2="121" y2="109" stroke="#3a2008" stroke-width="1.8" stroke-linecap="round"/>
+    <!-- Lupa – rukojeť -->
+    <line x1="130" y1="108" x2="138" y2="118" stroke="#c8960c" stroke-width="4" stroke-linecap="round"/>
+    <!-- Levá ruka -->
+    <line x1="52" y1="88" x2="36" y2="98" stroke="#c8960c" stroke-width="3" stroke-linecap="round"/>
+    <!-- Nožičky -->
+    <rect x="62" y="122" width="14" height="16" rx="4" fill="#c8960c"/>
+    <rect x="84" y="122" width="14" height="16" rx="4" fill="#c8960c"/>
+  </svg>
   <div class="loader-text">
     Čteme vaše odpovědi a připravujeme váš profil<br>
-    <span class="loader-dots"><span>.</span><span>.</span><span>.</span></span>
+    <span class="loader-dots"><span>.</span><span>.</span><span>.</span></span><br>
+    <span style="font-size:13px;color:#b07840;font-style:italic">Vydržte chvíli — AI to bere vážně.</span>
   </div>
 </div>
 
