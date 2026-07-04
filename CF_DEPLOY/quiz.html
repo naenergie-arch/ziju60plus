@@ -54,6 +54,7 @@ body{background:#fbf4e7;min-height:100vh;display:flex;align-items:flex-start;jus
 .qhint{background:#fff8ee;border:1px solid #e8d0a8;border-radius:999px;padding:6px 14px;font-size:12px;color:#a07040;cursor:pointer;transition:background .15s,border-color .15s;user-select:none}
 .qhint:hover{background:#ffecd6;border-color:#ff8a3d;color:#c06020}
 
+.qmulti-note{font-size:13px;color:#ff8a3d;font-weight:600;text-align:center;margin:-16px 0 18px;letter-spacing:.01em}
 .qnav{display:flex;justify-content:space-between;align-items:center;margin-top:28px}
 .qbtn{border:none;border-radius:999px;padding:13px 30px;font-size:15px;cursor:pointer;font-family:Georgia,serif;font-style:italic;font-weight:700;transition:opacity .18s,transform .1s}
 .qbtn:active{transform:scale(.97)}
@@ -168,8 +169,10 @@ const steps = [
   {
     icon: "🎨", label: "Co vás baví",
     q: "Co vás v životě těší nebo bavilo?",
-    sub: "Příroda, lidé, rukodělná práce, hudba, cestování, učení… Klidně víc věcí.",
+    sub: "Klidně vyberte více oblastí — čím více, tím přesnější profil dostanete.",
+    multiNote: "✔ Můžete vybrat více možností",
     key: "zalib",
+    multi: true,
     cards: [
       {icon:"🌿", main:"Příroda a pohyb venku", hint:"Výlety, zahrada, procházky, cyklistika…", val:"A,G"},
       {icon:"👐", main:"Lidé a společnost", hint:"Přátelé, komunita, setkávání, pomoc druhým", val:"B,F"},
@@ -216,7 +219,8 @@ function render() {
   let html = `<div class="qillus">${s.icon}</div>
 <div class="qlabel">${s.label}</div>
 <div class="qtitle">${s.q}</div>
-<div class="qsub">${s.sub}</div>`;
+<div class="qsub">${s.sub}</div>
+${s.multiNote ? `<div class="qmulti-note">${s.multiNote}</div>` : ''}`;
 
   if (s.name) {
     html += `<div class="qname-wrap">
@@ -244,7 +248,7 @@ function render() {
     </div>`;
   } else {
     html += `<div class="qcards">` + s.cards.map((c, i) => {
-      const sel = ans[cur] === i;
+      const sel = s.multi ? (Array.isArray(ans[cur]) && ans[cur].includes(i)) : ans[cur] === i;
       return `<div class="qcard${sel ? ' selected' : ''}" onclick="pick(${i})">
         <span class="qcard-icon">${c.icon}</span>
         <div class="qcard-text">
@@ -258,6 +262,7 @@ function render() {
 
   const canNext = s.name ? (ans[cur] && ans[cur].length > 0) :
                   s.free ? true :
+                  s.multi ? (Array.isArray(ans[cur]) && ans[cur].length > 0) :
                   ans[cur] !== null;
   const isLast = cur === steps.length - 1;
   html += `<div class="qnav">
@@ -303,7 +308,17 @@ function updateNext() {
 }
 
 function pickGender(v) { ans[cur] = v; render(); }
-function pick(i) { ans[cur] = i; render(); }
+function pick(i) {
+  const s = steps[cur];
+  if (s.multi) {
+    if (!Array.isArray(ans[cur])) ans[cur] = [];
+    const idx = ans[cur].indexOf(i);
+    if (idx === -1) ans[cur].push(i); else ans[cur].splice(idx, 1);
+  } else {
+    ans[cur] = i;
+  }
+  render();
+}
 function back() { if (cur > 0) { cur--; render(); } }
 
 function goNext() {
@@ -481,8 +496,14 @@ function saveLead() {
   const scores  = {};
   steps.forEach((s, i) => {
     if (i < 2) return;
-    if (!s.free && !s.gender && !s.name && ans[i] !== null) scores[s.key] = s.cards[ans[i]].val;
-    if (s.free) scores[s.key] = ans[i] || '';
+    if (s.free) { scores[s.key] = ans[i] || ''; return; }
+    if (!s.gender && !s.name && ans[i] !== null) {
+      if (s.multi && Array.isArray(ans[i])) {
+        scores[s.key] = ans[i].map(idx => s.cards[idx].val).join(',');
+      } else {
+        scores[s.key] = s.cards[ans[i]].val;
+      }
+    }
   });
   const total = Object.values(scores).filter(v => typeof v === 'number').reduce((a, b) => a + b, 0);
   fetch('/api/save-lead', {
@@ -498,8 +519,14 @@ function submitQuiz() {
   const scores  = {};
   steps.forEach((s, i) => {
     if (i < 2) return;
-    if (!s.free && !s.gender && !s.name && ans[i] !== null) scores[s.key] = s.cards[ans[i]].val;
-    if (s.free) scores[s.key] = ans[i] || '';
+    if (s.free) { scores[s.key] = ans[i] || ''; return; }
+    if (!s.gender && !s.name && ans[i] !== null) {
+      if (s.multi && Array.isArray(ans[i])) {
+        scores[s.key] = ans[i].map(idx => s.cards[idx].val).join(',');
+      } else {
+        scores[s.key] = s.cards[ans[i]].val;
+      }
+    }
   });
   const total  = Object.values(scores).filter(v => typeof v === 'number').reduce((a, b) => a + b, 0);
   const params = new URLSearchParams();
