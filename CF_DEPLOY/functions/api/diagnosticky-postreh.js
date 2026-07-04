@@ -53,9 +53,10 @@ Dostaneš odpovědi z osobního dotazníku. Tvým úkolem je napsat osobní prof
 DŮLEŽITÉ POKYNY:
 - Oslovi osobu jménem: "${osloveni}"
 - ${jeZena ? "Osoba je ŽENA – používej ženský rod" : "Osoba je MUŽ – používej mužský rod"}
+- VŽDY VYKEJ – používej výhradně formální oslovení (Vy, Vás, Váš, Vám). Nikdy netykej.
 - Buď konkrétní, překvapující, laskavý
 - Nikdy nediagnostikuj ani nestraš
-- Piš přirozeně česky, jako moudrý přítel
+- Piš přirozeně česky, jako moudrý a respektující průvodce
 
 ODPOVĚDI Z DOTAZNÍKU:
 - Pohyb (1-3): ${pohyb} ${pohyb===1?"– pohyb chybí":pohyb===2?"– pohyb je občasný":"– pohyb je pravidelný"}
@@ -69,12 +70,12 @@ ODPOVĚDI Z DOTAZNÍKU:
 
 NAPIŠ VALIDNÍ JSON s těmito klíči (bez dalšího textu):
 {
-  "postreh": "Osobní postřeh 3-4 věty – začni oslovením, buď konkrétní a překvapující.",
-  "silna_stranka": "Jedna věta – co je na této osobě nejsilnější",
-  "prilezitost": "Jedna věta – největší příležitost ke změně",
+  "postreh": "Osobní postřeh 3-4 věty – začni oslovením (vykej!), buď konkrétní a překvapující.",
+  "silna_stranka": "Jedna věta – co je na této osobě nejsilnější (vykej!)",
+  "prilezitost": "Jedna věta – největší příležitost ke změně (vykej!)",
   "tydenni_tema": "Krátký název tématu pro příštích 7 dní (max 5 slov)",
   "doporuceni": [
-    {"ikona":"emoji","nazev":"Krátký název aktivity","popis":"1-2 věty proč právě tato aktivita","kat":"jedno z: pohyb|lide|kultura|tvorba|vzdelani|priroda|rodina|spanek|jidlo|smysl"}
+    {"ikona":"emoji","nazev":"Krátký název aktivity","popis":"1-2 věty proč právě tato aktivita (vykej!)","kat":"jedno z: pohyb|lide|kultura|tvorba|vzdelani|priroda|rodina|spanek|jidlo|smysl"}
   ]
 }
 
