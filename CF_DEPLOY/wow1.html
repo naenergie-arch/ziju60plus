@@ -6,140 +6,46 @@
 <title>Váš příběh – Žiju 60 plus</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
+body{min-height:100vh;background:#0a0814;font-family:Georgia,'Times New Roman',serif;overflow:hidden;position:relative}
 
-body {
-  min-height: 100vh;
-  background: #0a0814;
-  font-family: Georgia, 'Times New Roman', serif;
-  overflow: hidden;
-  position: relative;
-}
+#canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.bg-glow{position:fixed;bottom:-30%;left:50%;transform:translateX(-50%);width:120vw;height:60vh;background:radial-gradient(ellipse at center,rgba(255,140,40,.15) 0%,transparent 70%);pointer-events:none;z-index:0}
 
-#canvas {
-  position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
-  pointer-events: none; z-index: 0;
-}
-
-.bg-glow {
-  position: fixed; bottom: -30%; left: 50%;
-  transform: translateX(-50%);
-  width: 120vw; height: 60vh;
-  background: radial-gradient(ellipse at center, rgba(255,140,40,0.16) 0%, transparent 70%);
-  pointer-events: none; z-index: 0;
-}
-
-/* Horní logo */
-.film-logo {
-  position: fixed; top: 20px; left: 50%;
-  transform: translateX(-50%);
-  z-index: 20; font-size: 12px;
-  color: rgba(255,230,170,0.35);
-  letter-spacing: 3px; text-transform: uppercase;
-}
+.film-logo{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:20;font-size:12px;color:rgba(255,230,170,.35);letter-spacing:3px;text-transform:uppercase}
 
 /* Loading */
-.loading-wrap {
-  position: fixed; top: 50%; left: 50%;
-  transform: translate(-50%,-50%);
-  z-index: 10; text-align: center;
-  color: rgba(255,230,170,0.45);
-  font-family: Arial,sans-serif; font-size: 14px; letter-spacing: 2px;
-}
-.spinner {
-  width: 36px; height: 36px;
-  border: 2px solid rgba(255,200,100,0.15);
-  border-top-color: rgba(255,200,100,0.7);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 14px;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
+.loading-wrap{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10;text-align:center;color:rgba(255,230,170,.45);font-family:Arial,sans-serif;font-size:14px;letter-spacing:2px}
+.spinner{width:36px;height:36px;border:2px solid rgba(255,200,100,.15);border-top-color:rgba(255,200,100,.7);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 14px}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-/* ── FILMOVÉ TITULKY ── */
-/* Okno — skrývá text mimo viewport */
-.credits-window {
-  position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
-  overflow: hidden;
-  z-index: 10;
-  display: none;
-}
+/* Okno titulků */
+.credits-window{position:fixed;top:0;left:0;width:100%;height:100%;overflow:hidden;z-index:10;display:none}
+.credits-inner{position:absolute;left:50%;transform:translateX(-50%);width:min(680px,92vw);text-align:center;padding-bottom:60px}
 
-/* Blok titulků — startuje dole, plyne nahoru */
-.credits-inner {
-  position: absolute;
-  left: 50%; transform: translateX(-50%);
-  width: min(680px, 92vw);
-  text-align: center;
-  padding-bottom: 80px;
-  /* JS nastaví top a spustí animaci */
-}
+.credits-veta{font-size:clamp(19px,3.6vw,25px);line-height:1.8;font-style:italic;color:rgba(255,248,230,.92);margin-bottom:56px;text-shadow:0 0 50px rgba(255,200,100,.15)}
 
-.credits-veta {
-  font-size: clamp(19px, 3.6vw, 25px);
-  line-height: 1.75;
-  font-style: italic;
-  color: rgba(255, 248, 230, 0.92);
-  margin-bottom: 52px;
-  text-shadow: 0 0 50px rgba(255,200,100,0.18);
-}
-.credits-veta:last-of-type { margin-bottom: 0; }
+/* Tlačítko plán */
+.btn-plan{display:none;margin-top:48px;background:linear-gradient(135deg,#ff9a4d 0%,#e06010 100%);color:#fff;border:none;border-radius:40px;padding:20px 56px;font-size:20px;font-family:Georgia,serif;font-style:italic;font-weight:bold;cursor:pointer;box-shadow:0 6px 30px rgba(224,96,16,.45);opacity:0;transition:transform .2s,box-shadow .2s}
+.btn-plan.show{animation:riseIn 1.4s ease forwards}
+.btn-plan:hover{transform:translateY(-3px);box-shadow:0 10px 36px rgba(224,96,16,.55)}
 
-/* Tlačítko Zobrazit plán */
-.btn-plan {
-  display: none;
-  margin-top: 60px;
-  background: linear-gradient(135deg, #ff9a4d 0%, #e06010 100%);
-  color: #fff; border: none;
-  border-radius: 40px; padding: 20px 56px;
-  font-size: 20px; font-family: Georgia,serif;
-  font-style: italic; font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 6px 30px rgba(224,96,16,0.45);
-  opacity: 0;
-}
-.btn-plan.show { animation: riseIn 1.4s ease forwards; }
-.btn-plan:hover { transform: translateY(-3px); box-shadow: 0 10px 36px rgba(224,96,16,0.55); }
+/* Spodní panel */
+.bottom-bar{position:fixed;bottom:0;left:0;right:0;z-index:30;display:flex;align-items:center;justify-content:space-between;padding:18px 26px;pointer-events:none}
+.left-group{display:flex;align-items:center;gap:12px;pointer-events:all}
+.btn-music{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.5);font-size:18px;width:42px;height:42px;border-radius:50%;cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.btn-music:hover{background:rgba(255,255,255,.14);color:#fff}
+.btn-music.on{background:rgba(255,200,100,.18);border-color:rgba(255,200,100,.5);color:rgba(255,220,120,.9)}
+.music-hint{font-family:Arial,sans-serif;font-size:12px;color:rgba(255,230,170,.4);line-height:1.4;max-width:200px;transition:opacity .6s}
+.music-hint.hidden{opacity:0;pointer-events:none}
 
-/* Tlačítka dole */
-.btn-music {
-  position: fixed; bottom: 22px; left: 26px; z-index: 30;
-  background: rgba(255,255,255,0.07);
-  border: 1px solid rgba(255,255,255,0.15);
-  color: rgba(255,255,255,0.45);
-  font-size: 17px; width: 40px; height: 40px;
-  border-radius: 50%; cursor: pointer;
-  transition: all 0.3s;
-  display: flex; align-items: center; justify-content: center;
-}
-.btn-music:hover { background: rgba(255,255,255,0.14); color:#fff; }
-.btn-music.on { background: rgba(255,200,100,0.18); border-color:rgba(255,200,100,0.5); color:rgba(255,220,120,0.9); }
+.btn-skip{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.4);font-size:13px;font-family:Arial,sans-serif;padding:8px 18px;border-radius:20px;cursor:pointer;transition:all .3s;pointer-events:all}
+.btn-skip:hover{background:rgba(255,255,255,.14);color:#fff}
 
-.btn-skip {
-  position: fixed; bottom: 26px; right: 26px; z-index: 30;
-  background: rgba(255,255,255,0.07);
-  border: 1px solid rgba(255,255,255,0.15);
-  color: rgba(255,255,255,0.4);
-  font-size: 13px; font-family: Arial,sans-serif;
-  padding: 8px 16px; border-radius: 20px;
-  cursor: pointer; transition: all 0.3s;
-}
-.btn-skip:hover { background: rgba(255,255,255,0.14); color:#fff; }
+/* Overlay */
+#overlay{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:100;transition:opacity .8s ease}
+#overlay.fade{opacity:1;pointer-events:all}
 
-/* Overlay přechod */
-#overlay {
-  position: fixed; inset: 0;
-  background: #fff; opacity: 0;
-  pointer-events: none; z-index: 100;
-  transition: opacity 0.8s ease;
-}
-#overlay.fade { opacity:1; pointer-events:all; }
-
-@keyframes riseIn {
-  from { opacity:0; transform:translateY(22px); }
-  to   { opacity:1; transform:translateY(0); }
-}
+@keyframes riseIn{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
 <body>
@@ -154,13 +60,17 @@ body {
 </div>
 
 <div class="credits-window" id="creditsWindow">
-  <div class="credits-inner" id="creditsInner">
-    <!-- věty + tlačítko vloží JS -->
-  </div>
+  <div class="credits-inner" id="creditsInner"></div>
 </div>
 
-<button class="btn-music" id="btnMusic" onclick="toggleMusic()" title="Zapnout hudbu">🎵</button>
-<button class="btn-skip" onclick="skipToEnd()">Přeskočit →</button>
+<div class="bottom-bar">
+  <div class="left-group">
+    <button class="btn-music" id="btnMusic" onclick="toggleMusic()" title="Zapnout zvukový doprovod">🎵</button>
+    <div class="music-hint" id="musicHint">Kliknutím spustíte<br>zvukový doprovod</div>
+  </div>
+  <button class="btn-skip" onclick="skipToEnd()">Přeskočit →</button>
+</div>
+
 <div id="overlay"></div>
 
 <script>
@@ -169,181 +79,188 @@ const allParams = p.toString();
 
 // ── Canvas částice ──
 const canvas = document.getElementById('canvas');
-const ctx    = canvas.getContext('2d');
+const ctx = canvas.getContext('2d');
 let pts = [];
 function resizeCanvas(){ canvas.width=innerWidth; canvas.height=innerHeight; }
 resizeCanvas(); window.addEventListener('resize', resizeCanvas);
-function mkPt(){ return {x:Math.random()*canvas.width, y:canvas.height+20, r:Math.random()*2+0.4, sp:Math.random()*0.4+0.12, a:Math.random()*0.32+0.07, dx:(Math.random()-.5)*0.22, h:Math.random()*38+26}; }
+function mkPt(){ return {x:Math.random()*canvas.width,y:canvas.height+20,r:Math.random()*2+0.4,sp:Math.random()*0.38+0.1,a:Math.random()*0.3+0.06,dx:(Math.random()-.5)*.2,h:Math.random()*38+26}; }
 for(let i=0;i<60;i++){ const pt=mkPt(); pt.y=Math.random()*canvas.height; pts.push(pt); }
 (function loop(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
-  pts.forEach(pt=>{ ctx.beginPath(); ctx.arc(pt.x,pt.y,pt.r,0,Math.PI*2); ctx.fillStyle=`hsla(${pt.h},78%,70%,${pt.a})`; ctx.fill(); pt.y-=pt.sp; pt.x+=pt.dx; if(pt.y<-10) Object.assign(pt,mkPt()); });
+  pts.forEach(pt=>{
+    ctx.beginPath(); ctx.arc(pt.x,pt.y,pt.r,0,Math.PI*2);
+    ctx.fillStyle=`hsla(${pt.h},75%,70%,${pt.a})`; ctx.fill();
+    pt.y-=pt.sp; pt.x+=pt.dx;
+    if(pt.y<-10) Object.assign(pt,mkPt());
+  });
   requestAnimationFrame(loop);
 })();
 
-// ── Flétna — Web Audio API ──
-let audioCtx=null, masterGain=null, musicOn=false;
-// Noty: jednoduchá pentatonická melodie (C4 dur)
-const NOTES = [261.6, 293.7, 329.6, 392.0, 440.0, 392.0, 349.2, 329.6, 293.7, 261.6, 293.7, 329.6];
-const NOTE_DUR = 1.3; // sekund
-let noteTimer = null;
-let noteIdx = 0;
+// ── Relaxační ambient hudba ──
+// Pomalé překrývající se noty — spa/meditační styl
+let audioCtx=null, masterGain=null, musicOn=false, noteTimer=null, noteIdx=0;
+// Pentatonika G dur — teplá, uklidňující
+const PAD_NOTES = [196.0, 246.9, 293.7, 349.2, 392.0, 440.0, 493.9, 392.0, 349.2, 293.7, 246.9, 196.0];
+const PAD_INTERVAL = 2800; // ms mezi notami — pomalé
+const PAD_DUR = 4.5;       // sekund trvání každé noty (překrývají se)
 
 function initAudio(){
   audioCtx = new (window.AudioContext||window.webkitAudioContext)();
   masterGain = audioCtx.createGain();
   masterGain.gain.value = 0;
+
+  // Reverb — jednoduchý convolver přes zpožděný signál
+  const delay = audioCtx.createDelay(1.2);
+  delay.delayTime.value = 0.35;
+  const delayGain = audioCtx.createGain();
+  delayGain.gain.value = 0.28;
+  masterGain.connect(delay);
+  delay.connect(delayGain);
+  delayGain.connect(delay); // feedback
+  delayGain.connect(audioCtx.destination);
   masterGain.connect(audioCtx.destination);
 }
 
-function playNote(freq, when){
-  const osc  = audioCtx.createOscillator();
-  const osc2 = audioCtx.createOscillator(); // harmonická — jemnější flétna
+function playPadNote(freq, when){
+  const osc  = audioCtx.createOscillator(); // základ — teplý sine
+  const osc2 = audioCtx.createOscillator(); // oktáva — vzdušnost
+  const osc3 = audioCtx.createOscillator(); // kvinta — plnost
   const env  = audioCtx.createGain();
 
-  osc.type  = 'sine';
-  osc2.type = 'triangle';
-  osc.frequency.value  = freq;
-  osc2.frequency.value = freq * 2.01; // oktáva nahoře, lehce detunovaná
+  osc.type='sine';   osc.frequency.value=freq;
+  osc2.type='sine';  osc2.frequency.value=freq*2;
+  osc3.type='sine';  osc3.frequency.value=freq*1.5;
 
-  const g1 = audioCtx.createGain(); g1.gain.value = 0.7;
-  const g2 = audioCtx.createGain(); g2.gain.value = 0.18;
-  osc.connect(g1);  g1.connect(env);
+  // Vibrato — jemné, jako dech
+  const lfo=audioCtx.createOscillator(); const lfoG=audioCtx.createGain();
+  lfo.frequency.value=4.8; lfoG.gain.value=1.2;
+  lfo.connect(lfoG); lfoG.connect(osc.frequency);
+  lfo.start(when); lfo.stop(when+PAD_DUR+.2);
+
+  const g1=audioCtx.createGain(); g1.gain.value=0.55;
+  const g2=audioCtx.createGain(); g2.gain.value=0.15;
+  const g3=audioCtx.createGain(); g3.gain.value=0.18;
+  osc.connect(g1); g1.connect(env);
   osc2.connect(g2); g2.connect(env);
+  osc3.connect(g3); g3.connect(env);
   env.connect(masterGain);
 
-  // ADSR obal — flétna má měkký nástup
+  // ADSR — dlouhý attack (flétna/flažolet), pomalý release
   env.gain.setValueAtTime(0, when);
-  env.gain.linearRampToValueAtTime(0.55, when + 0.18);  // attack
-  env.gain.linearRampToValueAtTime(0.38, when + 0.4);   // decay
-  env.gain.setValueAtTime(0.38, when + NOTE_DUR - 0.25);
-  env.gain.linearRampToValueAtTime(0, when + NOTE_DUR);  // release
+  env.gain.linearRampToValueAtTime(0.38, when+1.4);  // attack 1.4s
+  env.gain.linearRampToValueAtTime(0.28, when+2.2);  // decay
+  env.gain.setValueAtTime(0.28, when+PAD_DUR-1.0);
+  env.gain.linearRampToValueAtTime(0, when+PAD_DUR); // release
 
-  osc.start(when);  osc.stop(when + NOTE_DUR + 0.05);
-  osc2.start(when); osc2.stop(when + NOTE_DUR + 0.05);
+  osc.start(when);  osc.stop(when+PAD_DUR+.1);
+  osc2.start(when); osc2.stop(when+PAD_DUR+.1);
+  osc3.start(when); osc3.stop(when+PAD_DUR+.1);
 }
 
-function scheduleMelody(){
-  if(!musicOn) return;
-  const when = audioCtx.currentTime + 0.05;
-  playNote(NOTES[noteIdx % NOTES.length], when);
+function scheduleNote(){
+  if(!musicOn||!audioCtx) return;
+  playPadNote(PAD_NOTES[noteIdx%PAD_NOTES.length], audioCtx.currentTime+0.05);
   noteIdx++;
-  noteTimer = setTimeout(scheduleMelody, NOTE_DUR * 1000);
+  noteTimer=setTimeout(scheduleNote, PAD_INTERVAL);
 }
 
 function toggleMusic(){
   if(!audioCtx) initAudio();
-  const btn = document.getElementById('btnMusic');
+  const btn=document.getElementById('btnMusic');
+  const hint=document.getElementById('musicHint');
   if(!musicOn){
-    masterGain.gain.linearRampToValueAtTime(0.6, audioCtx.currentTime + 1.5);
-    musicOn = true;
-    btn.classList.add('on'); btn.title='Vypnout hudbu';
-    scheduleMelody();
+    masterGain.gain.linearRampToValueAtTime(0.65, audioCtx.currentTime+2);
+    musicOn=true;
+    btn.classList.add('on'); btn.title='Vypnout zvukový doprovod';
+    hint.classList.add('hidden');
+    scheduleNote();
   } else {
-    masterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1);
-    musicOn = false;
+    masterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime+1.5);
+    musicOn=false;
     clearTimeout(noteTimer);
-    btn.classList.remove('on'); btn.title='Zapnout hudbu';
+    btn.classList.remove('on'); btn.title='Zapnout zvukový doprovod';
+    hint.classList.remove('hidden');
   }
 }
 
 // ── Navigace ──
 function goToResult(){
+  if(musicOn) toggleMusic();
   document.getElementById('overlay').classList.add('fade');
   setTimeout(()=>{ window.location.href='/result.html?'+allParams; }, 850);
 }
 
 // ── Scroll titulků ──
-let scrollAnim = null; // requestAnimationFrame ID
-let scrollPos  = 0;    // aktuální top v px
-let totalHeight = 0;   // výška creditsInner
-let scrollDone  = false;
+let scrollAnim=null, scrollPos=0, totalHeight=0, scrollDone=false, creditsStarted=false;
 
 function startScroll(){
-  const win   = document.getElementById('creditsWindow');
-  const inner = document.getElementById('creditsInner');
-  win.style.display = 'block';
-
-  // Začínáme pod obrazovkou
-  scrollPos = window.innerHeight + 40;
-  inner.style.top = scrollPos + 'px';
-  totalHeight = inner.offsetHeight;
-
-  // Cíl: přesunout tlačítko do středu obrazovky
-  // = scrollovat dokud není tlačítko (poslední dítě) v centru
-  const speed = 0.55; // px/frame = cca 33px/s při 60fps — pomalé a elegantní
+  creditsStarted=true;
+  const win=document.getElementById('creditsWindow');
+  const inner=document.getElementById('creditsInner');
+  win.style.display='block';
+  scrollPos=window.innerHeight+40;
+  inner.style.top=scrollPos+'px';
+  totalHeight=inner.offsetHeight;
+  const speed=0.5;
 
   function frame(){
     if(scrollDone) return;
-    scrollPos -= speed;
-    inner.style.top = scrollPos + 'px';
-
-    // Konec = celý text přejel + trochu navíc (tlačítko je vidět ve středu)
-    const endPos = -(totalHeight - window.innerHeight * 0.55);
-    if(scrollPos <= endPos){
-      scrollDone = true;
-      showPlanBtn();
-      return;
-    }
-    scrollAnim = requestAnimationFrame(frame);
+    scrollPos-=speed;
+    inner.style.top=scrollPos+'px';
+    const endPos=-(totalHeight-window.innerHeight*0.5);
+    if(scrollPos<=endPos){ scrollDone=true; showPlanBtn(); return; }
+    scrollAnim=requestAnimationFrame(frame);
   }
-  scrollAnim = requestAnimationFrame(frame);
+  scrollAnim=requestAnimationFrame(frame);
 }
 
 function skipToEnd(){
-  // Zastavíme scroll a zobrazíme tlačítko hned
-  scrollDone = true;
+  if(!creditsStarted){ goToResult(); return; }
+  if(scrollDone) return;
+  scrollDone=true;
   cancelAnimationFrame(scrollAnim);
-  const inner = document.getElementById('creditsInner');
-  // Přesuneme na finální pozici
-  const endPos = -(totalHeight - window.innerHeight * 0.55);
-  inner.style.top = Math.min(endPos, scrollPos) + 'px';
+  const inner=document.getElementById('creditsInner');
+  const endPos=-(totalHeight-window.innerHeight*0.5);
+  inner.style.top=endPos+'px';
+  inner.style.transition='top 0.8s ease';
   showPlanBtn();
 }
 
 function showPlanBtn(){
-  const btn = document.getElementById('planBtn');
-  if(btn) { btn.style.display='inline-block'; requestAnimationFrame(()=>btn.classList.add('show')); }
+  const btn=document.getElementById('planBtn');
+  if(btn){ btn.style.display='inline-block'; requestAnimationFrame(()=>btn.classList.add('show')); }
 }
 
-// ── Načtení vět z API ──
+// ── Načtení vět ──
 async function loadFilm(){
-  const answers = {};
+  const answers={};
   p.forEach((v,k)=>{ answers[k]=(!isNaN(v)&&v!=='')? Number(v):v; });
   try{
-    const res = await fetch('/api/film-o-vas',{
+    const res=await fetch('/api/film-o-vas',{
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({answers})
+      body:JSON.stringify({answers})
     });
-    const data = await res.json();
+    const data=await res.json();
     if(data.error||!data.vety?.length) throw new Error();
     buildCredits(data.vety);
-  } catch(_){
-    goToResult();
-  }
+  } catch(_){ goToResult(); }
 }
 
 function buildCredits(vety){
   document.getElementById('loadingWrap').style.display='none';
-  const inner = document.getElementById('creditsInner');
+  const inner=document.getElementById('creditsInner');
   inner.innerHTML='';
-
-  // Věty
   vety.forEach(text=>{
-    const p2 = document.createElement('p');
-    p2.className = 'credits-veta';
-    p2.textContent = text;
-    inner.appendChild(p2);
+    const el=document.createElement('p');
+    el.className='credits-veta';
+    el.textContent=text;
+    inner.appendChild(el);
   });
-
-  // Tlačítko (skryté, zobrazí se až po skončení scrollu)
-  const btn = document.createElement('button');
-  btn.className = 'btn-plan';
-  btn.id = 'planBtn';
-  btn.textContent = 'Zobrazit můj plán →';
-  btn.onclick = goToResult;
+  const btn=document.createElement('button');
+  btn.className='btn-plan'; btn.id='planBtn';
+  btn.textContent='Zobrazit můj plán →';
+  btn.onclick=goToResult;
   inner.appendChild(btn);
-
   startScroll();
 }
 
