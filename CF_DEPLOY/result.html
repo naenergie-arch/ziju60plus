@@ -130,9 +130,15 @@ body{background:#fbf4e7;min-height:100vh;font-family:'Montserrat',sans-serif;col
 .car-progress{font-size:12px;color:#b07840;font-weight:600;margin-left:4px}
 
 /* ── PLÁN 7 DNÍ – wrapper ── */
-.plan7-wrap{background:linear-gradient(160deg,#fff8f0 0%,#fff3e6 100%);border:2px solid #f0c870;border-radius:28px;padding:24px 20px 20px;margin-bottom:24px;box-shadow:0 4px 20px rgba(240,160,0,.1)}
+.plan7-wrap{background:linear-gradient(160deg,#fff8f0 0%,#fff3e6 100%);border:3px solid #f0c060;border-radius:28px;padding:24px 20px 20px;margin-bottom:24px;box-shadow:0 0 0 5px #f5d888, 0 0 0 9px #f0c060, 0 6px 28px rgba(200,150,0,.18)}
 .plan7-heading{font-family:Georgia,serif;font-style:italic;font-size:22px;color:#3a2008;text-align:center;margin-bottom:4px}
 .plan7-heading-line{width:48px;height:3px;background:linear-gradient(90deg,#ff8a3d,#f0c060);border-radius:2px;margin:0 auto 16px}
+.carousel-swipe-hint{text-align:center;font-size:13px;color:#b07840;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:8px;opacity:.8}
+.swipe-hand{font-size:18px;animation:nudge 1.8s ease-in-out infinite}
+.swipe-hand.left{animation-delay:.3s;transform:scaleX(-1);display:inline-block}
+@keyframes nudge{0%,100%{transform:translateX(0)}40%{transform:translateX(5px)}70%{transform:translateX(-5px)}}
+@keyframes nudgeL{0%,100%{transform:scaleX(-1) translateX(0)}40%{transform:scaleX(-1) translateX(5px)}70%{transform:scaleX(-1) translateX(-5px)}}
+.swipe-hand.left{animation:nudgeL 1.8s ease-in-out infinite;animation-delay:.3s}
 
 /* ── CENÍK ── */
 .cenik-section{margin-top:8px}
@@ -515,6 +521,11 @@ function renderRec(data) {
         ${items.map((_,i)=>`<div class="car-dot${i===0?' active':''}" onclick="carGo(${i})"></div>`).join('')}
       </div>
       <button class="car-btn" id="carNext" onclick="carMove(1)">›</button>
+    </div>
+    <div class="carousel-swipe-hint">
+      <span class="swipe-hand left">👈</span>
+      <span>přejeďte pro další den</span>
+      <span class="swipe-hand">👉</span>
     </div>`;
 
   initCarousel(items.length);
