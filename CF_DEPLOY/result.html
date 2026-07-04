@@ -571,7 +571,7 @@ function renderCenik() {
         <div class="access-days">⏳ Zbývá vám <strong>${left} ${left === 1 ? 'den' : left < 5 ? 'dny' : 'dní'}</strong> z bezplatného profilu</div>
         <div class="access-btns">
           <button class="price-btn" data-plan="access30" onclick="startCheckout('access30')">30 dní za 299 Kč →</button>
-          <button class="price-btn" data-plan="direct90" onclick="startCheckout('direct90')" style="background:#3a2008">90 dní za 699 Kč → <small style="font-weight:400;font-style:normal">(výhodnější)</small></button>
+          <button class="price-btn" data-plan="direct90" onclick="startCheckout('direct90')" style="background:#3a2008">90 dní za 699 Kč →</button>
           <button class="btn-later" onclick="document.getElementById('cenikSection').style.display='none'">Zatím nechci</button>
         </div>
         <div class="price-note">Po 30 dnech možnost prodloužit na 90 dní za pouhých 400 Kč</div>
@@ -584,7 +584,7 @@ function renderCenik() {
         <div class="access-sub">Váš profil je stále uložen. Pro přístup k doporučením pokračujte:</div>
         <div class="access-btns">
           <button class="price-btn" data-plan="access30" onclick="startCheckout('access30')">30 dní za 299 Kč →</button>
-          <button class="price-btn" data-plan="direct90" onclick="startCheckout('direct90')" style="background:#3a2008">90 dní za 699 Kč → <small style="font-weight:400;font-style:normal">(výhodnější)</small></button>
+          <button class="price-btn" data-plan="direct90" onclick="startCheckout('direct90')" style="background:#3a2008">90 dní za 699 Kč →</button>
         </div>
         <div class="price-note">Po 30 dnech možnost prodloužit na 90 dní za pouhých 400 Kč</div>
       </div>`;
@@ -594,7 +594,7 @@ function renderCenik() {
     html = `
       <div class="access-strip active">
         <div class="access-days">✅ Přístup aktivní – zbývá <strong>${left} ${left === 1 ? 'den' : left < 5 ? 'dny' : 'dní'}</strong></div>
-        <div class="access-sub">Chcete prodloužit na 90 dní? Doplatíte jen 400 Kč.</div>
+        <div class="access-sub">Prodloužení na 90 dní – doplatek 400 Kč</div>
         <button class="price-btn" data-plan="upgrade90" onclick="startCheckout('upgrade90')">Prodloužit na 90 dní – doplatek 400 Kč →</button>
       </div>`;
 
