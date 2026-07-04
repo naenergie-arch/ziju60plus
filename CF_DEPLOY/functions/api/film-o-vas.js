@@ -26,18 +26,32 @@ export async function onRequestPost(context) {
   const vekSkutecny = parseInt(answers.vek_skutecny) || 0;
   const vekPocitovy = parseInt(answers.vek_pocitovy) || 0;
 
-  const prompt = `Jsi empatický filmový vypravěč pro seniory 60+.
-Dostaneš výsledky osobního dotazníku. Napiš 4 krátké, poetické věty – jako hlas dokumentárního filmu o tomto člověku.
+  const prompt = `Jsi empatický filmový vypravěč pro seniory 60+. Píšeš ČESKY, bez chyb.
+Dostaneš výsledky osobního dotazníku. Napiš 4 krátké, poetické věty – jako hlas dokumentárního filmu.
 
-PRAVIDLA:
-- VŽDY vykej (Vy, Vás, Váš)
-- ${jeZena ? "Osoba je ŽENA – ženský rod" : "Osoba je MUŽ – mužský rod"}
-- Každá věta musí být konkrétní – ne obecná. Zmiň co ho/ji baví, kde má sílu, co mu/jí chybí.
-- Věty mají být překvapivé – člověk si má říct "jak to ví?"
-- Tón: teplý, poetický, trochu dojemný. Jako moudrý přítel co vás dobře vidí.
-- Každá věta na nový řádek. Žádné uvozovky, žádné čísla, žádné odrážky.
-- Začni první větou která obsahuje PŘESNĚ toto oslovení (nezměněné, ani písmeno): "${osloveni}"
-- KRITICKÉ: jméno osoby je přesně "${jmeno}" — neměň ho, neskloňuj jinak, nenahrazuj
+JAZYK A FORMA:
+- Piš spisovnou, přirozenou češtinou. Žádné germanismy, žádné překlady z angličtiny.
+- VŽDY vykej: Vy, Vás, Váš, Vám, Vašich. Nikdy: ty, tě, tvůj.
+- ${jeZena ? "Osoba je ŽENA – všude ženský rod (byla, cítila, dokázala…)" : "Osoba je MUŽ – všude mužský rod (byl, cítil, dokázal…)"}
+- Správné pádové koncovky, správná shoda podmětu s přísudkem.
+
+OBSAH:
+- První věta MUSÍ začínat přesně takto (zkopíruj doslova, nic nemeň): "${osloveni},"
+- Jméno "${jmeno}" NESKLOŇUJ, NEMEŇ, NENAHRAZUJ — použij ho přesně tak jak je.
+- Každá věta konkrétní – zmiň co osobu baví, kde má sílu, kde příležitost ke změně.
+- Tón: teplý, dojemný, poetický. Jako by tě někdo opravdu znal.
+- Žádné uvozovky, čísla, odrážky. Každá věta na vlastním řádku.
+
+DATA Z DOTAZNÍKU:
+- Pohyb: ${pohyb}/3 ${pohyb===3?"(pravidelný)":pohyb===2?"(občasný)":"(chybí)"}
+- Nálada: ${nalada}/3 ${nalada===3?"(dobrá)":nalada===2?"(kolísá)":"(nízká)"}
+- Kontakt s lidmi: ${spojeni}/3 ${spojeni===3?"(živý)":spojeni===2?"(omezený)":"(osamělost)"}
+- Spánek: ${spanek}/3 ${spanek===3?"(dobrý)":spanek===2?"(průměrný)":"(špatný)"}
+- Motivace: ${motivace}/3 ${motivace===3?"(silná)":motivace===2?"(kolísá)":"(chybí)"}
+- Zájmy: ${zalib || "nespecifikováno"}
+${vekSkutecny ? `- Věk: ${vekSkutecny} let` : ""}
+${vekPocitovy && vekPocitovy !== vekSkutecny ? `- Cítí se na: ${vekPocitovy} let` : ""}
+- Volný text od osoby: "${volnyText || "neuvedeno"}"
 
 DATA Z DOTAZNÍKU:
 - Pohyb: ${pohyb}/3 ${pohyb===3?"(aktivní)":pohyb===2?"(občasný)":"(chybí)"}
@@ -61,7 +75,7 @@ Napiš přesně 4 věty. Nic víc, nic míň. Každá na samostatném řádku. �
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "claude-haiku-4-5-20251001",
+        model: "claude-sonnet-4-5",
         max_tokens: 400,
         messages: [{ role: "user", content: prompt }],
       }),
