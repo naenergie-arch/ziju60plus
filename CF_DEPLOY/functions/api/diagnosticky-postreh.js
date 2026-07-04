@@ -82,7 +82,7 @@ NAPIŠ VALIDNÍ JSON s těmito klíči (bez dalšího textu):
   "postreh": "Osobní postřeh 3-4 věty – začni oslovením (vykej!), buď konkrétní a překvapující.",
   "silna_stranka": "Jedna věta – co je na této osobě nejsilnější (vykej!)",
   "prilezitost": "Jedna věta – největší příležitost ke změně (vykej!)",
-  "tydenni_tema": "Krátký název tématu pro příštích 7 dní (max 5 slov)",
+  "tydenni_tema": "Krátký název tématu pro příštích 7 dní (max 5 slov) – ${jeZena ? 'ženský rod, NIKDY nepoužívej slovo děda nebo muž' : 'mužský rod, NIKDY nepoužívej slovo babička nebo žena'}",
   "doporuceni": [
     {"ikona":"emoji","nazev":"Krátký název aktivity","popis":"1-2 věty proč právě tato aktivita (vykej!)","kat":"jedno z: pohyb|lide|kultura|tvorba|vzdelani|priroda|rodina|spanek|jidlo|smysl"}
   ]
