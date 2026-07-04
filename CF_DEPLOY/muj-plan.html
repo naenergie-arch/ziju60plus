@@ -257,9 +257,9 @@ body {
 
       <!-- Formulář -->
       <div id="formSection">
-        <p class="card-desc">Zadejte svůj email a hned uvidíte stav svého předplatného. Zrušení nebo obnova jsou na jeden klik.</p>
+        <p class="card-desc">Zadejte svůj e-mail a hned uvidíte stav svého předplatného. Zrušení nebo obnova jsou na jeden klik.</p>
         <div class="form-group">
-          <label for="emailInput">Váš email</label>
+          <label for="emailInput">Váš e-mail</label>
           <input type="email" id="emailInput" placeholder="vas@email.cz" autocomplete="email">
         </div>
         <button class="btn-primary" id="submitBtn" onclick="loadPlan()">Zobrazit můj plán</button>
@@ -313,7 +313,7 @@ async function loadPlan() {
   errEl.style.display = "none";
 
   if (!email || !email.includes("@")) {
-    errEl.textContent = "Zadejte prosím platný email.";
+    errEl.textContent = "Zadejte prosím platný e-mail.";
     errEl.style.display = "block";
     return;
   }

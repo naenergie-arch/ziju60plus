@@ -382,7 +382,7 @@ function showEmailGate() {
     <div class="egate">
       <div class="egate-icon">✉️</div>
       <h2>Téměř hotovo!</h2>
-      <p class="egate-sub">Zadejte svůj email a my vám zašleme ověřovací kód.<br>
+      <p class="egate-sub">Zadejte svůj e-mail a my vám zašleme ověřovací kód.<br>
         Váš profil zobrazíme hned po ověření.</p>
       <input class="egate-input" id="gateEmailInput" type="email"
         placeholder="vas@email.cz" autocomplete="email">
@@ -405,7 +405,7 @@ async function sendOtp() {
   err.textContent = '';
 
   if (!email || !email.includes('@') || !email.includes('.')) {
-    err.textContent = 'Zadejte platný email.';
+    err.textContent = 'Zadejte platný e-mail.';
     return;
   }
 
@@ -434,7 +434,7 @@ function showOtpVerify() {
   document.getElementById('quiz').innerHTML = `
     <div class="egate">
       <div class="egate-icon">🔐</div>
-      <h2>Zadejte kód z emailu</h2>
+      <h2>Zadejte kód z e-mailu</h2>
       <p class="egate-sub">Odeslali jsme 6-místný kód na<br><strong>${gateEmail}</strong></p>
       <div class="otp-boxes" id="otpBoxes">
         <input class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]">
@@ -448,7 +448,7 @@ function showOtpVerify() {
         Potvrdit a zobrazit profil →
       </button>
       <div class="egate-err" id="otpErr"></div>
-      <button class="egate-resend" onclick="showEmailGate()">← Zadat jiný email</button>
+      <button class="egate-resend" onclick="showEmailGate()">← Zadat jiný e-mail</button>
       &nbsp;·&nbsp;
       <button class="egate-resend" onclick="resendOtp()">Odeslat kód znovu</button>
     </div>`;
