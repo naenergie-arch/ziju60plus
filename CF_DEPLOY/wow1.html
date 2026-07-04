@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Váš příběh – Žiju 60 plus</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+body {
+  min-height: 100vh;
+  background: #0a0814;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: Georgia, 'Times New Roman', serif;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Plovoucí částice */
+#canvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Gradient přechod pozadí */
+.bg-glow {
+  position: fixed;
+  bottom: -30%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120vw;
+  height: 60vh;
+  background: radial-gradient(ellipse at center, rgba(255,140,40,0.18) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+  transition: opacity 3s ease;
+}
+
+/* Kontejner vět */
+.film-wrap {
+  position: relative;
+  z-index: 10;
+  max-width: 720px;
+  width: 92%;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.film-veta {
+  font-size: clamp(20px, 4vw, 28px);
+  line-height: 1.65;
+  color: rgba(255, 248, 230, 0);
+  margin-bottom: 28px;
+  font-style: italic;
+  text-shadow: 0 0 40px rgba(255,200,100,0.3);
+  transition: color 2.2s ease, text-shadow 2.2s ease;
+  min-height: 1.65em;
+}
+
+.film-veta.visible {
+  color: rgba(255, 248, 230, 0.96);
+  text-shadow: 0 0 60px rgba(255,200,100,0.25);
+}
+
+/* Logo nahoře */
+.film-logo {
+  position: fixed;
+  top: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  font-family: Georgia, serif;
+  font-size: 13px;
+  color: rgba(255,230,170,0.45);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* Přeskočit tlačítko */
+.btn-skip {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 30;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.55);
+  font-size: 13px;
+  font-family: Arial, sans-serif;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-decoration: none;
+}
+.btn-skip:hover { background: rgba(255,255,255,0.15); color: #fff; }
+
+/* Tlačítko "Zobrazit plán" po skončení */
+.btn-plan {
+  display: none;
+  margin-top: 36px;
+  background: linear-gradient(135deg, #ff9a4d 0%, #e06010 100%);
+  color: #fff;
+  border: none;
+  border-radius: 40px;
+  padding: 18px 48px;
+  font-size: 19px;
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 6px 30px rgba(224,96,16,0.45);
+  transition: transform 0.2s, box-shadow 0.2s;
+  opacity: 0;
+}
+.btn-plan.show {
+  display: inline-block;
+  animation: fadeInUp 1.2s ease forwards;
+}
+.btn-plan:hover { transform: translateY(-3px); box-shadow: 0 10px 36px rgba(224,96,16,0.55); }
+
+/* Progress tečky */
+.progress-dots {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 20;
+}
+.dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  transition: background 0.6s, transform 0.4s;
+}
+.dot.active { background: rgba(255,200,100,0.85); transform: scale(1.3); }
+.dot.done   { background: rgba(255,200,100,0.4); }
+
+/* Loading spinner */
+.loading-wrap {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  color: rgba(255,230,170,0.5);
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  letter-spacing: 2px;
+}
+.spinner {
+  width: 36px; height: 36px;
+  border: 2px solid rgba(255,200,100,0.2);
+  border-top-color: rgba(255,200,100,0.7);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 16px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Bílý overlay pro přechod */
+#overlay {
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 100;
+  transition: opacity 0.8s ease;
+}
+#overlay.fade { opacity: 1; pointer-events: all; }
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+<div class="bg-glow" id="bgGlow"></div>
+
+<div class="film-logo">Žiju 60 plus</div>
+
+<div id="mainContent">
+  <div class="loading-wrap" id="loadingWrap">
+    <div class="spinner"></div>
+    <div>Připravujeme Váš příběh…</div>
+  </div>
+
+  <div class="film-wrap" id="filmWrap" style="display:none">
+    <!-- věty se generují dynamicky -->
+  </div>
+</div>
+
+<div class="progress-dots" id="progressDots" style="display:none"></div>
+
+<button class="btn-skip" id="btnSkip" onclick="goToResult()">Přeskočit →</button>
+<div id="overlay"></div>
+
+<script>
+// ── Parsování URL params ──
+const p = new URLSearchParams(location.search);
+const allParams = p.toString();
+
+// ── Canvas částice ──
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+function makeParticle() {
+  return {
+    x: Math.random() * canvas.width,
+    y: canvas.height + 20,
+    r: Math.random() * 2.5 + 0.5,
+    speed: Math.random() * 0.5 + 0.2,
+    alpha: Math.random() * 0.4 + 0.1,
+    drift: (Math.random() - 0.5) * 0.3,
+    hue: Math.random() * 40 + 30
+  };
+}
+
+for (let i = 0; i < 60; i++) {
+  const pt = makeParticle();
+  pt.y = Math.random() * canvas.height;
+  particles.push(pt);
+}
+
+function animParticles() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particles.forEach(pt => {
+    ctx.beginPath();
+    ctx.arc(pt.x, pt.y, pt.r, 0, Math.PI * 2);
+    ctx.fillStyle = `hsla(${pt.hue}, 80%, 70%, ${pt.alpha})`;
+    ctx.fill();
+    pt.y -= pt.speed;
+    pt.x += pt.drift;
+    if (pt.y < -10) { Object.assign(pt, makeParticle()); }
+  });
+  requestAnimationFrame(animParticles);
+}
+animParticles();
+
+// ── Navigace na result ──
+function goToResult() {
+  document.getElementById('overlay').classList.add('fade');
+  setTimeout(() => {
+    window.location.href = '/result.html?' + allParams;
+  }, 850);
+}
+
+// ── Načtení vět z API ──
+async function loadFilm() {
+  const answers = {};
+  p.forEach((v, k) => { answers[k] = isNaN(v) || v === '' ? v : Number(v); });
+
+  try {
+    const res = await fetch('/api/film-o-vas', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ answers })
+    });
+    const data = await res.json();
+    if (data.error || !data.vety || data.vety.length === 0) throw new Error('chyba');
+    showFilm(data.vety);
+  } catch (_) {
+    // Fallback — přejdeme rovnou na result
+    goToResult();
+  }
+}
+
+// ── Zobrazení vět s animací ──
+let currentIdx = 0;
+let vety = [];
+let filmTimer = null;
+let skipAllowed = false;
+
+function showFilm(filmVety) {
+  vety = filmVety;
+  document.getElementById('loadingWrap').style.display = 'none';
+
+  const wrap = document.getElementById('filmWrap');
+  wrap.style.display = 'block';
+  wrap.innerHTML = '';
+
+  // Vytvoříme elementy pro každou větu (všechny skryté)
+  vety.forEach(() => {
+    const el = document.createElement('p');
+    el.className = 'film-veta';
+    wrap.appendChild(el);
+  });
+
+  // Progress tečky
+  const dots = document.getElementById('progressDots');
+  dots.style.display = 'flex';
+  vety.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    d.id = 'dot-' + i;
+    dots.appendChild(d);
+  });
+
+  skipAllowed = true;
+  showNextVeta();
+}
+
+function showNextVeta() {
+  if (currentIdx >= vety.length) {
+    onFilmEnd();
+    return;
+  }
+
+  const els = document.querySelectorAll('.film-veta');
+  const dots = document.querySelectorAll('.dot');
+
+  // Aktualizujeme tečky
+  dots.forEach((d, i) => {
+    d.classList.remove('active', 'done');
+    if (i < currentIdx) d.classList.add('done');
+    if (i === currentIdx) d.classList.add('active');
+  });
+
+  // Zobrazíme aktuální větu
+  els[currentIdx].textContent = vety[currentIdx];
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      els[currentIdx].classList.add('visible');
+    });
+  });
+
+  currentIdx++;
+
+  const delay = currentIdx === vety.length ? 5500 : 4200;
+  filmTimer = setTimeout(showNextVeta, delay);
+}
+
+function onFilmEnd() {
+  // Označíme všechny tečky jako hotové
+  document.querySelectorAll('.dot').forEach(d => {
+    d.classList.remove('active');
+    d.classList.add('done');
+  });
+
+  // Zobrazíme tlačítko "Zobrazit můj plán"
+  const wrap = document.getElementById('filmWrap');
+  const btn = document.createElement('button');
+  btn.className = 'btn-plan';
+  btn.textContent = 'Zobrazit můj plán →';
+  btn.onclick = goToResult;
+  wrap.appendChild(btn);
+  requestAnimationFrame(() => btn.classList.add('show'));
+
+  // Po 8 sekundách automaticky přejdeme
+  setTimeout(goToResult, 8000);
+}
+
+// ── Start ──
+loadFilm();
+</script>
+</body>
+</html>

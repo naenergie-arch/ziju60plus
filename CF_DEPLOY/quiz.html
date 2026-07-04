@@ -581,7 +581,7 @@ function submitQuiz() {
   params.set('vek_pocitovy', vekData2.pocitovy || 0);
   Object.entries(scores).forEach(([k, v]) => params.set(k, v));
   params.set('total', total);
-  window.location.href = '/result.html?' + params.toString();
+  window.location.href = '/wow1.html?' + params.toString();
 }
 
 render();
