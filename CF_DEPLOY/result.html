@@ -63,17 +63,34 @@ body{background:#fbf4e7;min-height:100vh;font-family:'Montserrat',sans-serif;col
 .tema-tag{display:inline-block;background:#ff8a3d;color:#fff;border-radius:999px;padding:8px 22px;font-size:13px;font-weight:700;letter-spacing:.04em}
 .tema-sub{font-size:13px;color:#a07040;margin-top:8px}
 
-/* ── DOPORUČENÍ ── */
-.rec-list{display:flex;flex-direction:column;gap:14px;margin-bottom:32px}
-.rec-card{background:#fff;border:1.5px solid #e8d0a8;border-radius:20px;padding:20px;display:flex;gap:16px;align-items:flex-start;transition:box-shadow .18s,border-color .18s}
-.rec-card:hover{border-color:#ff8a3d;box-shadow:0 4px 20px #ff8a3d18}
-.rec-num{width:36px;height:36px;border-radius:50%;background:#fff8ee;border:1.5px solid #e8d0a8;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#b07840;flex-shrink:0}
-.rec-body{flex:1}
-.rec-top{display:flex;align-items:center;gap:10px;margin-bottom:6px}
-.rec-icon{font-size:24px}
-.rec-title{font-size:15px;font-family:Georgia,serif;font-style:italic;color:#3a2008;font-weight:700}
-.rec-desc{font-size:13px;color:#6b4c2a;line-height:1.6}
-.rec-kat{display:inline-block;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#b07840;margin-top:8px;background:#f8f0e4;border-radius:6px;padding:3px 8px}
+/* ── CAROUSEL ── */
+.carousel-wrap{margin-bottom:28px;position:relative}
+.carousel-track-outer{overflow:hidden;border-radius:20px}
+.carousel-track{display:flex;transition:transform .38s cubic-bezier(.4,0,.2,1)}
+.rec-card{min-width:100%;background:#fff;border:1.5px solid #e8d0a8;border-radius:20px;padding:24px 20px 20px;box-sizing:border-box}
+.rec-day{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#b07840;margin-bottom:10px}
+.rec-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.rec-icon{font-size:28px}
+.rec-title{font-size:16px;font-family:Georgia,serif;font-style:italic;color:#3a2008;font-weight:700;line-height:1.3}
+.rec-desc{font-size:14px;color:#6b4c2a;line-height:1.65;margin-bottom:12px}
+.rec-kat{display:inline-block;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#b07840;background:#f8f0e4;border-radius:6px;padding:3px 8px;margin-bottom:18px}
+
+/* Emoji reakce */
+.rec-reactions{display:flex;gap:10px;margin-top:4px;border-top:1px solid #f0ddb8;padding-top:14px}
+.reaction-btn{flex:1;background:#f8f4ee;border:1.5px solid #e8d0a8;border-radius:14px;padding:10px 6px;cursor:pointer;text-align:center;transition:all .18s;font-size:13px;color:#8a6040;line-height:1.3}
+.reaction-btn .r-emoji{font-size:22px;display:block;margin-bottom:3px}
+.reaction-btn:hover{border-color:#ff8a3d;background:#fff5ec}
+.reaction-btn.selected{border-color:#ff8a3d;background:#fff5ec;color:#b05010;font-weight:600}
+
+/* Navigace carousel */
+.carousel-nav{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:14px}
+.car-btn{width:38px;height:38px;border-radius:50%;border:1.5px solid #e8d0a8;background:#fff;color:#b07840;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .18s;flex-shrink:0}
+.car-btn:hover:not(:disabled){border-color:#ff8a3d;color:#ff8a3d}
+.car-btn:disabled{opacity:.35;cursor:default}
+.car-dots{display:flex;gap:7px;align-items:center}
+.car-dot{width:8px;height:8px;border-radius:50%;background:#e8d0a8;cursor:pointer;transition:all .25s}
+.car-dot.active{background:#ff8a3d;transform:scale(1.25)}
+.car-progress{font-size:12px;color:#b07840;font-weight:600;margin-left:4px}
 
 /* ── CENÍK ── */
 .cenik-section{margin-top:8px}
@@ -121,7 +138,7 @@ body{background:#fbf4e7;min-height:100vh;font-family:'Montserrat',sans-serif;col
   <div id="profileHeader" class="profile-header"></div>
   <div id="postreh" class="postreh-card" style="display:none"></div>
   <div id="temaWrap" class="tema-header" style="display:none"></div>
-  <div id="recList" class="rec-list"></div>
+  <div id="recList" class="carousel-wrap"></div>
   <div id="cenikSection" class="cenik-section" style="display:none"></div>
 </div>
 
@@ -303,21 +320,91 @@ function renderTema(data) {
     <div class="tema-sub">Inspirace na příštích 7 dní z Knihovny života – vyberte si, co vám sedí</div>`;
 }
 
+const REACTION_KEY = 'ziju60_reactions';
+function loadReactions() {
+  try { return JSON.parse(localStorage.getItem(REACTION_KEY)||'{}'); } catch { return {}; }
+}
+function saveReaction(idx, emoji) {
+  const r = loadReactions(); r[idx] = emoji;
+  try { localStorage.setItem(REACTION_KEY, JSON.stringify(r)); } catch {}
+}
+
 function renderRec(data) {
   const el = document.getElementById('recList');
   const items = (data.doporuceni||[]).slice(0,7);
-  el.innerHTML = items.map((r,i)=>`
-    <div class="rec-card">
-      <div class="rec-num">${i+1}</div>
-      <div class="rec-body">
-        <div class="rec-top">
-          <span class="rec-icon">${r.ikona||'🌸'}</span>
-          <span class="rec-title">${r.nazev||''}</span>
-        </div>
-        <div class="rec-desc">${r.popis||''}</div>
-        ${r.kat?`<span class="rec-kat">${KAT_LABELS[r.kat]||r.kat}</span>`:''}
+  const reactions = loadReactions();
+
+  // Track
+  const cardsHtml = items.map((r,i) => {
+    const sel = reactions[i] || '';
+    const rBtns = [
+      {e:'🌟', label:'Skvělé!'},
+      {e:'🤔', label:'Nevím'},
+      {e:'⏳', label:'Udělám later'},
+    ].map(rb => `
+      <button class="reaction-btn${sel===rb.e?' selected':''}" data-idx="${i}" data-emoji="${rb.e}" onclick="pickReaction(${i},'${rb.e}')">
+        <span class="r-emoji">${rb.e}</span>${rb.label}
+      </button>`).join('');
+
+    return `<div class="rec-card">
+      <div class="rec-day">Den ${i+1} ze 7</div>
+      <div class="rec-top">
+        <span class="rec-icon">${r.ikona||'🌸'}</span>
+        <span class="rec-title">${r.nazev||''}</span>
       </div>
-    </div>`).join('');
+      <div class="rec-desc">${r.popis||''}</div>
+      ${r.kat?`<span class="rec-kat">${KAT_LABELS[r.kat]||r.kat}</span>`:''}
+      <div class="rec-reactions">${rBtns}</div>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="carousel-track-outer">
+      <div class="carousel-track" id="carTrack">${cardsHtml}</div>
+    </div>
+    <div class="carousel-nav">
+      <button class="car-btn" id="carPrev" onclick="carMove(-1)">‹</button>
+      <div class="car-dots" id="carDots">
+        ${items.map((_,i)=>`<div class="car-dot${i===0?' active':''}" onclick="carGo(${i})"></div>`).join('')}
+      </div>
+      <button class="car-btn" id="carNext" onclick="carMove(1)">›</button>
+    </div>`;
+
+  initCarousel(items.length);
+}
+
+function pickReaction(idx, emoji) {
+  saveReaction(idx, emoji);
+  document.querySelectorAll(`.reaction-btn[data-idx="${idx}"]`).forEach(btn => {
+    btn.classList.toggle('selected', btn.dataset.emoji === emoji);
+  });
+}
+
+function initCarousel(total) {
+  let cur = 0;
+  const track = () => document.getElementById('carTrack');
+  const dots  = () => document.querySelectorAll('.car-dot');
+
+  function go(n) {
+    cur = Math.max(0, Math.min(total-1, n));
+    track().style.transform = `translateX(-${cur*100}%)`;
+    dots().forEach((d,i) => d.classList.toggle('active', i===cur));
+    document.getElementById('carPrev').disabled = cur===0;
+    document.getElementById('carNext').disabled = cur===total-1;
+  }
+
+  window.carMove = (d) => go(cur+d);
+  window.carGo   = (n) => go(n);
+  go(0);
+
+  // Swipe
+  let tx=0;
+  const outer = document.querySelector('.carousel-track-outer');
+  outer.addEventListener('touchstart', e=>{ tx=e.touches[0].clientX; }, {passive:true});
+  outer.addEventListener('touchend',   e=>{
+    const dx = e.changedTouches[0].clientX - tx;
+    if(Math.abs(dx)>40) go(cur + (dx<0?1:-1));
+  }, {passive:true});
 }
 
 function renderCenik() {
