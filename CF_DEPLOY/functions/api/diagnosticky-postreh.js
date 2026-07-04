@@ -84,11 +84,22 @@ NAPIŠ VALIDNÍ JSON s těmito klíči (bez dalšího textu):
   "prilezitost": "Jedna věta – největší příležitost ke změně (vykej!)",
   "tydenni_tema": "Krátký název tématu pro příštích 7 dní (max 5 slov) – ${jeZena ? 'ženský rod, NIKDY nepoužívej slovo děda nebo muž' : 'mužský rod, NIKDY nepoužívej slovo babička nebo žena'}",
   "doporuceni": [
-    {"ikona":"emoji","nazev":"Krátký název aktivity","popis":"1-2 věty proč právě tato aktivita (vykej!)","kat":"jedno z: pohyb|lide|kultura|tvorba|vzdelani|priroda|rodina|spanek|jidlo|smysl"}
+    {
+      "ikona": "emoji",
+      "nazev": "Krátký název aktivity (max 5 slov)",
+      "popis": "1-2 věty proč právě tato aktivita – propojit s odpověďmi osoby (vykej!)",
+      "prinos": ["✔ přínos 1 (max 6 slov)", "✔ přínos 2 (max 6 slov)", "✔ přínos 3 (max 6 slov)"],
+      "tip": "Tip odborníka: 1 věta od fyzioterapeuta / psychologa / nutričního terapeuta (vykej!)",
+      "odkaz1": "Název prvního doporučeného zdroje nebo cvičení (česky, max 5 slov)",
+      "odkaz2": "Název druhého doporučeného zdroje nebo cvičení (česky, max 5 slov)",
+      "kat": "jedno z: pohyb|lide|kultura|tvorba|vzdelani|priroda|rodina|spanek|jidlo|smysl"
+    }
   ]
 }
 
 Pole "doporuceni" musí mít přesně 7 položek – jeden tip na každý den.
+Každý přínos (prinos) je konkrétní, v češtině, začíná ✔.
+Tip odborníka (tip) začíná rolí: "Fyzioterapeut:", "Psycholog:", "Nutriční terapeutka:" apod.
 ${allCats.length ? `Zohledni zájmové kategorie: ${allCats.join(", ")}` : ""}`;
 
   try {
@@ -101,7 +112,7 @@ ${allCats.length ? `Zohledni zájmové kategorie: ${allCats.join(", ")}` : ""}`;
       },
       body: JSON.stringify({
         model: "claude-haiku-4-5-20251001",
-        max_tokens: 1800,
+        max_tokens: 3000,
         messages: [{ role: "user", content: prompt }],
       }),
     });

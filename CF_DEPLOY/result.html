@@ -75,12 +75,44 @@ body{background:#fbf4e7;min-height:100vh;font-family:'Montserrat',sans-serif;col
 .rec-desc{font-size:14px;color:#6b4c2a;line-height:1.65;margin-bottom:12px}
 .rec-kat{display:inline-block;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#b07840;background:#f8f0e4;border-radius:6px;padding:3px 8px;margin-bottom:18px}
 
+/* Přínosy */
+.rec-prinos{margin:10px 0 12px;display:flex;flex-direction:column;gap:5px}
+.rec-prinos span{font-size:13px;color:#3a7040;font-weight:500}
+
+/* Tip odborníka */
+.rec-tip{background:#f0f8f0;border-left:3px solid #52c060;border-radius:0 10px 10px 0;padding:10px 14px;font-size:13px;color:#3a5030;font-style:italic;margin-bottom:14px;line-height:1.5}
+
+/* Odkazy */
+.rec-links{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.rec-link{display:inline-flex;align-items:center;gap:5px;background:#fff8ee;border:1.5px solid #e8d0a8;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;color:#b07840;text-decoration:none;transition:all .18s;cursor:pointer}
+.rec-link:hover{border-color:#ff8a3d;background:#fff5ec;color:#c06010}
+
+/* Progress bar */
+.rec-progress{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.prog-blocks{display:flex;gap:3px}
+.prog-block{width:22px;height:8px;border-radius:4px;background:#e8d0a8}
+.prog-block.done{background:#ff8a3d}
+.prog-label{font-size:11px;color:#b07840;font-weight:600}
+
 /* Emoji reakce */
-.rec-reactions{display:flex;gap:10px;margin-top:4px;border-top:1px solid #f0ddb8;padding-top:14px}
-.reaction-btn{flex:1;background:#f8f4ee;border:1.5px solid #e8d0a8;border-radius:14px;padding:10px 6px;cursor:pointer;text-align:center;transition:all .18s;font-size:13px;color:#8a6040;line-height:1.3}
+.rec-reactions{display:flex;gap:8px;border-top:1px solid #f0ddb8;padding-top:14px}
+.reaction-btn{flex:1;background:#f8f4ee;border:1.5px solid #e8d0a8;border-radius:14px;padding:10px 6px;cursor:pointer;text-align:center;transition:all .18s;font-size:12px;color:#8a6040;line-height:1.3}
 .reaction-btn .r-emoji{font-size:22px;display:block;margin-bottom:3px}
 .reaction-btn:hover{border-color:#ff8a3d;background:#fff5ec}
 .reaction-btn.selected{border-color:#ff8a3d;background:#fff5ec;color:#b05010;font-weight:600}
+
+/* Sekce Co čeká dál */
+.preview-section{background:linear-gradient(135deg,#fff8f0,#ffecd6);border:1.5px solid #f0ddb8;border-radius:22px;padding:28px 24px;margin-bottom:20px;text-align:center}
+.preview-title{font-size:17px;font-family:Georgia,serif;font-style:italic;color:#3a2008;margin-bottom:8px}
+.preview-sub{font-size:13px;color:#a07040;margin-bottom:16px;line-height:1.6}
+.preview-topics{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:20px}
+.preview-topic{background:#fff;border:1.5px solid #e8d0a8;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;color:#b07840}
+
+/* AI kouč */
+.coach-section{background:#3a2008;border-radius:22px;padding:28px 24px;margin-bottom:24px;text-align:center;color:#fff8f0}
+.coach-icon{font-size:40px;margin-bottom:12px}
+.coach-title{font-size:18px;font-family:Georgia,serif;font-style:italic;margin-bottom:10px}
+.coach-desc{font-size:14px;color:#d4b896;line-height:1.65}
 
 /* Navigace carousel */
 .carousel-nav{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:14px}
@@ -139,6 +171,8 @@ body{background:#fbf4e7;min-height:100vh;font-family:'Montserrat',sans-serif;col
   <div id="postreh" class="postreh-card" style="display:none"></div>
   <div id="temaWrap" class="tema-header" style="display:none"></div>
   <div id="recList" class="carousel-wrap"></div>
+  <div id="previewSection"></div>
+  <div id="coachSection"></div>
   <div id="cenikSection" class="cenik-section" style="display:none"></div>
 </div>
 
@@ -346,13 +380,36 @@ function renderRec(data) {
         <span class="r-emoji">${rb.e}</span>${rb.label}
       </button>`).join('');
 
+    // Progress bar: den i+1 ze 7
+    const progBlocks = Array.from({length:7},(_,b)=>
+      `<div class="prog-block${b<i+1?' done':''}"></div>`).join('');
+
+    // Přínosy
+    const prinosHtml = (r.prinos||[]).map(p=>`<span>${p}</span>`).join('');
+
+    // Tip odborníka
+    const tipHtml = r.tip ? `<div class="rec-tip">💡 ${r.tip}</div>` : '';
+
+    // 2 odkazy — odkaz vede na YouTube vyhledávání
+    const link = (label) => label
+      ? `<a class="rec-link" href="https://www.youtube.com/results?search_query=${encodeURIComponent(label+' pro seniory')}" target="_blank" rel="noopener">🔗 ${label}</a>`
+      : '';
+    const odkazyHtml = (r.odkaz1||r.odkaz2)
+      ? `<div class="rec-links">${link(r.odkaz1)}${link(r.odkaz2)}</div>` : '';
+
     return `<div class="rec-card">
-      <div class="rec-day">Den ${i+1} ze 7</div>
+      <div class="rec-progress">
+        <div class="prog-blocks">${progBlocks}</div>
+        <div class="prog-label">Den ${i+1} ze 7</div>
+      </div>
       <div class="rec-top">
         <span class="rec-icon">${r.ikona||'🌸'}</span>
         <span class="rec-title">${r.nazev||''}</span>
       </div>
       <div class="rec-desc">${r.popis||''}</div>
+      ${prinosHtml ? `<div class="rec-prinos">${prinosHtml}</div>` : ''}
+      ${tipHtml}
+      ${odkazyHtml}
       ${r.kat?`<span class="rec-kat">${KAT_LABELS[r.kat]||r.kat}</span>`:''}
       <div class="rec-reactions">${rBtns}</div>
     </div>`;
@@ -405,6 +462,32 @@ function initCarousel(total) {
     const dx = e.changedTouches[0].clientX - tx;
     if(Math.abs(dx)>40) go(cur + (dx<0?1:-1));
   }, {passive:true});
+}
+
+function renderPreview() {
+  document.getElementById('previewSection').innerHTML = `
+    <div class="preview-section">
+      <div class="preview-title">Toto je pouze první týden.</div>
+      <div class="preview-sub">Ve 2.–12. týdnu Vás čekají témata, která změní Váš každodenní život:</div>
+      <div class="preview-topics">
+        ${['Zvládání stresu','Kvalitní spánek','Výživa pro vitalitu','Pohyb bez bolesti',
+           'Vztahy a blízkost','Dlouhověkost','Motivace a smysl','Regenerace těla'].map(
+          t=>`<div class="preview-topic">${t}</div>`).join('')}
+      </div>
+    </div>`;
+}
+
+function renderCoach() {
+  document.getElementById('coachSection').innerHTML = `
+    <div class="coach-section">
+      <div class="coach-icon">🤖</div>
+      <div class="coach-title">Váš osobní AI průvodce</div>
+      <div class="coach-desc">
+        Během plného programu dostanete vlastního AI průvodce,<br>
+        který bude každý den s Vámi — připomíná, motivuje,<br>
+        odpovídá na otázky a upravuje plán podle Vašeho pokroku.
+      </div>
+    </div>`;
 }
 
 function renderCenik() {
@@ -515,6 +598,8 @@ function showProfile(data) {
   renderPostreh(data);
   renderTema(data);
   renderRec(data);
+  renderPreview();
+  renderCoach();
   renderCenik();
   document.getElementById('page').style.display = '';
   const loader = document.getElementById('loader');
