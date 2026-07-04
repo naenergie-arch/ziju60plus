@@ -2,12 +2,14 @@ const TAX_RATE_ID = "txr_1TmaxLF5lonqYFYRVXAdkm3K";
 
 const PRICES = {
   access30:  "price_1TpXu0F5lonqYFYR5hFJ4Zuc",  // 299 Kč – 30 dní, jednorázová
-  upgrade90: "price_1TpXu0F5lonqYFYRr4j9yHwi",  // 400 Kč – upgrade na 90 dní, jednorázová
+  direct90:  "price_1TpXxFF5lonqYFYRCS3ff5Qc",  // 699 Kč – 90 dní přímo, jednorázová
+  upgrade90: "price_1TpXu0F5lonqYFYRr4j9yHwi",  // 400 Kč – upgrade z 30 na 90 dní
   yearly:    "price_1TpXu1F5lonqYFYRINrKBtdy",  // 499 Kč/rok – roční předplatné
 };
 
 const PLAN_LABELS = {
   access30:  "Přístup na 30 dní (299 Kč)",
+  direct90:  "Přístup na 90 dní (699 Kč)",
   upgrade90: "Upgrade na 90 dní (400 Kč)",
   yearly:    "Roční předplatné (499 Kč/rok)",
 };
