@@ -43,6 +43,13 @@ export async function onRequestPost(context) {
   const volnyText = answers.text || "";
   const zalib    = answers.zalib || "";
 
+  const vekSkutecny = parseInt(answers.vek_skutecny) || 0;
+  const vekPocitovy = parseInt(answers.vek_pocitovy) || 0;
+  // Biologický věk: skóre 15/15 → -8 let od základu 65, skóre 0/15 → +8 let
+  const bioVek = Math.round(65 - 8 * ((total - 7.5) / 7.5));
+  // Skóre vitality 0–100
+  const skoreVitality = Math.round((total / 15) * 100);
+
   const detekCats = detectCategories(volnyText + " " + zalib);
   const zalibCats = String(zalib).split(",").map(s=>s.trim()).filter(Boolean);
   const allCats   = [...new Set([...zalibCats, ...detekCats])].slice(0,4);
@@ -67,6 +74,8 @@ ODPOVĚDI Z DOTAZNÍKU:
 - Záliby a zájmy: ${zalib || "nespecifikováno"}
 - Volný text od osoby: "${volnyText || "neuvedeno"}"
 - Celkové skóre: ${total}/15
+${vekSkutecny ? `- Skutečný věk: ${vekSkutecny} let` : ""}
+${vekPocitovy ? `- Na kolik se cítí: ${vekPocitovy} let` : ""}
 
 NAPIŠ VALIDNÍ JSON s těmito klíči (bez dalšího textu):
 {
@@ -105,12 +114,16 @@ ${allCats.length ? `Zohledni zájmové kategorie: ${allCats.join(", ")}` : ""}`;
     const parsed = JSON.parse(cleanText);
 
     return new Response(JSON.stringify({
-      postreh:       parsed.postreh || "",
-      silna_stranka: parsed.silna_stranka || "",
-      prilezitost:   parsed.prilezitost || "",
-      tydenni_tema:  parsed.tydenni_tema || "Váš první týden",
-      doporuceni:    parsed.doporuceni || [],
+      postreh:        parsed.postreh || "",
+      silna_stranka:  parsed.silna_stranka || "",
+      prilezitost:    parsed.prilezitost || "",
+      tydenni_tema:   parsed.tydenni_tema || "Váš první týden",
+      doporuceni:     parsed.doporuceni || [],
       jmeno, pohlavi,
+      skore_vitality: skoreVitality,
+      bio_vek:        bioVek,
+      vek_skutecny:   vekSkutecny,
+      vek_pocitovy:   vekPocitovy,
     }), { headers: { "Content-Type": "application/json" } });
 
   } catch (err) {

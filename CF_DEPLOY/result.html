@@ -39,6 +39,16 @@ body{background:#fbf4e7;min-height:100vh;font-family:'Montserrat',sans-serif;col
 .vbar-fill{position:absolute;bottom:0;left:0;right:0;border-radius:18px;transition:height 1s cubic-bezier(.4,0,.2,1)}
 .vbar-icon{font-size:16px}
 
+/* ── SKÓRE VITALITY + BIO VĚK ── */
+.score-row{display:flex;gap:12px;justify-content:center;margin-top:20px;flex-wrap:wrap}
+.score-box{background:#fff;border:1.5px solid #e8d0a8;border-radius:18px;padding:14px 22px;text-align:center;min-width:130px}
+.score-box.bio{border-color:#52c060;background:#f0fbf2}
+.score-num{font-size:30px;font-weight:700;color:#ff8a3d;font-family:Georgia,serif;line-height:1}
+.score-box.bio .score-num{color:#2a8a3a}
+.score-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#b07840;margin-top:4px}
+.score-box.bio .score-label{color:#2a8a3a}
+.score-note{font-size:10px;color:#a07040;margin-top:3px;line-height:1.4}
+
 /* ── POSTŘEH ── */
 .postreh-card{background:#fff;border:1.5px solid #e8d0a8;border-radius:22px;padding:28px 24px;margin-bottom:20px;position:relative}
 .postreh-card::before{content:'"';position:absolute;top:12px;left:20px;font-size:72px;font-family:Georgia,serif;color:#ffd0a8;line-height:1;pointer-events:none}
@@ -191,8 +201,10 @@ const urlNalada   = parseInt(params.get('nalada'))   || 2;
 const urlSpojeni  = parseInt(params.get('spojeni'))  || 2;
 const urlSpanek   = parseInt(params.get('spanek'))   || 2;
 const urlMotivace = parseInt(params.get('motivace')) || 2;
-const urlText     = params.get('text') || '';
-const urlZalib    = params.get('zalib') || '';
+const urlText        = params.get('text') || '';
+const urlZalib       = params.get('zalib') || '';
+const urlVekSkutecny = parseInt(params.get('vek_skutecny')) || 0;
+const urlVekPocitovy = parseInt(params.get('vek_pocitovy')) || 0;
 
 // Uložený profil
 function loadSaved() {
@@ -235,6 +247,11 @@ function renderHeader(data) {
     {label:'Spánek', val:spanek,   icon:'🌙'},
     {label:'Chuť',   val:motivace, icon:'🌱'},
   ];
+  const skore     = data.skore_vitality || 0;
+  const bioVek    = data.bio_vek || 0;
+  const vekSkut   = data.vek_skutecny || urlVekSkutecny || 0;
+  const showBio   = vekSkut > 0 && bioVek > 0 && bioVek < vekSkut;
+
   const dateStr = new Date(data.ts || Date.now()).toLocaleDateString('cs-CZ',{day:'numeric',month:'long',year:'numeric'});
   document.getElementById('profileHeader').innerHTML = `
     <div class="profile-badge">🌸 Osobní profil vitality</div>
@@ -247,6 +264,17 @@ function renderHeader(data) {
           <div class="vbar-bg"><div class="vbar-fill" style="height:${barHeight(v.val)};background:${barColor(v.val)}"></div></div>
           <div class="vbar-label">${v.label}</div>
         </div>`).join('')}
+    </div>
+    <div class="score-row">
+      ${skore > 0 ? `<div class="score-box">
+        <div class="score-num">${skore}<small style="font-size:16px;color:#b07840">/100</small></div>
+        <div class="score-label">Skóre vitality</div>
+      </div>` : ''}
+      ${showBio ? `<div class="score-box bio">
+        <div class="score-num">${bioVek} <small style="font-size:14px">let</small></div>
+        <div class="score-label">Biologický věk</div>
+        <div class="score-note">Váš skutečný věk: ${vekSkut} let</div>
+      </div>` : ''}
     </div>`;
 }
 
@@ -341,7 +369,8 @@ async function generateProfile() {
   const answers = {
     jmeno: urlJmeno, pohlavi: urlPohlavi,
     pohyb: urlPohyb, nalada: urlNalada, spojeni: urlSpojeni,
-    spanek: urlSpanek, motivace: urlMotivace, text: urlText, zalib: urlZalib
+    spanek: urlSpanek, motivace: urlMotivace, text: urlText, zalib: urlZalib,
+    vek_skutecny: urlVekSkutecny, vek_pocitovy: urlVekPocitovy
   };
   const res = await fetch('/api/diagnosticky-postreh', {
     method:'POST', headers:{'Content-Type':'application/json'},
@@ -354,7 +383,8 @@ async function generateProfile() {
     ...data,
     jmeno: urlJmeno, pohlavi: urlPohlavi,
     pohyb: urlPohyb, nalada: urlNalada, spojeni: urlSpojeni,
-    spanek: urlSpanek, motivace: urlMotivace
+    spanek: urlSpanek, motivace: urlMotivace,
+    vek_skutecny: urlVekSkutecny, vek_pocitovy: urlVekPocitovy
   };
 }
 
