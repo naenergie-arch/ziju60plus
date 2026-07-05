@@ -114,7 +114,7 @@ body{background:#fbf4e7;min-height:100vh;display:flex;align-items:flex-start;jus
 <script>
 const steps = [
   {
-    icon: "🌸", label: "Začínáme",
+    icon: "🌸", label: "Vaše jméno",
     q: "Jak vás máme oslovovat?",
     sub: "Váš profil bude osobní — začněme jménem.",
     key: "jmeno",
@@ -239,7 +239,7 @@ function render() {
     `<div class="qdot${i < cur ? ' done' : i === cur ? ' active' : ''}"></div>`
   ).join('');
 
-  let html = `${cur === 0 ? `<div class="quiz-free-banner"><div class="qfb-top">🌸&nbsp;&nbsp;Vaše jméno</div><div class="qfb-main">7 dní zcela zdarma</div><div class="qfb-sub">Bez zadání karty · bez závazku</div></div>` : ''}
+  let html = `${cur === 0 ? `<div class="quiz-free-banner"><div class="qfb-top">Začínáme</div><div class="qfb-main">7 dní zcela zdarma</div><div class="qfb-sub">Bez zadání karty · bez závazku</div></div>` : ''}
 <div class="qillus">${s.icon}</div>
 <div class="qlabel">${s.label}</div>
 <div class="qtitle">${s.q}</div>
