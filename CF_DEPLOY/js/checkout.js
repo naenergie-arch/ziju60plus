@@ -1,5 +1,6 @@
 // Plány, které vedou na kvíz (7 dní zdarma, bez karty)
 const QUIZ_REDIRECTS = {
+  trial7:  '/quiz.html',
   trial30: '/quiz.html?plan=30d',
   trial90: '/quiz.html?plan=90d',
 };

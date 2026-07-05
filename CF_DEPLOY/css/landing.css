@@ -493,6 +493,43 @@ html { scroll-behavior: smooth; }
   border-radius: 999px;
 }
 
+.pricing-cta-single {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.pricing-after-label {
+  text-align: center;
+  font-size: 15px;
+  color: #888;
+  margin-bottom: 16px;
+  font-style: italic;
+}
+
+.btn-cta--single {
+  display: inline-block;
+  font-size: 20px;
+  padding: 18px 48px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ff8a3d 0%, #e06000 100%);
+  color: #fff;
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: 0 4px 24px rgba(230,100,0,.25);
+  transition: transform .15s, box-shadow .15s;
+}
+
+.btn-cta--single:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(230,100,0,.35);
+}
+
+.pricing-cta-hint {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #888;
+}
+
 .pricing-trial-note {
   text-align: center;
   max-width: 640px;
