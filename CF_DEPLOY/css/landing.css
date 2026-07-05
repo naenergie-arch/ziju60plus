@@ -680,6 +680,7 @@ html { scroll-behavior: smooth; }
   border-color: #0aa;
   box-shadow: 0 8px 24px rgba(0,170,170,.15);
   transform: scale(1.02);
+  background: #fdf5ec;
 }
 
 .price-card .badge {
