@@ -1074,17 +1074,12 @@ function fadeOutBgAudio() {
   step();
 }
 
-// Spusť hudbu při načtení loading screenu
+// Spusť hudbu při načtení loading screenu — jen pokud autoplay projde, jinak ticho
 window.addEventListener('load', () => {
   const a = document.getElementById('bgAudioResult');
   if (!a) return;
   a.volume = 0.35;
-  a.play().catch(() => {
-    // Autoplay zablokován — spustí se při prvním dotyku
-    const unlock = () => { a.play().catch(()=>{}); document.removeEventListener('click', unlock); document.removeEventListener('touchstart', unlock); };
-    document.addEventListener('click', unlock, { once: true });
-    document.addEventListener('touchstart', unlock, { once: true });
-  });
+  a.play().catch(() => { /* autoplay zablokován — nehrajeme, bez fallbacku */ });
 });
 
 init();
