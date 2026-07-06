@@ -232,6 +232,10 @@ body{background:#fbf4e7;min-height:100vh;font-family:'Montserrat',sans-serif;col
 </head>
 <body>
 
+<audio id="bgAudioResult" loop preload="auto" style="display:none">
+  <source src="/audio/relax.mp3?v=2" type="audio/mpeg">
+</audio>
+
 <div id="loader">
   <svg viewBox="0 0 200 170" width="160" height="136" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto 8px">
 
@@ -1051,7 +1055,37 @@ function showProfile(data) {
   loader.classList.add('hide');
   setTimeout(()=>loader.style.display='none', 700);
   window.scrollTo({top:0});
+  // Postupně ztiš hudbu loading screenu
+  fadeOutBgAudio();
 }
+
+function fadeOutBgAudio() {
+  const a = document.getElementById('bgAudioResult');
+  if (!a || a.paused) return;
+  const step = () => {
+    if (a.volume > 0.04) {
+      a.volume = Math.max(0, a.volume - 0.03);
+      setTimeout(step, 80);
+    } else {
+      a.pause();
+      a.volume = 0;
+    }
+  };
+  step();
+}
+
+// Spusť hudbu při načtení loading screenu
+window.addEventListener('load', () => {
+  const a = document.getElementById('bgAudioResult');
+  if (!a) return;
+  a.volume = 0.35;
+  a.play().catch(() => {
+    // Autoplay zablokován — spustí se při prvním dotyku
+    const unlock = () => { a.play().catch(()=>{}); document.removeEventListener('click', unlock); document.removeEventListener('touchstart', unlock); };
+    document.addEventListener('click', unlock, { once: true });
+    document.addEventListener('touchstart', unlock, { once: true });
+  });
+});
 
 init();
 
