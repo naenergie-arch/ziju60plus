@@ -145,6 +145,23 @@ body{background:#fbf4e7;min-height:100vh;font-family:'Montserrat',sans-serif;col
 @keyframes nudgeL{0%,100%{transform:translateX(0)}50%{transform:translateX(-6px)}}
 .swipe-hand.left{animation:nudgeL 1.8s ease-in-out infinite;animation-delay:.3s}
 
+/* ── OBJEVOVNA ── */
+.obj-section{background:linear-gradient(135deg,#1a0a3a 0%,#2d1060 100%);border-radius:24px;padding:24px 20px;margin-bottom:20px;color:#fff;position:relative;overflow:hidden}
+.obj-section::before{content:'✨';position:absolute;top:12px;right:16px;font-size:32px;opacity:.25}
+.obj-heading{font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#c9a0ff;margin-bottom:4px}
+.obj-title{font-size:22px;font-family:Georgia,serif;font-style:italic;color:#fff;margin-bottom:16px}
+.obj-countdown{text-align:center;padding:16px 0}
+.obj-countdown-time{font-size:36px;font-weight:800;color:#f0c060;letter-spacing:.05em;font-family:monospace}
+.obj-countdown-label{font-size:13px;color:#c9a0ff;margin-top:4px}
+.obj-card{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:16px;margin-bottom:12px}
+.obj-card:last-child{margin-bottom:0}
+.obj-card-kat{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#c9a0ff;margin-bottom:6px}
+.obj-card-nazev{font-size:17px;font-weight:800;color:#fff;margin-bottom:6px}
+.obj-card-wow{font-size:14px;color:#e0d0ff;line-height:1.55;margin-bottom:12px}
+.obj-card-link{display:inline-block;background:linear-gradient(135deg,#ff8a3d,#e06000);color:#fff;font-size:13px;font-weight:700;border-radius:999px;padding:8px 20px;text-decoration:none}
+.obj-card-link:hover{opacity:.9}
+.obj-day-badge{display:inline-block;background:rgba(255,255,255,.12);border-radius:999px;padding:3px 12px;font-size:12px;color:#c9a0ff;margin-bottom:12px}
+
 /* ── CENÍK ── */
 .cenik-section{margin-top:8px}
 .cenik-title{font-size:20px;font-family:Georgia,serif;font-style:italic;color:#3a2008;text-align:center;margin-bottom:8px}
@@ -284,6 +301,7 @@ body{background:#fbf4e7;min-height:100vh;font-family:'Montserrat',sans-serif;col
       3. Potvrďte tlačítkem <strong>„Přidat"</strong>
     </div>
   </div>
+  <div id="objevovnaSection" class="obj-section" style="display:none"></div>
   <div id="cenikSection" class="cenik-section" style="display:none"></div>
 </div>
 
@@ -813,6 +831,83 @@ async function init() {
   }
 }
 
+const OBJ_API = 'https://script.google.com/macros/s/AKfycbzIUJYgVV5DPBkvAqx0oGYXBeA05rawCZv9JhOGJWerMS17lI_Y8HsSj0plc1PS7dg/exec';
+
+function getTrialDay() {
+  const start = localStorage.getItem('ziju_trial_start');
+  if (!start) return 1;
+  const ms = Date.now() - new Date(start).getTime();
+  return Math.min(7, Math.max(1, Math.floor(ms / 86400000) + 1));
+}
+
+function getSecondsUntil20() {
+  const now = new Date();
+  const target = new Date();
+  target.setHours(20, 0, 0, 0);
+  if (now >= target) return 0;
+  return Math.floor((target - now) / 1000);
+}
+
+function formatCountdown(sec) {
+  const h = Math.floor(sec / 3600).toString().padStart(2, '0');
+  const m = Math.floor((sec % 3600) / 60).toString().padStart(2, '0');
+  const s = (sec % 60).toString().padStart(2, '0');
+  return `${h}:${m}:${s}`;
+}
+
+async function renderObjevovna() {
+  const el = document.getElementById('objevovnaSection');
+  const day = getTrialDay();
+  const secsLeft = getSecondsUntil20();
+
+  el.style.display = '';
+
+  if (secsLeft > 0) {
+    // Před 20:00 — odpočet
+    el.innerHTML = `
+      <div class="obj-heading">🎁 Objevovna</div>
+      <div class="obj-title">Dnešní překvapení</div>
+      <div class="obj-day-badge">Den ${day}. trialu</div>
+      <div class="obj-countdown">
+        <div class="obj-countdown-time" id="objTimer">${formatCountdown(secsLeft)}</div>
+        <div class="obj-countdown-label">Odkryje se dnes ve 20:00</div>
+      </div>`;
+    let s = secsLeft;
+    const t = setInterval(() => {
+      s--;
+      const timerEl = document.getElementById('objTimer');
+      if (!timerEl) { clearInterval(t); return; }
+      if (s <= 0) { clearInterval(t); renderObjevovna(); return; }
+      timerEl.textContent = formatCountdown(s);
+    }, 1000);
+    return;
+  }
+
+  // Po 20:00 — načti překvapení
+  el.innerHTML = `<div class="obj-heading">🎁 Objevovna</div><div class="obj-title">Načítám dnešní překvapení…</div>`;
+  try {
+    const res = await fetch(`${OBJ_API}?day=${day}`);
+    const data = await res.json();
+    if (!data.ok || !data.surprises.length) throw new Error();
+
+    const cardsHtml = data.surprises.map(s => `
+      <div class="obj-card">
+        <div class="obj-card-kat">${s.kategorie} · ${s.cas_min} min</div>
+        <div class="obj-card-nazev">${s.nazev}</div>
+        <div class="obj-card-wow">${s.wow}</div>
+        <a class="obj-card-link" href="${s.url}" target="_blank" rel="noopener">Otevřít →</a>
+      </div>`).join('');
+
+    el.innerHTML = `
+      <div class="obj-heading">🎁 Objevovna</div>
+      <div class="obj-title">Dnešní překvapení</div>
+      <div class="obj-day-badge">Den ${day}. trialu · odhaleno ve 20:00</div>
+      ${cardsHtml}`;
+  } catch(_) {
+    el.style.display = 'none';
+  }
+}
+
 function showProfile(data) {
   renderHeader(data);
   renderPostreh(data);
@@ -821,6 +916,7 @@ function showProfile(data) {
   renderReactionStats();
   renderPreview();
   renderCoach();
+  renderObjevovna();
   renderCenik();
   document.getElementById('page').style.display = '';
   const loader = document.getElementById('loader');

@@ -522,6 +522,9 @@ async function verifyOtp() {
     }
     // OTP ok – ulož email a přejdi na výsledek
     sessionStorage.setItem('ziju_email', gateEmail);
+    if (!localStorage.getItem('ziju_trial_start')) {
+      localStorage.setItem('ziju_trial_start', new Date().toISOString());
+    }
     saveLead();
     submitQuiz();
   } catch (_) {
