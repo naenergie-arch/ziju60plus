@@ -563,8 +563,6 @@
 <script src="https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.min.js"></script>
 <script>
 (function() {
-  let ws = null;
-  let wsReady = false;
   const btn = document.getElementById('audioPlayBtn');
   const iconPlay = document.getElementById('iconPlay');
   const iconPause = document.getElementById('iconPause');
@@ -574,31 +572,26 @@
     const m = Math.floor(s / 60);
     return m + ':' + String(Math.floor(s % 60)).padStart(2,'0');
   }
-  function initWs() {
-    if (ws) return;
-    ws = WaveSurfer.create({
-      container: '#waveform',
-      waveColor: '#e0c090',
-      progressColor: '#ff8a3d',
-      cursorColor: '#ff8a3d',
-      barWidth: 2,
-      barGap: 1,
-      barRadius: 2,
-      height: 56,
-      autoplay: false,
-      url: '/audio/slovo-autora.mp3',
-    });
-    ws.on('ready', () => { wsReady = true; dur.textContent = fmt(ws.getDuration()); ws.play(); });
-    ws.on('audioprocess', () => { cur.textContent = fmt(ws.getCurrentTime()); });
-    ws.on('seeking', () => { cur.textContent = fmt(ws.getCurrentTime()); });
-    ws.on('play', () => { iconPlay.style.display='none'; iconPause.style.display=''; });
-    ws.on('pause', () => { iconPlay.style.display=''; iconPause.style.display='none'; });
-    ws.on('finish', () => { iconPlay.style.display=''; iconPause.style.display='none'; });
-  }
-  btn.addEventListener('click', () => {
-    if (!ws) { initWs(); return; }
-    ws.playPause();
+  // Načti waveform hned — zobrazí se stopa, ale nepřehrává
+  const ws = WaveSurfer.create({
+    container: '#waveform',
+    waveColor: '#e0c090',
+    progressColor: '#ff8a3d',
+    cursorColor: '#ff8a3d',
+    barWidth: 2,
+    barGap: 1,
+    barRadius: 2,
+    height: 56,
+    autoplay: false,
+    url: '/audio/slovo-autora.mp3',
   });
+  ws.on('ready', () => { dur.textContent = fmt(ws.getDuration()); });
+  ws.on('audioprocess', () => { cur.textContent = fmt(ws.getCurrentTime()); });
+  ws.on('seeking', () => { cur.textContent = fmt(ws.getCurrentTime()); });
+  ws.on('play', () => { iconPlay.style.display='none'; iconPause.style.display=''; });
+  ws.on('pause', () => { iconPlay.style.display=''; iconPause.style.display='none'; });
+  ws.on('finish', () => { iconPlay.style.display=''; iconPause.style.display='none'; });
+  btn.addEventListener('click', () => ws.playPause());
 })();
 </script>
 
