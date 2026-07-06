@@ -182,6 +182,13 @@ body{background:#fbf4e7;min-height:100vh;font-family:'Montserrat',sans-serif;col
 .obj-status-bar{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px}
 .obj-status-item{font-size:12px;color:#c9a0ff}
 .obj-status-item strong{color:#fff}
+.obj-rating{display:flex;gap:6px;margin-top:10px;align-items:center}
+.obj-rating-label{font-size:11px;color:#c9a0ff;margin-right:2px}
+.obj-rating-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:999px;padding:4px 12px;font-size:12px;color:#e0d0ff;cursor:pointer;transition:all .2s}
+.obj-rating-btn:hover{background:rgba(255,255,255,.18)}
+.obj-rating-btn.selected-skvelé{background:#f0c060;color:#3a2008;border-color:#f0c060;font-weight:700}
+.obj-rating-btn.selected-dobré{background:#80c8ff;color:#003a5e;border-color:#80c8ff;font-weight:700}
+.obj-rating-btn.selected-nic{background:rgba(255,255,255,.15);color:#aaa;border-color:rgba(255,255,255,.2);font-weight:700}
 
 /* ── CENÍK ── */
 .cenik-section{margin-top:8px}
@@ -857,6 +864,24 @@ const OBJ_POST_API = 'https://script.google.com/macros/s/AKfycbzSR85oYpoSZQzF3IB
 
 // Kliknuté ObjID — načteme z localStorage, průběžně doplňujeme
 let clickedIds = new Set(JSON.parse(localStorage.getItem('ziju_clicked') || '[]'));
+let ratings = JSON.parse(localStorage.getItem('ziju_ratings') || '{}');
+
+function saveRating(objId, hodnota, event) {
+  event.stopPropagation();
+  ratings[objId] = hodnota;
+  localStorage.setItem('ziju_ratings', JSON.stringify(ratings));
+  // Vizuálně aktualizuj tlačítka
+  const wrap = event.target.closest('.obj-rating');
+  wrap.querySelectorAll('.obj-rating-btn').forEach(b => b.className = 'obj-rating-btn');
+  event.target.classList.add('selected-' + hodnota);
+  // Ulož do GAS
+  const email = localStorage.getItem('ziju_email') || sessionStorage.getItem('ziju_email') || '';
+  fetch(OBJ_POST_API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'saveInterakce', email, objId, nazev: objId, den: 0, url: 'hodnoceni:' + hodnota }),
+  }).catch(() => {});
+}
 
 function saveClick(objId, nazev, den, url) {
   clickedIds.add(objId);
@@ -935,14 +960,23 @@ async function renderObjevovna() {
     // Pomocná funkce pro kartu
     function objCard(s, isArchive) {
       const visited = clickedIds.has(s.objId);
+      const rating = ratings[s.objId] || null;
       const visitedBadge = visited ? `<span class="obj-visited-badge">✓ otevřeno</span>` : '';
       const cls = isArchive ? 'obj-archive-card' : 'obj-card';
       const onclick = `saveClick('${s.objId}','${s.nazev.replace(/'/g,"\\'")}',${s.den},'${s.url}')`;
+      const ratingHtml = `
+        <div class="obj-rating">
+          <span class="obj-rating-label">Hodnocení:</span>
+          <button class="obj-rating-btn${rating==='skvelé'?' selected-skvelé':''}" onclick="saveRating('${s.objId}','skvelé',event)">⭐ Skvělé</button>
+          <button class="obj-rating-btn${rating==='dobré'?' selected-dobré':''}" onclick="saveRating('${s.objId}','dobré',event)">👍 Dobré</button>
+          <button class="obj-rating-btn${rating==='nic'?' selected-nic':''}" onclick="saveRating('${s.objId}','nic',event)">😐 Nic moc</button>
+        </div>`;
       return `<div class="${cls}${visited ? ' obj-visited' : ''}" data-obj-id="${s.objId}">
         <div class="obj-card-kat">${s.kategorie} · ${s.cas_min} min</div>
         <div class="obj-card-nazev">${s.nazev}${visitedBadge}</div>
         ${!isArchive ? `<div class="obj-card-wow">${s.wow}</div>` : ''}
         <a class="obj-card-link" href="${s.url}" target="_blank" rel="noopener" onclick="${onclick}">Otevřít →</a>
+        ${ratingHtml}
       </div>`;
     }
 
