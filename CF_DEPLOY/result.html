@@ -176,6 +176,12 @@ body{background:#fbf4e7;min-height:100vh;font-family:'Montserrat',sans-serif;col
 .obj-archive-card .obj-card-nazev{font-size:15px;font-weight:700;color:#fff;margin-bottom:4px}
 .obj-archive-card .obj-card-link{display:inline-block;font-size:12px;color:#f0c060;text-decoration:none;font-weight:600}
 .obj-archive-card .obj-card-link:hover{text-decoration:underline}
+.obj-visited-badge{display:inline-block;background:rgba(80,220,120,.2);border:1px solid rgba(80,220,120,.4);color:#80ffaa;font-size:11px;font-weight:700;border-radius:999px;padding:2px 10px;margin-left:8px;vertical-align:middle}
+.obj-card.obj-visited,.obj-archive-card.obj-visited{border-color:rgba(80,220,120,.4)!important}
+.obj-card.obj-visited .obj-card-link,.obj-archive-card.obj-visited .obj-card-link{background:rgba(80,220,120,.25);color:#80ffaa}
+.obj-status-bar{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.obj-status-item{font-size:12px;color:#c9a0ff}
+.obj-status-item strong{color:#fff}
 
 /* ── CENÍK ── */
 .cenik-section{margin-top:8px}
@@ -846,7 +852,25 @@ async function init() {
   }
 }
 
-const OBJ_API = 'https://script.google.com/macros/s/AKfycbwt5U8wPMgqndmiNz_mLzKs-e8o2JPJPius-1AkivvBQVmu2pSa9UdGl0cwbIaRBit2/exec';
+const OBJ_API      = 'https://script.google.com/macros/s/AKfycbzSR85oYpoSZQzF3IBFuqcYW2QxlatBn5y4NhPf5pzgAou304HULBQxLP_u1IQsDc2T/exec';
+const OBJ_POST_API = 'https://script.google.com/macros/s/AKfycbzSR85oYpoSZQzF3IBFuqcYW2QxlatBn5y4NhPf5pzgAou304HULBQxLP_u1IQsDc2T/exec';
+
+// Kliknuté ObjID — načteme z localStorage, průběžně doplňujeme
+let clickedIds = new Set(JSON.parse(localStorage.getItem('ziju_clicked') || '[]'));
+
+function saveClick(objId, nazev, den, url) {
+  clickedIds.add(objId);
+  localStorage.setItem('ziju_clicked', JSON.stringify([...clickedIds]));
+  // Vizuálně označ jako kliknuté
+  document.querySelectorAll(`[data-obj-id="${objId}"]`).forEach(el => el.classList.add('obj-visited'));
+  // Ulož do GAS (fire-and-forget)
+  const email = localStorage.getItem('ziju_email') || sessionStorage.getItem('ziju_email') || '';
+  fetch(OBJ_POST_API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'saveInterakce', email, objId, nazev, den, url }),
+  }).catch(() => {});
+}
 
 function getTrialDay() {
   const start = localStorage.getItem('ziju_trial_start');
@@ -908,13 +932,35 @@ async function renderObjevovna() {
     const todaySurprises = data.archive[day] || [];
     if (!todaySurprises.length) throw new Error();
 
-    const todayHtml = todaySurprises.map(s => `
-      <div class="obj-card">
+    // Pomocná funkce pro kartu
+    function objCard(s, isArchive) {
+      const visited = clickedIds.has(s.objId);
+      const visitedBadge = visited ? `<span class="obj-visited-badge">✓ otevřeno</span>` : '';
+      const cls = isArchive ? 'obj-archive-card' : 'obj-card';
+      const onclick = `saveClick('${s.objId}','${s.nazev.replace(/'/g,"\\'")}',${s.den},'${s.url}')`;
+      return `<div class="${cls}${visited ? ' obj-visited' : ''}" data-obj-id="${s.objId}">
         <div class="obj-card-kat">${s.kategorie} · ${s.cas_min} min</div>
-        <div class="obj-card-nazev">${s.nazev}</div>
-        <div class="obj-card-wow">${s.wow}</div>
-        <a class="obj-card-link" href="${s.url}" target="_blank" rel="noopener">Otevřít →</a>
-      </div>`).join('');
+        <div class="obj-card-nazev">${s.nazev}${visitedBadge}</div>
+        ${!isArchive ? `<div class="obj-card-wow">${s.wow}</div>` : ''}
+        <a class="obj-card-link" href="${s.url}" target="_blank" rel="noopener" onclick="${onclick}">Otevřít →</a>
+      </div>`;
+    }
+
+    // Spočítej celkový stav
+    let totalRevealed = 0, totalClicked = 0;
+    for (let d = 1; d <= day; d++) {
+      (data.archive[d] || []).forEach(s => {
+        totalRevealed++;
+        if (clickedIds.has(s.objId)) totalClicked++;
+      });
+    }
+    const statusHtml = `<div class="obj-status-bar">
+      <div class="obj-status-item">Odhaleno: <strong>${totalRevealed}</strong></div>
+      <div class="obj-status-item">Otevřeno: <strong>${totalClicked}</strong></div>
+      <div class="obj-status-item">Zbývá prozkoumat: <strong>${totalRevealed - totalClicked}</strong></div>
+    </div>`;
+
+    const todayHtml = todaySurprises.map(s => objCard(s, false)).join('');
 
     // Archív — minulé dny (od nejnovějšího)
     let archiveHtml = '';
@@ -923,16 +969,13 @@ async function renderObjevovna() {
       for (let d = day - 1; d >= 1; d--) {
         const items = data.archive[d] || [];
         if (!items.length) continue;
-        const itemsHtml = items.map(s => `
-          <div class="obj-archive-card">
-            <div class="obj-card-kat">${s.kategorie} · ${s.cas_min} min</div>
-            <div class="obj-card-nazev">${s.nazev}</div>
-            <a class="obj-card-link" href="${s.url}" target="_blank" rel="noopener">Otevřít →</a>
-          </div>`).join('');
+        const dayClicked = items.filter(s => clickedIds.has(s.objId)).length;
+        const allDone = dayClicked === items.length;
+        const itemsHtml = items.map(s => objCard(s, true)).join('');
         pastDaysHtml.push(`
           <div class="obj-archive-day">
             <button class="obj-archive-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
-              Den ${d} · ${items.length} ${items.length === 1 ? 'překvapení' : items.length < 5 ? 'překvapení' : 'překvapení'}
+              Den ${d} · ${dayClicked}/${items.length} otevřeno ${allDone ? '✓' : ''}
               <span class="arr">▾</span>
             </button>
             <div class="obj-archive-body">${itemsHtml}</div>
@@ -951,6 +994,7 @@ async function renderObjevovna() {
       <div class="obj-heading">🎁 Objevovna</div>
       <div class="obj-title">Dnešní překvapení</div>
       <div class="obj-day-badge">Den ${day}. trialu · odhaleno ve 20:00</div>
+      ${statusHtml}
       ${todayHtml}
       ${archiveHtml}`;
   } catch(_) {
