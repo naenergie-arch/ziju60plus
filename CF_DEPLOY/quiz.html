@@ -559,11 +559,13 @@ function saveLead() {
     }
   });
   const total = Object.values(scores).filter(v => typeof v === 'number').reduce((a, b) => a + b, 0);
+  const leadPayload = { email: gateEmail, jmeno, pohlavi, vek_skutecny: vekData.skutecny||0, vek_pocitovy: vekData.pocitovy||0, ...scores, total };
+  console.log('[saveLead] odesílám:', leadPayload);
   fetch('/api/save-lead', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: gateEmail, jmeno, pohlavi, vek_skutecny: vekData.skutecny||0, vek_pocitovy: vekData.pocitovy||0, ...scores, total }),
-  }).catch(() => {});
+    body: JSON.stringify(leadPayload),
+  }).then(r => r.json()).then(d => console.log('[saveLead] odpověď:', d)).catch(e => console.error('[saveLead] chyba:', e));
 }
 
 function submitQuiz() {
