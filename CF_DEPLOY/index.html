@@ -583,7 +583,7 @@
     const m = Math.floor(s / 60);
     return m + ':' + String(Math.floor(s % 60)).padStart(2,'0');
   }
-  ws.on('ready', () => { dur.textContent = fmt(ws.getDuration()); });
+  ws.on('ready', () => { dur.textContent = fmt(ws.getDuration()); ws.play(); });
   ws.on('audioprocess', () => { cur.textContent = fmt(ws.getCurrentTime()); });
   ws.on('seeking', () => { cur.textContent = fmt(ws.getCurrentTime()); });
   ws.on('play', () => { iconPlay.style.display='none'; iconPause.style.display=''; });
