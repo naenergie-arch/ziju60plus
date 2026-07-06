@@ -217,6 +217,33 @@ function buildFilm(vety){
 }
 
 loadFilm();
+
+// Autoplay hudby při načtení stránky
+window.addEventListener('load', () => {
+  audio.volume = 0.35;
+  audio.play().then(() => {
+    musicOn = true;
+    const btn  = document.getElementById('btnMusic');
+    const hint = document.getElementById('musicHint');
+    if(btn){ btn.classList.add('on'); btn.title='Vypnout hudbu'; }
+    if(hint){ hint.classList.add('hidden'); }
+  }).catch(() => {
+    // Autoplay zablokován prohlížečem — čekáme na první interakci
+    const unlock = () => {
+      audio.play().then(() => {
+        musicOn = true;
+        const btn  = document.getElementById('btnMusic');
+        const hint = document.getElementById('musicHint');
+        if(btn){ btn.classList.add('on'); btn.title='Vypnout hudbu'; }
+        if(hint){ hint.classList.add('hidden'); }
+      }).catch(()=>{});
+      document.removeEventListener('click', unlock);
+      document.removeEventListener('touchstart', unlock);
+    };
+    document.addEventListener('click', unlock, { once: true });
+    document.addEventListener('touchstart', unlock, { once: true });
+  });
+});
 </script>
 <script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(()=>{});</script>
 </body>
