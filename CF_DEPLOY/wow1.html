@@ -211,20 +211,11 @@ function toggleMusic(){
 
 // ── Navigace ──
 function goToResult(){
-  // Skryj film, zobraz čekací obrazovku (hudba dál hraje)
-  document.getElementById('filmWrap').style.opacity = '0';
-  document.getElementById('filmWrap').style.transition = 'opacity .5s ease';
-  const ws = document.getElementById('waitScreen');
-  ws.classList.add('show');
-  // Bubliny se objeví s mírným zpožděním
-  setTimeout(()=>{ document.getElementById('bubble1').classList.add('visible'); }, 600);
-  setTimeout(()=>{ document.getElementById('bubble2').classList.add('visible'); }, 1200);
-  // Po 4.5s zastaví hudbu, fade a přejde
+  document.getElementById('overlay').classList.add('fade');
   setTimeout(()=>{
     audio.pause();
-    document.getElementById('overlay').classList.add('fade');
-    setTimeout(()=>{ window.location.href='/result.html?'+allParams; }, 850);
-  }, 4500);
+    window.location.href='/result.html?'+allParams;
+  }, 850);
 }
 
 // ── Animace vět — jedna po druhé, všechny zůstanou viditelné ──
