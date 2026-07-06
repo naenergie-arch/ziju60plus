@@ -18,13 +18,7 @@ export async function onRequestPost(context) {
     });
   }
 
-  const GAS_URL = env.GAS_LEADS_URL;
-  if (!GAS_URL) {
-    console.warn("GAS_LEADS_URL není nastavena – lead nebyl uložen:", email, jmeno);
-    return new Response(JSON.stringify({ ok: true, saved: false }), {
-      headers: { "Content-Type": "application/json" }
-    });
-  }
+  const GAS_URL = "https://script.google.com/macros/s/AKfycbzpP2EkrSN8BADaPepYGmnCxPg15OrlDJLlWyiBvkMSPTL64U1IZ43bmX24jWEMz4wj/exec";
 
   try {
     const res = await fetch(GAS_URL, {
