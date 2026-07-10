@@ -1,4 +1,4 @@
-const TAX_RATE_ID = "txr_1TmaxLF5lonqYFYRVXAdkm3K";
+const TAX_RATE_ID = "txr_1Trez5JyFHoBa8v7MctH7U1D";
 
 const PRICES = {
   access30:  "price_1TreNRJyFHoBa8v7INRNkWFa",  // 299 Kč – 30 dní, jednorázová
