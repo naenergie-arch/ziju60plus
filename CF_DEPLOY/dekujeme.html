@@ -108,6 +108,18 @@ const PLAN_ACCESS = {
     } catch (_) {}
   }
 
+  // Aktualizuj access_level v Users DB
+  const token = localStorage.getItem('ziju60_user_token');
+  if (token && level) {
+    try {
+      await fetch('/api/user-db', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'update_access', token, access_level: level }),
+      });
+    } catch (_) {}
+  }
+
   const planInfo = document.getElementById("plan-info");
   planInfo.innerHTML = PLAN_MESSAGES[plan] || "Váš plán byl aktivován.";
 
