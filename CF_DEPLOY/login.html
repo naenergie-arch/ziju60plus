@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Přihlášení – Žiju 60 plus</title>
+<link rel="icon" type="image/png" href="/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#fbf4e7;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px 16px;font-family:'Montserrat',sans-serif}
+.wrap{background:#fff8f0;border-radius:24px;padding:40px 32px;width:100%;max-width:440px;border:1.5px solid #f0ddb8;text-align:center}
+.logo{font-size:48px;margin-bottom:16px}
+h1{font-size:22px;color:#3a2008;font-family:Georgia,serif;font-style:italic;margin-bottom:8px}
+.sub{font-size:14px;color:#a07040;margin-bottom:32px;line-height:1.5}
+input[type=email]{width:100%;padding:14px 18px;border:1.5px solid #e8d0a8;border-radius:12px;font-size:15px;font-family:'Montserrat',sans-serif;color:#3a2008;background:#fff;outline:none;margin-bottom:12px}
+input[type=email]:focus{border-color:#ff8a3d}
+.btn{width:100%;padding:15px;background:#ff8a3d;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;font-family:'Montserrat',sans-serif;margin-bottom:8px}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+.err{color:#c0392b;font-size:13px;margin-bottom:12px;min-height:20px}
+.otp-section{display:none}
+.otp-boxes{display:flex;gap:10px;justify-content:center;margin:20px 0}
+.otp-box{width:48px;height:56px;border:1.5px solid #e8d0a8;border-radius:12px;font-size:24px;font-weight:700;text-align:center;color:#3a2008;background:#fff;outline:none}
+.otp-box:focus{border-color:#ff8a3d}
+.back{background:none;border:none;color:#a07040;font-size:13px;cursor:pointer;text-decoration:underline;margin-top:8px}
+.new-link{margin-top:24px;padding-top:20px;border-top:1px solid #f0ddb8;font-size:13px;color:#a07040}
+.new-link a{color:#ff8a3d;text-decoration:none;font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">🌿</div>
+  <h1>Váš osobní profil</h1>
+  <p class="sub">Zadejte email, se kterým jste se zaregistrovali. Pošleme vám ověřovací kód.</p>
+
+  <div id="emailSection">
+    <input type="email" id="emailInput" placeholder="váš@email.cz" autocomplete="email">
+    <div class="err" id="emailErr"></div>
+    <button class="btn" id="sendBtn" onclick="sendOtp()">Odeslat kód →</button>
+  </div>
+
+  <div class="otp-section" id="otpSection">
+    <p style="font-size:14px;color:#a07040;margin-bottom:4px">Kód jsme odeslali na</p>
+    <p style="font-weight:700;color:#3a2008;margin-bottom:4px" id="emailDisplay"></p>
+    <div class="otp-boxes" id="otpBoxes"></div>
+    <div class="err" id="otpErr"></div>
+    <button class="btn" id="verifyBtn" onclick="verifyOtp()" disabled>Zobrazit můj profil →</button>
+    <br><button class="back" onclick="goBack()">← Změnit email</button>
+  </div>
+
+  <div class="new-link">
+    Ještě nemáte profil? <a href="/quiz.html">Vytvořte si ho zdarma →</a>
+  </div>
+</div>
+
+<script>
+let email = '';
+let otpToken = '';
+
+// Pokud je uživatel už přihlášen, rovnou načti profil
+(async function() {
+  const token = localStorage.getItem('ziju60_user_token');
+  if (token) {
+    const res = await fetch(`/api/user-db?action=load&token=${encodeURIComponent(token)}`);
+    const data = await res.json();
+    if (data.ok && data.user) {
+      redirectToProfile(data.user);
+      return;
+    }
+    // Token expiroval nebo neexistuje – přihlas znovu
+    localStorage.removeItem('ziju60_user_token');
+  }
+})();
+
+async function sendOtp() {
+  const input = document.getElementById('emailInput');
+  const err = document.getElementById('emailErr');
+  const btn = document.getElementById('sendBtn');
+  email = input.value.trim().toLowerCase();
+  err.textContent = '';
+  if (!email || !email.includes('@')) { err.textContent = 'Zadejte platný email.'; return; }
+
+  btn.disabled = true; btn.textContent = 'Odesíláme…';
+  try {
+    const res = await fetch('/api/send-otp', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    const data = await res.json();
+    if (!res.ok) { err.textContent = data.error || 'Chyba odesílání.'; btn.disabled = false; btn.textContent = 'Odeslat kód →'; return; }
+    otpToken = data.token;
+    document.getElementById('emailDisplay').textContent = email;
+    document.getElementById('emailSection').style.display = 'none';
+    document.getElementById('otpSection').style.display = 'block';
+    buildOtpBoxes();
+  } catch { err.textContent = 'Chyba připojení.'; btn.disabled = false; btn.textContent = 'Odeslat kód →'; }
+}
+
+function buildOtpBoxes() {
+  const container = document.getElementById('otpBoxes');
+  container.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const box = document.createElement('input');
+    box.type = 'text'; box.maxLength = 1; box.className = 'otp-box';
+    box.inputMode = 'numeric'; box.pattern = '[0-9]';
+    box.addEventListener('input', e => {
+      e.target.value = e.target.value.replace(/\D/g, '');
+      if (e.target.value && i < 5) container.children[i + 1].focus();
+      checkOtp();
+    });
+    box.addEventListener('keydown', e => { if (e.key === 'Backspace' && !e.target.value && i > 0) container.children[i - 1].focus(); });
+    container.appendChild(box);
+  }
+  container.children[0].focus();
+}
+
+function checkOtp() {
+  const boxes = Array.from(document.querySelectorAll('.otp-box'));
+  document.getElementById('verifyBtn').disabled = !boxes.every(b => b.value);
+}
+
+async function verifyOtp() {
+  const boxes = Array.from(document.querySelectorAll('.otp-box'));
+  const otp = boxes.map(b => b.value).join('');
+  const btn = document.getElementById('verifyBtn');
+  const err = document.getElementById('otpErr');
+  err.textContent = '';
+  btn.disabled = true; btn.textContent = 'Ověřujeme…';
+
+  try {
+    const res = await fetch('/api/verify-otp', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, otp, token: otpToken }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      err.textContent = data.error || 'Nesprávný kód.';
+      btn.disabled = false; btn.textContent = 'Zobrazit můj profil →';
+      boxes.forEach(b => b.value = ''); boxes[0].focus();
+      return;
+    }
+    // OTP ok – načti uživatele z DB
+    const dbRes = await fetch(`/api/user-db?action=load&email=${encodeURIComponent(email)}`);
+    const dbData = await dbRes.json();
+    if (dbData.ok && dbData.user) {
+      localStorage.setItem('ziju60_user_token', dbData.user.token);
+      localStorage.setItem('ziju60_user_email', email);
+      redirectToProfile(dbData.user);
+    } else {
+      // Uživatel neexistuje v DB – pošli na quiz
+      window.location.href = '/quiz.html';
+    }
+  } catch { err.textContent = 'Chyba připojení.'; btn.disabled = false; btn.textContent = 'Zobrazit můj profil →'; }
+}
+
+function redirectToProfile(user) {
+  // Sestav URL params z uložených dat uživatele
+  const params = new URLSearchParams();
+  params.set('jmeno', user.jmeno || '');
+  params.set('pohlavi', user.pohlavi || 'muz');
+  params.set('vek_skutecny', user.vek_skutecny || 0);
+  params.set('vek_pocitovy', user.vek_pocitovy || 0);
+  if (user.pohyb) params.set('pohyb', user.pohyb);
+  if (user.nalada) params.set('nalada', user.nalada);
+  if (user.spojeni) params.set('spojeni', user.spojeni);
+  if (user.spanek) params.set('spanek', user.spanek);
+  if (user.motivace) params.set('motivace', user.motivace);
+  if (user.zalib) params.set('zalib', user.zalib);
+  window.location.href = '/result.html?' + params.toString();
+}
+
+function goBack() {
+  document.getElementById('otpSection').style.display = 'none';
+  document.getElementById('emailSection').style.display = 'block';
+  document.getElementById('sendBtn').disabled = false;
+  document.getElementById('sendBtn').textContent = 'Odeslat kód →';
+}
+</script>
+</body>
+</html>
