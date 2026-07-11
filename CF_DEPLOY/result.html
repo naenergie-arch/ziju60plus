@@ -694,18 +694,24 @@ const ACCESS_KEY = 'ziju60_access';
 const DAY_MS = 24 * 3600 * 1000;
 
 function getAccessLevel() {
-  const profile = loadSaved();
-  const profileAge = profile ? Date.now() - (profile.ts || 0) : Infinity;
+  // DB má přednost před localStorage
+  const dbLevel = dbUser?.access_level;
+  const dbTs = dbUser?.access_ts ? new Date(dbUser.access_ts).getTime() : null;
+
+  if (dbLevel === 'yearly') return 'yearly';
+  if (dbLevel === '90d') return (dbTs && Date.now() - dbTs < 90 * DAY_MS) ? 'active90' : 'expired90';
+  if (dbLevel === '30d') return (dbTs && Date.now() - dbTs < 30 * DAY_MS) ? 'active30' : 'expired30';
+
+  // Fallback na localStorage
   let paid = null;
   try { paid = JSON.parse(localStorage.getItem(ACCESS_KEY) || 'null'); } catch {}
-
   if (paid?.level === 'yearly') return 'yearly';
-  if (paid?.level === '90d') {
-    return (Date.now() - paid.ts < 90 * DAY_MS) ? 'active90' : 'expired90';
-  }
-  if (paid?.level === '30d') {
-    return (Date.now() - paid.ts < 30 * DAY_MS) ? 'active30' : 'expired30';
-  }
+  if (paid?.level === '90d') return (Date.now() - paid.ts < 90 * DAY_MS) ? 'active90' : 'expired90';
+  if (paid?.level === '30d') return (Date.now() - paid.ts < 30 * DAY_MS) ? 'active30' : 'expired30';
+
+  // Trial
+  const trialStart = (dbUser?.trial_start) || localStorage.getItem('ziju_trial_start');
+  const profileAge = trialStart ? Date.now() - new Date(trialStart).getTime() : Infinity;
   return profileAge < 7 * DAY_MS ? 'free_active' : 'free_expired';
 }
 
@@ -827,7 +833,35 @@ async function generateProfile() {
   };
 }
 
+// ── DB uživatel (načte se na začátku init) ────────────────────────
+let dbUser = null;
+
+async function loadDbUser() {
+  try {
+    const token = localStorage.getItem('ziju60_user_token');
+    const email = localStorage.getItem('ziju60_user_email');
+    if (!token && !email) return;
+    const param = token ? `token=${encodeURIComponent(token)}` : `email=${encodeURIComponent(email)}`;
+    const res = await fetch(`/api/user-db?action=load&${param}`);
+    const data = await res.json();
+    if (data.ok && data.user) {
+      dbUser = data.user;
+      // Synchronizuj trial_start do localStorage pro zpětnou kompatibilitu
+      if (dbUser.trial_start) localStorage.setItem('ziju_trial_start', dbUser.trial_start);
+      if (dbUser.access_level && dbUser.access_level !== 'free') {
+        const existing = JSON.parse(localStorage.getItem('ziju60_access') || 'null');
+        if (!existing) {
+          localStorage.setItem('ziju60_access', JSON.stringify({
+            level: dbUser.access_level, ts: new Date(dbUser.access_ts || dbUser.trial_start).getTime()
+          }));
+        }
+      }
+    }
+  } catch (e) { console.error('[loadDbUser]', e); }
+}
+
 async function init() {
+  await loadDbUser();
   const saved = loadSaved();
 
   // Pokud přišel z kvízu (má URL params s jménem) a uložený profil je JINÉHO člověka → vygeneruj nový
@@ -901,7 +935,7 @@ function saveClick(objId, nazev, den, url) {
 }
 
 function getTrialDay() {
-  const start = localStorage.getItem('ziju_trial_start');
+  const start = (dbUser && dbUser.trial_start) || localStorage.getItem('ziju_trial_start');
   if (!start) return 1;
   const ms = Date.now() - new Date(start).getTime();
   return Math.min(7, Math.max(1, Math.floor(ms / 86400000) + 1));

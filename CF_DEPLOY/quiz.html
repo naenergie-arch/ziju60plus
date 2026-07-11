@@ -520,17 +520,58 @@ async function verifyOtp() {
       boxes[0].focus();
       return;
     }
-    // OTP ok – ulož email a přejdi na výsledek
+    // OTP ok – ulož email, ulož do DB, přejdi na výsledek
     sessionStorage.setItem('ziju_email', gateEmail);
-    if (!localStorage.getItem('ziju_trial_start')) {
-      localStorage.setItem('ziju_trial_start', new Date().toISOString());
-    }
     saveLead();
+    await saveUserToDB();
     submitQuiz();
   } catch (_) {
     err.textContent = 'Chyba připojení. Zkuste to znovu.';
     btn.disabled = false;
     btn.textContent = 'Potvrdit a zobrazit profil →';
+  }
+}
+
+async function saveUserToDB() {
+  try {
+    const jmeno   = ans[0] || '';
+    const pohlavi = ans[1] || 'muz';
+    const scores  = {};
+    const vekData = steps.findIndex(s => s.ageInput) > -1 ? (ans[steps.findIndex(s => s.ageInput)] || {}) : {};
+    steps.forEach((s, i) => {
+      if (i < 2) return;
+      if (s.ageInput) return;
+      if (s.free) { scores[s.key] = ans[i] || ''; return; }
+      if (!s.gender && !s.name && ans[i] !== null) {
+        if (s.multi && Array.isArray(ans[i])) {
+          scores[s.key] = ans[i].map(idx => s.cards[idx].val).join(',');
+        } else {
+          scores[s.key] = s.cards[ans[i]].val;
+        }
+      }
+    });
+    const payload = {
+      action: 'save',
+      email: gateEmail, jmeno, pohlavi,
+      vek_skutecny: vekData.skutecny || 0,
+      vek_pocitovy: vekData.pocitovy || 0,
+      ...scores,
+    };
+    const res = await fetch('/api/user-db', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (data.ok && data.token) {
+      localStorage.setItem('ziju60_user_token', data.token);
+      localStorage.setItem('ziju60_user_email', gateEmail);
+      if (!data.returning) {
+        localStorage.setItem('ziju_trial_start', data.user.trial_start);
+      }
+    }
+  } catch (e) {
+    console.error('[saveUserToDB]', e);
   }
 }
 
