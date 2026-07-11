@@ -899,8 +899,10 @@ async function init() {
 const OBJ_API      = 'https://script.google.com/macros/s/AKfycbwrO9765NGUdZ0X3znwnKe6Epcdt4pdnxbIMYmXXEs33PpTEanfUalYxPYFzv1dPCp2/exec';
 const OBJ_POST_API = 'https://script.google.com/macros/s/AKfycbwrO9765NGUdZ0X3znwnKe6Epcdt4pdnxbIMYmXXEs33PpTEanfUalYxPYFzv1dPCp2/exec';
 
-// Kliknuté ObjID — načteme z localStorage, průběžně doplňujeme
-let clickedIds = new Set(JSON.parse(localStorage.getItem('ziju_clicked') || '[]'));
+// Kliknuté ObjID — merge z DB + localStorage
+const _localClicked = JSON.parse(localStorage.getItem('ziju_clicked') || '[]');
+const _dbClicked = (dbUser && dbUser.objevovna_shown) ? dbUser.objevovna_shown : [];
+let clickedIds = new Set([..._localClicked, ..._dbClicked]);
 let ratings = JSON.parse(localStorage.getItem('ziju_ratings') || '{}');
 
 function saveRating(objId, hodnota, event) {
@@ -923,6 +925,15 @@ function saveRating(objId, hodnota, event) {
 function saveClick(objId, nazev, den, url) {
   clickedIds.add(objId);
   localStorage.setItem('ziju_clicked', JSON.stringify([...clickedIds]));
+  // Uložit do Users DB
+  const token = localStorage.getItem('ziju60_user_token');
+  if (token) {
+    fetch('/api/user-db', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'update_objevovna', token, index: objId }),
+    }).catch(() => {});
+  }
   // Vizuálně označ jako kliknuté
   document.querySelectorAll(`[data-obj-id="${objId}"]`).forEach(el => el.classList.add('obj-visited'));
   // Ulož do GAS (fire-and-forget)

@@ -522,7 +522,6 @@ async function verifyOtp() {
     }
     // OTP ok – ulož email, ulož do DB, přejdi na výsledek
     sessionStorage.setItem('ziju_email', gateEmail);
-    saveLead();
     await saveUserToDB();
     submitQuiz();
   } catch (_) {
