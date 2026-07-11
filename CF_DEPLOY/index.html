@@ -23,6 +23,13 @@
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/hero-bg.css">
 <link rel="stylesheet" href="css/landing.css">
+<!-- Meta Pixel -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1191122949041037');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1191122949041037&ev=PageView&noscript=1"/></noscript>
 </head>
 <body class="bg-hero">
 
@@ -38,7 +45,7 @@
     <img class="logo" src="img/logo.png" alt="Žiju 60 plus">
     <h1>Začněte se cítit lépe ještě dnes.</h1>
     <p>Za každými dveřmi se skrývá nová možnost. Tahle je vaše.</p>
-    <a class='btn-start' href='#brana'>Přijměte pozvání<br>a vstupte ZDARMA na 7 dní</a>
+    <a class='btn-start' href='#brana' onclick="fbq('trackCustom','KlikHero')">Přijměte pozvání<br>a vstupte ZDARMA na 7 dní</a>
     <div style="margin-top:14px;text-align:center">
       <a href="/login.html" style="font-size:15px;color:#b07840;font-weight:600;text-decoration:none;border-bottom:1px solid #c8a060;padding-bottom:2px">Mám už svůj profil →</a>
     </div>
@@ -746,7 +753,7 @@
 <!-- Vstupní tlačítko pod bránou -->
 <div class="gate-cta-wrap">
   <div class="gate-flowers">🌿 🚴 🍃 🌲 🎯 🌱 ⚡</div>
-  <a href="/quiz" class="btn-gate-cta">
+  <a href="/quiz" class="btn-gate-cta" onclick="fbq('track','Lead')">
     <span class="btn-gate-line1">Vstupte ZDARMA</span>
     <span class="btn-gate-line2">na 7 dní</span>
   </a>
