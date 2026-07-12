@@ -1038,7 +1038,7 @@ function getTrialDay() {
   return Math.max(1, days);
 }
 
-function ${getTrialDayLabel()} {
+function getTrialDayLabel() {
   const day = getTrialDay();
   const label = ORDINALS[day] || ('den ' + day + '.');
   return 'Den ' + label;
