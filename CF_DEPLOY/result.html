@@ -864,13 +864,11 @@ async function loadDbUser() {
 }
 
 async function init() {
-  await loadDbUser();
   const saved = loadSaved();
-
-  // Pokud přišel z kvízu (má URL params s jménem) a uložený profil je JINÉHO člověka → vygeneruj nový
   const savedName = saved?.jmeno || '';
   const hasNewParams = urlJmeno && (urlJmeno !== savedName || !saved?.postreh);
 
+  // Uložený profil existuje → zobraz ho okamžitě, DB načti na pozadí
   if (saved && saved.postreh && !hasNewParams) {
     const expiry = new Date(saved.ts + 7*24*3600*1000).toLocaleDateString('cs-CZ');
     document.getElementById('savedNotice').innerHTML = `
@@ -879,10 +877,15 @@ async function init() {
         <a href="/quiz.html" onclick="localStorage.removeItem('${STORAGE_KEY}')">Vytvořit nový profil →</a>
       </div>`;
     showProfile(saved);
+    // DB načíst potichu na pozadí (pro Objevovnu atd.)
+    loadDbUser().catch(() => {});
     return;
   }
 
-  // Bez URL params a bez uloženého profilu → přesměruj na kvíz
+  // Bez uloženého profilu → načti DB (max 5s), pak rozhoduj
+  await loadDbUser();
+
+  // Bez URL params → přesměruj na kvíz
   if (!urlJmeno) {
     window.location.href = '/quiz.html';
     return;
