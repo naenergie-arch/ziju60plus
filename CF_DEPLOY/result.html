@@ -1407,7 +1407,7 @@ async function sendFeedback() {
   // Zobraz tlačítko jen pro 90denní přístup
   function initChat() {
     const accessLevel = (window.dbUser && window.dbUser.access_level) || localStorage.getItem('ziju_access_level') || 'free';
-    if (accessLevel !== 'access90' && accessLevel !== 'premium') return;
+    if (accessLevel !== '90d' && accessLevel !== 'yearly') return;
     btn.style.display = 'flex';
   }
 
