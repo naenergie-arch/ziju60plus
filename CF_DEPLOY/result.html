@@ -973,7 +973,7 @@ function saveRating(objId, hodnota, event) {
   const token = localStorage.getItem('ziju60_user_token') || '';
   fetch(OBJ_POST_API, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    mode: 'no-cors',
     body: JSON.stringify({ action: 'saveInterakce', email, token, objId, nazev: objId, den: 0, url: 'hodnoceni:' + hodnota }),
   }).catch(() => {});
 }
@@ -997,7 +997,7 @@ function saveClick(objId, nazev, den, url) {
   const token2 = localStorage.getItem('ziju60_user_token') || '';
   fetch(OBJ_POST_API, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    mode: 'no-cors',
     body: JSON.stringify({ action: 'saveInterakce', email: email2, token: token2, objId, nazev, den, url }),
   }).catch(() => {});
 }
