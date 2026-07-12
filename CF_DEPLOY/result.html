@@ -304,8 +304,7 @@ body{background:#fbf4e7;min-height:100vh;font-family:'Montserrat',sans-serif;col
   <div class="loader-text">
     Čteme vaše odpovědi a připravujeme váš profil<br>
     <span class="loader-dots"><span>.</span><span>.</span><span>.</span></span><br>
-    <span style="font-size:13px;color:#b07840;font-style:italic">Vydržte chvíli — AI to bere vážně.</span> <span style="font-size:10px;color:#d0b090">[v4]</span><br>
-    <span id="debugStep" style="font-size:11px;color:#c09060;margin-top:8px;display:block"></span>
+    <span style="font-size:13px;color:#b07840;font-style:italic">Vydržte chvíli — AI to bere vážně.</span>
   </div>
 </div>
 
@@ -932,8 +931,8 @@ async function init() {
     return;
   }
 
-  // Vygeneruj nový
-  dbg('krok 5: volám AI...');
+  // Vygeneruj nový — spusť hudbu jen teď
+  startBgAudio();
   try {
     const ctrl = new AbortController();
     const aiTimer = setTimeout(() => ctrl.abort(), 25000);
@@ -1217,13 +1216,13 @@ function fadeOutBgAudio() {
   step();
 }
 
-// Spusť hudbu při načtení loading screenu — jen pokud autoplay projde, jinak ticho
-window.addEventListener('load', () => {
+// Spusť hudbu jen při generování nového profilu (ne při uloženém)
+function startBgAudio() {
   const a = document.getElementById('bgAudioResult');
   if (!a) return;
   a.volume = 1.0;
-  a.play().catch(() => { /* autoplay zablokován — nehrajeme, bez fallbacku */ });
-});
+  a.play().catch(() => {});
+}
 
 init();
 
