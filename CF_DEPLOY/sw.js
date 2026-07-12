@@ -1,4 +1,4 @@
-const CACHE = 'ziju60plus-v1';
+const CACHE = 'ziju60plus-v3';
 const STATIC = [
   '/', '/index.html', '/quiz.html', '/result.html',
   '/wow1.html', '/dekujeme.html', '/manifest.json',
