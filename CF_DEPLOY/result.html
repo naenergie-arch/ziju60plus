@@ -1221,7 +1221,7 @@ function fadeOutBgAudio() {
 window.addEventListener('load', () => {
   const a = document.getElementById('bgAudioResult');
   if (!a) return;
-  a.volume = 0.35;
+  a.volume = 1.0;
   a.play().catch(() => { /* autoplay zablokován — nehrajeme, bez fallbacku */ });
 });
 
