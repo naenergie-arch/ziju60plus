@@ -866,6 +866,14 @@ async function loadDbUser() {
 
 function dbg(msg) { const el = document.getElementById('debugStep'); if (el) el.textContent = msg; }
 
+// Failsafe: pokud se do 12s nic nenačte, přesměruj na kvíz
+const _failsafe = setTimeout(() => {
+  const loader = document.getElementById('loader');
+  if (loader && !loader.classList.contains('hide')) {
+    window.location.href = '/quiz.html';
+  }
+}, 12000);
+
 async function init() {
   dbg('krok 1: čtu localStorage...');
   const saved = loadSaved();
@@ -1150,22 +1158,24 @@ async function renderObjevovna() {
 }
 
 function showProfile(data) {
-  renderHeader(data);
-  renderPostreh(data);
-  renderTema(data);
-  renderRec(data);
-  renderReactionStats();
-  renderPreview();
-  renderCoach();
-  renderObjevovna();
-  renderCenik();
+  clearTimeout(_failsafe);
+  // Skryj loader IHNED – chyby v renderování ho nesmí zablokovat
   document.getElementById('page').style.display = '';
   const loader = document.getElementById('loader');
   loader.classList.add('hide');
   setTimeout(()=>loader.style.display='none', 700);
   window.scrollTo({top:0});
-  // Postupně ztiš hudbu loading screenu
   fadeOutBgAudio();
+
+  try { renderHeader(data); } catch(e) { console.error('renderHeader', e); }
+  try { renderPostreh(data); } catch(e) { console.error('renderPostreh', e); }
+  try { renderTema(data); } catch(e) { console.error('renderTema', e); }
+  try { renderRec(data); } catch(e) { console.error('renderRec', e); }
+  try { renderReactionStats(); } catch(e) { console.error('renderReactionStats', e); }
+  try { renderPreview(); } catch(e) { console.error('renderPreview', e); }
+  try { renderCoach(); } catch(e) { console.error('renderCoach', e); }
+  try { renderObjevovna(); } catch(e) { console.error('renderObjevovna', e); }
+  try { renderCenik(); } catch(e) { console.error('renderCenik', e); }
 }
 
 function fadeOutBgAudio() {
