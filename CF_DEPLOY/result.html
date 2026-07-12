@@ -945,11 +945,31 @@ function saveClick(objId, nazev, den, url) {
   }).catch(() => {});
 }
 
+const ORDINALS = [
+  '', 'první', 'druhý', 'třetí', 'čtvrtý', 'pátý', 'šestý', 'sedmý', 'osmý', 'devátý', 'desátý',
+  'jedenáctý', 'dvanáctý', 'třináctý', 'čtrnáctý', 'patnáctý', 'šestnáctý', 'sedmnáctý', 'osmnáctý', 'devatenáctý', 'dvacátý',
+  'dvacátý první', 'dvacátý druhý', 'dvacátý třetí', 'dvacátý čtvrtý', 'dvacátý pátý', 'dvacátý šestý', 'dvacátý sedmý', 'dvacátý osmý', 'dvacátý devátý', 'třicátý',
+  'třicátý první', 'třicátý druhý', 'třicátý třetí', 'třicátý čtvrtý', 'třicátý pátý', 'třicátý šestý', 'třicátý sedmý', 'třicátý osmý', 'třicátý devátý', 'čtyřicátý',
+  'čtyřicátý první', 'čtyřicátý druhý', 'čtyřicátý třetí', 'čtyřicátý čtvrtý', 'čtyřicátý pátý', 'čtyřicátý šestý', 'čtyřicátý sedmý', 'čtyřicátý osmý', 'čtyřicátý devátý', 'padesátý',
+  'padesátý první', 'padesátý druhý', 'padesátý třetí', 'padesátý čtvrtý', 'padesátý pátý', 'padesátý šestý', 'padesátý sedmý', 'padesátý osmý', 'padesátý devátý', 'šedesátý',
+  'šedesátý první', 'šedesátý druhý', 'šedesátý třetí', 'šedesátý čtvrtý', 'šedesátý pátý', 'šedesátý šestý', 'šedesátý sedmý', 'šedesátý osmý', 'šedesátý devátý', 'sedmdesátý',
+  'sedmdesátý první', 'sedmdesátý druhý', 'sedmdesátý třetí', 'sedmdesátý čtvrtý', 'sedmdesátý pátý', 'sedmdesátý šestý', 'sedmdesátý sedmý', 'sedmdesátý osmý', 'sedmdesátý devátý', 'osmdesátý',
+  'osmdesátý první', 'osmdesátý druhý', 'osmdesátý třetí', 'osmdesátý čtvrtý', 'osmdesátý pátý', 'osmdesátý šestý', 'osmdesátý sedmý', 'osmdesátý osmý', 'osmdesátý devátý', 'devadesátý'
+];
+
 function getTrialDay() {
   const start = (dbUser && dbUser.trial_start) || localStorage.getItem('ziju_trial_start');
   if (!start) return 1;
-  const ms = Date.now() - new Date(start).getTime();
-  return Math.min(7, Math.max(1, Math.floor(ms / 86400000) + 1));
+  const startMidnight = new Date(new Date(start).toDateString()).getTime();
+  const todayMidnight = new Date(new Date().toDateString()).getTime();
+  const days = Math.floor((todayMidnight - startMidnight) / 86400000) + 1;
+  return Math.max(1, days);
+}
+
+function ${getTrialDayLabel()} {
+  const day = getTrialDay();
+  const label = ORDINALS[day] || ('den ' + day + '.');
+  return 'Den ' + label;
 }
 
 function getSecondsUntil20() {
@@ -979,7 +999,7 @@ async function renderObjevovna() {
     el.innerHTML = `
       <div class="obj-heading">🎁 Objevovna</div>
       <div class="obj-title">Dnešní překvapení</div>
-      <div class="obj-day-badge">Den ${day}. trialu</div>
+      <div class="obj-day-badge">${getTrialDayLabel()}</div>
       <div class="obj-countdown">
         <div class="obj-countdown-time" id="objTimer">${formatCountdown(secsLeft)}</div>
         <div class="obj-countdown-label">Odkryje se dnes ve 20:00</div>
@@ -1075,7 +1095,7 @@ async function renderObjevovna() {
     el.innerHTML = `
       <div class="obj-heading">🎁 Objevovna</div>
       <div class="obj-title">Dnešní překvapení</div>
-      <div class="obj-day-badge">Den ${day}. trialu · odhaleno ve 20:00</div>
+      <div class="obj-day-badge">${getTrialDayLabel()} · odhaleno ve 20:00</div>
       ${statusHtml}
       ${todayHtml}
       ${archiveHtml}`;
