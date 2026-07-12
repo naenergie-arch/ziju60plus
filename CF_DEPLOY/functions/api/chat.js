@@ -43,6 +43,7 @@ export async function onRequestPost(context) {
     den_trial = 0, tykani,
     ai_summary = '',
     obj_koment = null,
+    profil = null,
   } = body;
 
   if (!token || !zprava) {
@@ -76,6 +77,23 @@ export async function onRequestPost(context) {
     ? 'VYKÁNÍ: uživatel si přeje vykání – vždy vykej (Vy, Vás, Váš...).'
     : 'Oslovení nebylo ještě domluveno – viz instrukce pro první zprávu.';
 
+  // Kontext osobního profilu
+  const profilBlok = profil ? `
+OSOBNÍ PROFIL UŽIVATELE (vygenerován AI při registraci):
+- Jméno: ${profil.jmeno || jmeno}
+- Pohlaví: ${profil.pohlavi === 'zena' ? 'žena' : 'muž'}
+- Skutečný věk: ${profil.vek_skutecny || '?'} let
+- Biologický věk: ${profil.bio_vek || '?'} let
+- Skóre vitality: ${profil.skore_vitality || '?'}/100
+- Osobní postřeh: ${profil.postreh || ''}
+- Silná stránka: ${profil.silna_stranka || ''}
+- Největší příležitost: ${profil.prilezitost || ''}
+- Téma tohoto týdne: ${profil.tydenni_tema || ''}
+- 7 doporučení na tento týden:
+${(profil.doporuceni || []).map((d,i) => `  ${i+1}. ${d}`).join('\n')}
+` : '';
+
+
   let systemPrompt;
 
   if (isKoment && obj_koment) {
@@ -101,11 +119,11 @@ TVOJE IDENTITA:
 - Mluvíš česky, přirozeně a srozumitelně
 
 UŽIVATEL:
-- Jméno: ${jmeno || 'neznámé'}
+- Jméno: ${profil?.jmeno || jmeno || 'neznámé'}
 - Pohlaví: ${jeZena ? 'žena' : 'muž'}
 - Den programu: ${den_trial}
 - ${tykaniInstr}
-${ai_summary ? `\nCO O UŽIVATELI VÍME:\n${ai_summary}` : ''}
+${profilBlok}${ai_summary ? `\nDOPLŇKOVÉ POZNATKY Z KONVERZACE:\n${ai_summary}` : ''}
 
 OKRUH TÉMAT:
 ✅ Pohyb a vitalita, duševní pohoda, mozek a paměť, sociální život, spánek, výživa, záliby, program Žiju60plus

@@ -1626,11 +1626,32 @@ async function sendFeedback() {
 
   async function sendMessage(text) {
     const token = localStorage.getItem('ziju60_user_token');
-    const jmeno = localStorage.getItem('ziju_jmeno') || '';
-    const pohlavi = localStorage.getItem('ziju_pohlavi') || '';
     const tykani = localStorage.getItem('ziju_chat_tykani') || '';
     const ai_summary = localStorage.getItem('ziju_ai_summary') || '';
     const den_trial = window.getTrialDay ? window.getTrialDay() : 0;
+
+    // Načti uložený profil
+    let profil = null;
+    try { profil = JSON.parse(localStorage.getItem('ziju60_profil') || 'null'); } catch {}
+    const jmeno = profil?.jmeno || localStorage.getItem('ziju_jmeno') || '';
+    const pohlavi = profil?.pohlavi || localStorage.getItem('ziju_pohlavi') || '';
+
+    // Sestav kontext profilu pro AI
+    let profilKontext = null;
+    if (profil) {
+      profilKontext = {
+        jmeno: profil.jmeno || '',
+        pohlavi: profil.pohlavi || '',
+        skore_vitality: profil.skore_vitality || 0,
+        bio_vek: profil.bio_vek || 0,
+        vek_skutecny: profil.vek_skutecny || 0,
+        postreh: profil.postreh || '',
+        silna_stranka: profil.silna_stranka || '',
+        prilezitost: profil.prilezitost || '',
+        tydenni_tema: profil.tydenni_tema || '',
+        doporuceni: (profil.doporuceni || []).map(d => `${d.ikona} ${d.nazev}: ${d.popis}`),
+      };
+    }
 
     const isInit = text === '__init__';
     if (!isInit) {
@@ -1650,6 +1671,7 @@ async function sendFeedback() {
           token,
           zprava: isInit ? 'Ahoj, právě jsem otevřel/a chat.' : text,
           jmeno, pohlavi, den_trial, tykani, ai_summary,
+          profil: profilKontext,
         }),
       });
       const data = await res.json();
