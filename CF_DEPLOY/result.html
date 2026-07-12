@@ -1049,16 +1049,43 @@ async function renderObjevovna() {
 
   el.style.display = '';
 
+  // Pomocná funkce pro kartu
+  function objCard(s, isArchive) {
+    const visited = clickedIds.has(s.objId);
+    const rating = ratings[s.objId] || null;
+    const visitedBadge = visited ? `<span class="obj-visited-badge">✓ otevřeno</span>` : '';
+    const cls = isArchive ? 'obj-archive-card' : 'obj-card';
+    const onclick = `saveClick('${s.objId}','${s.nazev.replace(/'/g,"\\'")}',${s.den},'${s.url}')`;
+    const ratingHtml = `
+      <div class="obj-rating">
+        <span class="obj-rating-label">Hodnocení:</span>
+        <button class="obj-rating-btn${rating==='skvelé'?' selected-skvelé':''}" onclick="saveRating('${s.objId}','skvelé',event)">⭐ Skvělé</button>
+        <button class="obj-rating-btn${rating==='dobré'?' selected-dobré':''}" onclick="saveRating('${s.objId}','dobré',event)">👍 Dobré</button>
+        <button class="obj-rating-btn${rating==='nic'?' selected-nic':''}" onclick="saveRating('${s.objId}','nic',event)">😐 Nic moc</button>
+      </div>`;
+    return `<div class="${cls}${visited ? ' obj-visited' : ''}" data-obj-id="${s.objId}">
+      <div class="obj-card-kat">${s.kategorie} · ${s.cas_min} min</div>
+      <div class="obj-card-nazev">${s.nazev}${visitedBadge}</div>
+      ${!isArchive ? `<div class="obj-card-wow">${s.wow}</div>` : ''}
+      <a class="obj-card-link" href="${s.url}" target="_blank" rel="noopener" onclick="${onclick}">Otevřít →</a>
+      ${ratingHtml}
+    </div>`;
+  }
+
+  // Dnešní blok — odpočet nebo obsah
+  let todayHtml = '';
+  let archiveData = {};
+
   if (secsLeft > 0) {
-    // Před 20:00 — odpočet
-    el.innerHTML = `
-      <div class="obj-heading">🎁 Objevovna</div>
+    // Před 20:00 — ukáž odpočet pro dnešek
+    todayHtml = `
       <div class="obj-title">Dnešní překvapení</div>
       <div class="obj-day-badge">${getTrialDayLabel()}</div>
       <div class="obj-countdown">
         <div class="obj-countdown-time" id="objTimer">${formatCountdown(secsLeft)}</div>
         <div class="obj-countdown-label">Odkryje se dnes ve 20:00</div>
       </div>`;
+    // Spusť odpočet
     let s = secsLeft;
     const t = setInterval(() => {
       s--;
@@ -1067,96 +1094,86 @@ async function renderObjevovna() {
       if (s <= 0) { clearInterval(t); renderObjevovna(); return; }
       timerEl.textContent = formatCountdown(s);
     }, 1000);
+  }
+
+  // Vždy načti data z GAS — pro dnešek (po 20:00) i pro archív minulých dní
+  if (secsLeft <= 0 || day > 1) {
+    try {
+      const maxDay = secsLeft > 0 ? day - 1 : day; // před 20:00 načti jen minulé dny
+      const res = await fetch(`${OBJ_API}?maxDay=${maxDay}`);
+      const data = await res.json();
+      if (data.ok) archiveData = data.archive || {};
+
+      if (secsLeft <= 0) {
+        const todaySurprises = archiveData[day] || [];
+        if (todaySurprises.length) {
+          todayHtml = `
+            <div class="obj-title">Dnešní překvapení</div>
+            <div class="obj-day-badge">${getTrialDayLabel()} · odhaleno ve 20:00</div>
+            ${todaySurprises.map(s => objCard(s, false)).join('')}`;
+        }
+      }
+    } catch(_) {}
+  }
+
+  // Archív minulých dní — vždy zobraz pokud existují
+  let archiveHtml = '';
+  if (day > 1) {
+    const pastDaysHtml = [];
+    for (let d = day - 1; d >= 1; d--) {
+      const items = archiveData[d] || [];
+      if (!items.length) continue;
+      const dayClicked = items.filter(s => clickedIds.has(s.objId)).length;
+      const allDone = dayClicked === items.length;
+      const itemsHtml = items.map(s => objCard(s, true)).join('');
+      pastDaysHtml.push(`
+        <div class="obj-archive-day">
+          <button class="obj-archive-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
+            Den ${d} · ${dayClicked}/${items.length} otevřeno ${allDone ? '✓' : ''}
+            <span class="arr">▾</span>
+          </button>
+          <div class="obj-archive-body">${itemsHtml}</div>
+        </div>`);
+    }
+    if (pastDaysHtml.length) {
+      archiveHtml = `
+        <div class="obj-archive">
+          <div class="obj-archive-title">📚 Archív překvapení</div>
+          ${pastDaysHtml.join('')}
+        </div>`;
+    }
+  }
+
+  if (!todayHtml && !archiveHtml) {
+    el.style.display = 'none';
     return;
   }
 
-  // Po 20:00 — načti dnešní + archív najednou
-  el.innerHTML = `<div class="obj-heading">🎁 Objevovna</div><div class="obj-title">Načítám překvapení…</div>`;
-  try {
-    const res = await fetch(`${OBJ_API}?maxDay=${day}`);
-    const data = await res.json();
-    if (!data.ok) throw new Error();
-
-    const todaySurprises = data.archive[day] || [];
-    if (!todaySurprises.length) throw new Error();
-
-    // Pomocná funkce pro kartu
-    function objCard(s, isArchive) {
-      const visited = clickedIds.has(s.objId);
-      const rating = ratings[s.objId] || null;
-      const visitedBadge = visited ? `<span class="obj-visited-badge">✓ otevřeno</span>` : '';
-      const cls = isArchive ? 'obj-archive-card' : 'obj-card';
-      const onclick = `saveClick('${s.objId}','${s.nazev.replace(/'/g,"\\'")}',${s.den},'${s.url}')`;
-      const ratingHtml = `
-        <div class="obj-rating">
-          <span class="obj-rating-label">Hodnocení:</span>
-          <button class="obj-rating-btn${rating==='skvelé'?' selected-skvelé':''}" onclick="saveRating('${s.objId}','skvelé',event)">⭐ Skvělé</button>
-          <button class="obj-rating-btn${rating==='dobré'?' selected-dobré':''}" onclick="saveRating('${s.objId}','dobré',event)">👍 Dobré</button>
-          <button class="obj-rating-btn${rating==='nic'?' selected-nic':''}" onclick="saveRating('${s.objId}','nic',event)">😐 Nic moc</button>
-        </div>`;
-      return `<div class="${cls}${visited ? ' obj-visited' : ''}" data-obj-id="${s.objId}">
-        <div class="obj-card-kat">${s.kategorie} · ${s.cas_min} min</div>
-        <div class="obj-card-nazev">${s.nazev}${visitedBadge}</div>
-        ${!isArchive ? `<div class="obj-card-wow">${s.wow}</div>` : ''}
-        <a class="obj-card-link" href="${s.url}" target="_blank" rel="noopener" onclick="${onclick}">Otevřít →</a>
-        ${ratingHtml}
-      </div>`;
-    }
-
-    // Spočítej celkový stav
-    let totalRevealed = 0, totalClicked = 0;
-    for (let d = 1; d <= day; d++) {
-      (data.archive[d] || []).forEach(s => {
-        totalRevealed++;
-        if (clickedIds.has(s.objId)) totalClicked++;
-      });
-    }
-    const statusHtml = `<div class="obj-status-bar">
-      <div class="obj-status-item">Odhaleno: <strong>${totalRevealed}</strong></div>
-      <div class="obj-status-item">Otevřeno: <strong>${totalClicked}</strong></div>
-      <div class="obj-status-item">Zbývá prozkoumat: <strong>${totalRevealed - totalClicked}</strong></div>
-    </div>`;
-
-    const todayHtml = todaySurprises.map(s => objCard(s, false)).join('');
-
-    // Archív — minulé dny (od nejnovějšího)
-    let archiveHtml = '';
-    if (day > 1) {
-      const pastDaysHtml = [];
-      for (let d = day - 1; d >= 1; d--) {
-        const items = data.archive[d] || [];
-        if (!items.length) continue;
-        const dayClicked = items.filter(s => clickedIds.has(s.objId)).length;
-        const allDone = dayClicked === items.length;
-        const itemsHtml = items.map(s => objCard(s, true)).join('');
-        pastDaysHtml.push(`
-          <div class="obj-archive-day">
-            <button class="obj-archive-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
-              Den ${d} · ${dayClicked}/${items.length} otevřeno ${allDone ? '✓' : ''}
-              <span class="arr">▾</span>
-            </button>
-            <div class="obj-archive-body">${itemsHtml}</div>
-          </div>`);
-      }
-      if (pastDaysHtml.length) {
-        archiveHtml = `
-          <div class="obj-archive">
-            <div class="obj-archive-title">📚 Archív překvapení</div>
-            ${pastDaysHtml.join('')}
-          </div>`;
-      }
-    }
-
-    el.innerHTML = `
-      <div class="obj-heading">🎁 Objevovna</div>
-      <div class="obj-title">Dnešní překvapení</div>
-      <div class="obj-day-badge">${getTrialDayLabel()} · odhaleno ve 20:00</div>
-      ${statusHtml}
-      ${todayHtml}
-      ${archiveHtml}`;
-  } catch(_) {
-    el.style.display = 'none';
+  // Celkový stav
+  let totalRevealed = 0, totalClicked = 0;
+  for (let d = 1; d < day; d++) {
+    (archiveData[d] || []).forEach(s => {
+      totalRevealed++;
+      if (clickedIds.has(s.objId)) totalClicked++;
+    });
   }
+  if (secsLeft <= 0) {
+    (archiveData[day] || []).forEach(s => {
+      totalRevealed++;
+      if (clickedIds.has(s.objId)) totalClicked++;
+    });
+  }
+  const statusHtml = totalRevealed > 0 ? `<div class="obj-status-bar">
+    <div class="obj-status-item">Odhaleno: <strong>${totalRevealed}</strong></div>
+    <div class="obj-status-item">Otevřeno: <strong>${totalClicked}</strong></div>
+    <div class="obj-status-item">Zbývá prozkoumat: <strong>${totalRevealed - totalClicked}</strong></div>
+  </div>` : '';
+
+  el.innerHTML = `
+    <div class="obj-heading">🎁 Objevovna</div>
+    ${statusHtml}
+    ${todayHtml}
+    ${archiveHtml}`;
 }
 
 function showProfile(data) {
