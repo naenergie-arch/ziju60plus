@@ -1162,5 +1162,40 @@ window.addEventListener('appinstalled', () => {
 });
 </script>
 <script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(()=>{});</script>
+
+<!-- Feedback sekce -->
+<div style="max-width:560px;margin:48px auto 60px;padding:0 20px;">
+  <div style="background:#fff8f0;border:1.5px solid #e8d4b0;border-radius:28px;padding:44px 40px;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.06);position:relative;overflow:hidden;">
+    <div style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#ff8a3d,#ffb870,#ff8a3d);"></div>
+    <div style="font-size:32px;margin-bottom:16px;">🌿</div>
+    <h3 style="font-family:Georgia,'Palatino Linotype',serif;font-style:italic;font-size:24px;color:#1a3a2a;margin-bottom:12px;line-height:1.3;">Co by vám udělalo radost?</h3>
+    <div style="width:40px;height:2px;background:#ff8a3d;border-radius:99px;margin:0 auto 16px;opacity:.6;"></div>
+    <p style="font-size:14px;color:#8a6d45;line-height:1.65;margin-bottom:28px;">Váš nápad, připomínka nebo postřeh nám pomáhá přinést vám přesně to, co potřebujete. Rádi si vše přečteme.</p>
+    <div id="feedbackForm" style="text-align:left;display:flex;flex-direction:column;gap:12px;">
+      <textarea id="feedbackMsg" rows="4" placeholder="Napište nám..." style="width:100%;padding:12px 16px;background:#fffdf8;border:1.5px solid #e8d4b0;border-radius:12px;font-size:15px;font-family:inherit;color:#2a1f0e;outline:none;resize:none;"></textarea>
+      <button onclick="sendFeedback()" style="background:#ff8a3d;color:#fff;border:none;border-radius:999px;padding:13px 32px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;align-self:center;">Odeslat →</button>
+    </div>
+    <p id="feedbackThanks" style="display:none;font-family:Georgia,serif;font-style:italic;font-size:17px;color:#1a3a2a;margin-top:8px;">Děkujeme. Přečteme si to. 🙏</p>
+  </div>
+</div>
+
+<script>
+async function sendFeedback() {
+  const zprava = document.getElementById('feedbackMsg').value.trim();
+  if (!zprava) return;
+  const token = localStorage.getItem('ziju60_user_token') || '';
+  const jmeno = (dbUser && dbUser.jmeno) ? dbUser.jmeno : '';
+  const email = (dbUser && dbUser.email) ? dbUser.email : '';
+  try {
+    await fetch('/api/user-db', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'save_feedback', token, jmeno, email, zprava }),
+    });
+  } catch(_) {}
+  document.getElementById('feedbackForm').style.display = 'none';
+  document.getElementById('feedbackThanks').style.display = 'block';
+}
+</script>
 </body>
 </html>
