@@ -351,16 +351,6 @@ body{background:#fbf4e7;min-height:100vh;font-family:'Montserrat',sans-serif;col
 </div>
 
 <script>
-// Globální error handler — zachytí jakýkoliv JS crash
-window.onerror = function(msg, src, line, col, err) {
-  const el = document.getElementById('debugStep');
-  if (el) el.innerHTML = '<span style="color:red">JS ERROR: ' + msg + ' (řádek ' + line + ')</span>';
-  return false;
-};
-window.addEventListener('unhandledrejection', function(e) {
-  const el = document.getElementById('debugStep');
-  if (el) el.innerHTML = '<span style="color:red">PROMISE ERROR: ' + (e.reason && e.reason.message || e.reason) + '</span>';
-});
 
 const STORAGE_KEY = 'ziju60_profil';
 
@@ -887,8 +877,6 @@ async function loadDbUser() {
   } catch (e) { console.error('[loadDbUser]', e); }
 }
 
-function dbg(msg) { const el = document.getElementById('debugStep'); if (el) el.textContent = msg; }
-
 // Failsafe: pokud se do 30s nic nenačte, přesměruj na kvíz
 const _failsafe = setTimeout(() => {
   const loader = document.getElementById('loader');
@@ -898,11 +886,9 @@ const _failsafe = setTimeout(() => {
 }, 30000);
 
 async function init() {
-  dbg('krok 1: čtu localStorage...');
   const saved = loadSaved();
   const savedName = saved?.jmeno || '';
   const hasNewParams = urlJmeno && (urlJmeno !== savedName || !saved?.postreh);
-  dbg('krok 2: profil=' + (saved ? 'ANO' : 'NE') + ' urlJmeno=' + (urlJmeno || '(prázdné)'));
 
   // Uložený profil existuje → zobraz ho okamžitě, DB načti na pozadí
   if (saved && saved.postreh && !hasNewParams) {
@@ -912,21 +898,16 @@ async function init() {
         💾 Zobrazujeme váš uložený profil. Platí do ${expiry}.
         <a href="/quiz.html" onclick="localStorage.removeItem('${STORAGE_KEY}')">Vytvořit nový profil →</a>
       </div>`;
-    dbg('krok 3: zobrazuji uložený profil...');
     showProfile(saved);
-    // DB načíst potichu na pozadí (pro Objevovnu atd.)
     loadDbUser().catch(() => {});
     return;
   }
 
-  // Bez uloženého profilu → načti DB (max 5s), pak rozhoduj
-  dbg('krok 3: čekám na DB (max 5s)...');
+  // Bez uloženého profilu → načti DB (max 4s), pak rozhoduj
   await loadDbUser();
-  dbg('krok 4: DB hotovo, urlJmeno=' + (urlJmeno || '(prázdné)'));
 
   // Bez URL params → přesměruj na kvíz
   if (!urlJmeno) {
-    dbg('krok 5: přesměrovávám na kvíz...');
     window.location.href = '/quiz.html';
     return;
   }
@@ -948,7 +929,6 @@ async function init() {
       signal: ctrl.signal,
     });
     clearTimeout(aiTimer);
-    dbg('krok 6: AI odpovědělo, parsuju...');
     if (!aiRes.ok) throw new Error('HTTP ' + aiRes.status);
     const data = await aiRes.json();
     if (!data.postreh) throw new Error('prázdná odpověď');
@@ -959,7 +939,6 @@ async function init() {
     saveProfile(fullData);
     showProfile(fullData);
   } catch(e) {
-    dbg('chyba: ' + e.message);
     document.getElementById('loader').innerHTML = `
       <div style="text-align:center;padding:40px 20px">
         <div style="font-size:40px;margin-bottom:16px">😔</div>
