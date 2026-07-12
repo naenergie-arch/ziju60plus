@@ -339,6 +339,17 @@ body{background:#fbf4e7;min-height:100vh;font-family:'Montserrat',sans-serif;col
 </div>
 
 <script>
+// Globální error handler — zachytí jakýkoliv JS crash
+window.onerror = function(msg, src, line, col, err) {
+  const el = document.getElementById('debugStep');
+  if (el) el.innerHTML = '<span style="color:red">JS ERROR: ' + msg + ' (řádek ' + line + ')</span>';
+  return false;
+};
+window.addEventListener('unhandledrejection', function(e) {
+  const el = document.getElementById('debugStep');
+  if (el) el.innerHTML = '<span style="color:red">PROMISE ERROR: ' + (e.reason && e.reason.message || e.reason) + '</span>';
+});
+
 const STORAGE_KEY = 'ziju60_profil';
 
 const KAT_LABELS = {
