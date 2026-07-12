@@ -842,7 +842,10 @@ async function loadDbUser() {
     const email = localStorage.getItem('ziju60_user_email');
     if (!token && !email) return;
     const param = token ? `token=${encodeURIComponent(token)}` : `email=${encodeURIComponent(email)}`;
-    const res = await fetch(`/api/user-db?action=load&${param}`);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 4000);
+    const res = await fetch(`/api/user-db?action=load&${param}`, { signal: controller.signal });
+    clearTimeout(timer);
     const data = await res.json();
     if (data.ok && data.user) {
       dbUser = data.user;
