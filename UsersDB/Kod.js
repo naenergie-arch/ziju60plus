@@ -85,6 +85,7 @@ function doPost(e) {
     if (action === "update_access")   return respond(updateAccess(body));
     if (action === "update_objevovna")return respond(updateObjevovna(body));
     if (action === "set_sheet_id")    return respond(setSheetId(body));
+    if (action === "save_feedback")   return respond(saveFeedback(body));
     return respond({ error: "Unknown action" }, 400);
   } catch (err) {
     return respond({ error: err.message }, 500);
@@ -169,6 +170,21 @@ function updateObjevovna(body) {
   if (!current.includes(body.index)) current.push(body.index);
   sheet.getRange(found.row, 16).setValue(JSON.stringify(current));
   return { ok: true, shown: current };
+}
+
+// Uloží feedback do listu "Feedback"
+function saveFeedback(body) {
+  const id = PropertiesService.getScriptProperties().getProperty("SHEET_ID");
+  const ss = SpreadsheetApp.openById(id);
+  let sheet = ss.getSheetByName("Feedback");
+  if (!sheet) {
+    sheet = ss.insertSheet("Feedback");
+    sheet.getRange(1, 1, 1, 5).setValues([["datum", "jmeno", "email", "zprava", "token"]]);
+    sheet.setFrozenRows(1);
+  }
+  const now = new Date().toISOString();
+  sheet.appendRow([now, body.jmeno || "", body.email || "", body.zprava || "", body.token || ""]);
+  return { ok: true };
 }
 
 // Nastaví SHEET_ID do Script Properties (spusť jednou po setupu)
