@@ -296,7 +296,8 @@ body{background:#fbf4e7;min-height:100vh;font-family:'Montserrat',sans-serif;col
   <div class="loader-text">
     Čteme vaše odpovědi a připravujeme váš profil<br>
     <span class="loader-dots"><span>.</span><span>.</span><span>.</span></span><br>
-    <span style="font-size:13px;color:#b07840;font-style:italic">Vydržte chvíli — AI to bere vážně.</span>
+    <span style="font-size:13px;color:#b07840;font-style:italic">Vydržte chvíli — AI to bere vážně.</span><br>
+    <span id="debugStep" style="font-size:11px;color:#c09060;margin-top:8px;display:block"></span>
   </div>
 </div>
 
@@ -863,10 +864,14 @@ async function loadDbUser() {
   } catch (e) { console.error('[loadDbUser]', e); }
 }
 
+function dbg(msg) { const el = document.getElementById('debugStep'); if (el) el.textContent = msg; }
+
 async function init() {
+  dbg('krok 1: čtu localStorage...');
   const saved = loadSaved();
   const savedName = saved?.jmeno || '';
   const hasNewParams = urlJmeno && (urlJmeno !== savedName || !saved?.postreh);
+  dbg('krok 2: profil=' + (saved ? 'ANO' : 'NE') + ' urlJmeno=' + (urlJmeno || '(prázdné)'));
 
   // Uložený profil existuje → zobraz ho okamžitě, DB načti na pozadí
   if (saved && saved.postreh && !hasNewParams) {
@@ -876,6 +881,7 @@ async function init() {
         💾 Zobrazujeme váš uložený profil. Platí do ${expiry}.
         <a href="/quiz.html" onclick="localStorage.removeItem('${STORAGE_KEY}')">Vytvořit nový profil →</a>
       </div>`;
+    dbg('krok 3: zobrazuji uložený profil...');
     showProfile(saved);
     // DB načíst potichu na pozadí (pro Objevovnu atd.)
     loadDbUser().catch(() => {});
@@ -883,15 +889,19 @@ async function init() {
   }
 
   // Bez uloženého profilu → načti DB (max 5s), pak rozhoduj
+  dbg('krok 3: čekám na DB (max 5s)...');
   await loadDbUser();
+  dbg('krok 4: DB hotovo, urlJmeno=' + (urlJmeno || '(prázdné)'));
 
   // Bez URL params → přesměruj na kvíz
   if (!urlJmeno) {
+    dbg('krok 5: přesměrovávám na kvíz...');
     window.location.href = '/quiz.html';
     return;
   }
 
   // Vygeneruj nový
+  dbg('krok 5: volám AI...');
   try {
     const data = await generateProfile();
     saveProfile(data);
