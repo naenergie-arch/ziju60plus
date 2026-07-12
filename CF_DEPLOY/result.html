@@ -952,7 +952,7 @@ async function init() {
 }
 
 const OBJ_API      = 'https://script.google.com/macros/s/AKfycbwrO9765NGUdZ0X3znwnKe6Epcdt4pdnxbIMYmXXEs33PpTEanfUalYxPYFzv1dPCp2/exec';
-const OBJ_POST_API = 'https://script.google.com/macros/s/AKfycbwrO9765NGUdZ0X3znwnKe6Epcdt4pdnxbIMYmXXEs33PpTEanfUalYxPYFzv1dPCp2/exec';
+const OBJ_POST_API = 'https://script.google.com/macros/s/AKfycbzQ93QTkghk29y4qPzD4kMAR4TODai1yltMSkEwBlRFH9aDakvtnHRcNoz6Ejw75uSGjw/exec';
 
 // Kliknuté ObjID — merge z DB + localStorage
 const _localClicked = JSON.parse(localStorage.getItem('ziju_clicked') || '[]');
@@ -970,10 +970,11 @@ function saveRating(objId, hodnota, event) {
   event.target.classList.add('selected-' + hodnota);
   // Ulož do GAS
   const email = localStorage.getItem('ziju_email') || sessionStorage.getItem('ziju_email') || '';
+  const token = localStorage.getItem('ziju60_user_token') || '';
   fetch(OBJ_POST_API, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'saveInterakce', email, objId, nazev: objId, den: 0, url: 'hodnoceni:' + hodnota }),
+    body: JSON.stringify({ action: 'saveInterakce', email, token, objId, nazev: objId, den: 0, url: 'hodnoceni:' + hodnota }),
   }).catch(() => {});
 }
 
@@ -992,11 +993,12 @@ function saveClick(objId, nazev, den, url) {
   // Vizuálně označ jako kliknuté
   document.querySelectorAll(`[data-obj-id="${objId}"]`).forEach(el => el.classList.add('obj-visited'));
   // Ulož do GAS (fire-and-forget)
-  const email = localStorage.getItem('ziju_email') || sessionStorage.getItem('ziju_email') || '';
+  const email2 = localStorage.getItem('ziju_email') || sessionStorage.getItem('ziju_email') || '';
+  const token2 = localStorage.getItem('ziju60_user_token') || '';
   fetch(OBJ_POST_API, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'saveInterakce', email, objId, nazev, den, url }),
+    body: JSON.stringify({ action: 'saveInterakce', email: email2, token: token2, objId, nazev, den, url }),
   }).catch(() => {});
 }
 
