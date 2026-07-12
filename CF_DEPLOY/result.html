@@ -971,6 +971,12 @@ function saveRating(objId, hodnota, event) {
   // Ulož do GAS
   const email = localStorage.getItem('ziju_email') || sessionStorage.getItem('ziju_email') || '';
   const token = localStorage.getItem('ziju60_user_token') || '';
+  // Zobraz potvrzení
+  const confirm = document.createElement('span');
+  confirm.textContent = ' ✓ uloženo';
+  confirm.style.cssText = 'color:#4caf50;font-size:0.8em;margin-left:6px;';
+  wrap.appendChild(confirm);
+  setTimeout(() => confirm.remove(), 2500);
   fetch(OBJ_POST_API, {
     method: 'POST',
     mode: 'no-cors',
