@@ -1,6 +1,14 @@
 ﻿<!DOCTYPE html>
 <html lang="cs">
 <head>
+<script>
+// Zruš service worker při každém načtení result.html
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(function(regs) {
+    regs.forEach(r => r.unregister());
+  });
+}
+</script>
 <meta charset="UTF-8">
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#ff8a3d">
