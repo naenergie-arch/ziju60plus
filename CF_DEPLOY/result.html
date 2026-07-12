@@ -745,29 +745,59 @@ function initCarousel(total) {
 }
 
 function renderPreview() {
+  const lvl = getAccessLevel();
+  const isPremium = lvl === 'active90' || lvl === 'yearly';
+  const is30 = lvl === 'active30';
+  let title, sub, topics;
+  if (isPremium) {
+    title = 'Co vás čeká v 90denním programu';
+    sub = 'Každý den nové překvapení v Objevovně. Témata která vás posunou:';
+    topics = ['Zvládání stresu','Kvalitní spánek','Výživa pro vitalitu','Pohyb bez bolesti','Vztahy a blízkost','Dlouhověkost','Motivace a smysl','Regenerace těla','Kreativita','Příroda a pohyb','Digitální svět','Rodina a vnoučata'];
+  } else if (is30) {
+    title = 'A jak to bude v dalších týdnech?';
+    sub = 'Ve 2.–4. týdnu Vás čekají témata, která změní Váš každodenní život:';
+    topics = ['Zvládání stresu','Kvalitní spánek','Výživa pro vitalitu','Pohyb bez bolesti','Vztahy a blízkost','Dlouhověkost','Motivace a smysl','Regenerace těla'];
+  } else {
+    title = 'A jak to bude v dalších týdnech?';
+    sub = 'Ve 2.–12. týdnu Vás čekají témata, která změní Váš každodenní život:';
+    topics = ['Zvládání stresu','Kvalitní spánek','Výživa pro vitalitu','Pohyb bez bolesti','Vztahy a blízkost','Dlouhověkost','Motivace a smysl','Regenerace těla'];
+  }
   document.getElementById('previewSection').innerHTML = `
     <div class="preview-section">
-      <div class="preview-title">A jak to bude v dalších týdnech?</div>
-      <div class="preview-sub">Ve 2.–12. týdnu Vás čekají témata, která změní Váš každodenní život:</div>
+      <div class="preview-title">${title}</div>
+      <div class="preview-sub">${sub}</div>
       <div class="preview-topics">
-        ${['Zvládání stresu','Kvalitní spánek','Výživa pro vitalitu','Pohyb bez bolesti',
-           'Vztahy a blízkost','Dlouhověkost','Motivace a smysl','Regenerace těla'].map(
-          t=>`<div class="preview-topic">${t}</div>`).join('')}
+        ${topics.map(t=>`<div class="preview-topic">${t}</div>`).join('')}
       </div>
     </div>`;
 }
 
 function renderCoach() {
-  document.getElementById('coachSection').innerHTML = `
-    <div class="coach-section">
-      <div class="coach-icon">🤖</div>
-      <div class="coach-title">Váš osobní AI průvodce</div>
-      <div class="coach-desc">
-        Během plného programu dostanete vlastního AI průvodce,<br>
-        který bude každý den s Vámi — připomíná, motivuje,<br>
-        odpovídá na otázky a upravuje plán podle Vašeho pokroku.
-      </div>
-    </div>`;
+  const lvl = getAccessLevel();
+  const el = document.getElementById('coachSection');
+  if (lvl === 'active90' || lvl === 'yearly') {
+    // 90d uživatelé AI asistenta MÁ — žádná reklama, jen připomenutí
+    el.innerHTML = `
+      <div class="coach-section">
+        <div class="coach-icon">🤖</div>
+        <div class="coach-title">Váš AI průvodce je aktivní</div>
+        <div class="coach-desc">
+          Tlačítko vpravo dole vás spojí s průvodcem kdykoliv.<br>
+          Zná váš profil, doporučení i historii rozhovoru.
+        </div>
+      </div>`;
+  } else {
+    el.innerHTML = `
+      <div class="coach-section">
+        <div class="coach-icon">🤖</div>
+        <div class="coach-title">Váš osobní AI průvodce</div>
+        <div class="coach-desc">
+          V plném 90denním programu dostanete vlastního AI průvodce,<br>
+          který bude každý den s Vámi — připomíná, motivuje,<br>
+          odpovídá na otázky a zná váš osobní profil.
+        </div>
+      </div>`;
+  }
 }
 
 // ── Přístupová úroveň dle localStorage ───────────────────────────
@@ -853,7 +883,8 @@ function renderCenik() {
       </div>`;
 
   } else if (level === 'active30') {
-    const left = daysLeft(paid.ts, 30);
+    const ts30 = paid?.ts || (dbUser?.access_ts ? new Date(dbUser.access_ts).getTime() : Date.now());
+    const left = daysLeft(ts30, 30);
     html = `
       <div class="access-strip active">
         <div class="access-days">✅ Přístup aktivní – zbývá <strong>${left} ${left === 1 ? 'den' : left < 5 ? 'dny' : 'dní'}</strong></div>
@@ -870,10 +901,11 @@ function renderCenik() {
       </div>`;
 
   } else if (level === 'active90') {
-    const left = daysLeft(paid.ts, 90);
+    const ts90 = paid?.ts || (dbUser?.access_ts ? new Date(dbUser.access_ts).getTime() : Date.now());
+    const left = daysLeft(ts90, 90);
     html = `
       <div class="access-strip active">
-        <div class="access-days">✅ Přístup aktivní – zbývá <strong>${left} ${left === 1 ? 'den' : left < 5 ? 'dny' : 'dní'}</strong></div>
+        <div class="access-days">⭐ Prémiový přístup 90 dní – zbývá <strong>${left} ${left === 1 ? 'den' : left < 5 ? 'dny' : 'dní'}</strong></div>
       </div>`;
 
   } else if (level === 'expired90') {
