@@ -879,6 +879,12 @@ async function init() {
     return;
   }
 
+  // Bez URL params a bez uloženého profilu → přesměruj na kvíz
+  if (!urlJmeno) {
+    window.location.href = '/quiz.html';
+    return;
+  }
+
   // Vygeneruj nový
   try {
     const data = await generateProfile();
