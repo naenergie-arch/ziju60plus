@@ -236,6 +236,71 @@ body{background:#fbf4e7;min-height:100vh;font-family:'Montserrat',sans-serif;col
   .profile-greeting{font-size:22px}
   .silna-box{flex-direction:column}
 }
+
+/* ══════════════════════════════════════════════
+   PRÉMIOVÝ PROFIL 90 DNÍ
+══════════════════════════════════════════════ */
+body.premium-90 .profile-header{
+  background:linear-gradient(160deg,#0d1f3c 0%,#1a3a6e 60%,#0d2a50 100%);
+  border-color:#2a4a8e;
+}
+body.premium-90 .profile-header::before{
+  background:radial-gradient(circle,#f4c43030 0%,transparent 70%);
+}
+body.premium-90 .profile-badge{
+  background:linear-gradient(90deg,#f4c430,#d4a820);
+  border-color:#c49010;
+  color:#0d1f3c;
+}
+body.premium-90 .profile-greeting{color:#e8f4ff}
+body.premium-90 .profile-date{color:#8ab4e8}
+body.premium-90 .vbar-label{color:#8ab4e8}
+body.premium-90 .vbar-bg{background:#1a3560}
+body.premium-90 .score-box{background:#132952;border-color:#2a4a8e}
+body.premium-90 .score-num{color:#f4c430}
+body.premium-90 .score-label{color:#8ab4e8}
+body.premium-90 .score-box.bio{background:#0d2a1e;border-color:#1a6a40}
+body.premium-90 .score-note{color:#6ab090}
+
+/* 90 badge v headeru */
+.badge-90{
+  display:inline-flex;align-items:center;gap:6px;
+  background:linear-gradient(135deg,#f4c430,#e8a800);
+  color:#0d1f3c;border-radius:999px;
+  padding:5px 14px;font-size:11px;font-weight:800;
+  letter-spacing:.12em;text-transform:uppercase;
+  margin-bottom:12px;box-shadow:0 2px 10px #f4c43050;
+}
+.badge-90-num{
+  font-size:22px;font-weight:900;line-height:1;
+  font-family:Georgia,serif;
+}
+
+/* Watermark 90 v pozadí */
+body.premium-90 .profile-header::after{
+  content:'90';
+  position:absolute;right:16px;top:50%;transform:translateY(-50%);
+  font-size:120px;font-weight:900;font-family:Georgia,serif;
+  color:#ffffff08;line-height:1;pointer-events:none;
+  letter-spacing:-4px;
+}
+
+/* Postřeh karta — tmavší varianta */
+body.premium-90 .postreh-card{background:#f0f6ff;border-color:#b0c8f0}
+body.premium-90 .postreh-card::before{color:#b0c8f080}
+body.premium-90 .silna-item{background:#e8f0ff}
+body.premium-90 .silna-klic{color:#4a70c0}
+body.premium-90 .tema-tag{background:linear-gradient(90deg,#1a3a8e,#2a5ac8)}
+
+/* AI komentář k Objevovně */
+.obj-ai-comment{
+  display:flex;gap:10px;align-items:flex-start;
+  background:#f0f4ff;border:1px solid #c0d0f0;
+  border-radius:12px;padding:10px 14px;margin:8px 0 4px;
+  font-size:13px;color:#2a3a6a;line-height:1.5;
+}
+.obj-ai-comment-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.obj-ai-comment-text{font-style:italic}
 </style>
 </head>
 <body>
@@ -458,6 +523,7 @@ function renderHeader(data) {
   const osloveni = vok
     ? (jeZena ? `milá ${vok}` : `milý ${vok}`)
     : (jeZena ? 'milá čtenářko' : 'milý čtenáři');
+  const lvl = getAccessLevel();
 
   // Skóre z dat (uložena při generování)
   const pohyb    = data.pohyb    ?? urlPohyb;
@@ -480,7 +546,8 @@ function renderHeader(data) {
 
   const dateStr = new Date(data.ts || Date.now()).toLocaleDateString('cs-CZ',{day:'numeric',month:'long',year:'numeric'});
   document.getElementById('profileHeader').innerHTML = `
-    <div class="profile-badge">🌸 Osobní profil vitality</div>
+    ${(lvl==='active90'||lvl==='yearly') ? `<div class="badge-90"><span class="badge-90-num">90</span> dní · prémiový přístup ⭐</div>` : ''}
+    <div class="profile-badge">${(lvl==='active90'||lvl==='yearly') ? '🌟' : '🌸'} Osobní profil vitality</div>
     <div class="profile-greeting">Dobrý den, ${osloveni}!</div>
     <div class="profile-date">Váš profil ze dne ${dateStr}</div>
     <div class="vitality-bars">
@@ -1126,6 +1193,7 @@ async function renderObjevovna() {
 
   // Archív minulých dní — vždy zobraz pokud existují
   let archiveHtml = '';
+  const isPremium90 = ['active90','yearly'].includes(getAccessLevel());
   if (day > 1) {
     const pastDaysHtml = [];
     for (let d = day - 1; d >= 1; d--) {
@@ -1134,13 +1202,52 @@ async function renderObjevovna() {
       const dayClicked = items.filter(s => clickedIds.has(s.objId)).length;
       const allDone = dayClicked === items.length;
       const itemsHtml = items.map(s => objCard(s, true)).join('');
+
+      // AI komentář pro 90d uživatele (zobrazí se pod kartami)
+      let aiCommentHtml = '';
+      if (isPremium90) {
+        const komentKey = `ziju_obj_koment_${d}`;
+        const ulozenyKoment = localStorage.getItem(komentKey);
+        if (ulozenyKoment) {
+          aiCommentHtml = `<div class="obj-ai-comment"><span class="obj-ai-comment-icon">🤖</span><span class="obj-ai-comment-text">${ulozenyKoment}</span></div>`;
+        } else {
+          aiCommentHtml = `<div class="obj-ai-comment" id="aikoment-${d}"><span class="obj-ai-comment-icon">🤖</span><span class="obj-ai-comment-text" style="color:#aaa">Načítám komentář průvodce…</span></div>`;
+          // Načti komentář asynchronně
+          (async () => {
+            const token = localStorage.getItem('ziju60_user_token');
+            const jmeno = localStorage.getItem('ziju_jmeno') || '';
+            const pohlavi = localStorage.getItem('ziju_pohlavi') || '';
+            const tykani = localStorage.getItem('ziju_chat_tykani') || '';
+            const firstItem = items[0];
+            try {
+              const res = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  token, jmeno, pohlavi, tykani,
+                  den_trial: d,
+                  zprava: '__koment__',
+                  obj_koment: { nazev: firstItem.nazev, kategorie: firstItem.kategorie, popis: firstItem.popis || '' },
+                }),
+              });
+              const data = await res.json();
+              if (data.ok && data.odpoved) {
+                localStorage.setItem(komentKey, data.odpoved);
+                const el2 = document.getElementById(`aikoment-${d}`);
+                if (el2) el2.querySelector('.obj-ai-comment-text').textContent = data.odpoved;
+              }
+            } catch {}
+          })();
+        }
+      }
+
       pastDaysHtml.push(`
         <div class="obj-archive-day">
           <button class="obj-archive-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
             Den ${d} · ${dayClicked}/${items.length} otevřeno ${allDone ? '✓' : ''}
             <span class="arr">▾</span>
           </button>
-          <div class="obj-archive-body">${itemsHtml}</div>
+          <div class="obj-archive-body">${aiCommentHtml}${itemsHtml}</div>
         </div>`);
     }
     if (pastDaysHtml.length) {
@@ -1186,6 +1293,9 @@ async function renderObjevovna() {
 
 function showProfile(data) {
   clearTimeout(_failsafe);
+  // Přidej premium třídu pro 90d uživatele
+  const lvl = getAccessLevel();
+  if (lvl === 'active90' || lvl === 'yearly') document.body.classList.add('premium-90');
   // Skryj loader IHNED – chyby v renderování ho nesmí zablokovat
   document.getElementById('page').style.display = '';
   const loader = document.getElementById('loader');
@@ -1516,6 +1626,7 @@ async function sendFeedback() {
     const jmeno = localStorage.getItem('ziju_jmeno') || '';
     const pohlavi = localStorage.getItem('ziju_pohlavi') || '';
     const tykani = localStorage.getItem('ziju_chat_tykani') || '';
+    const ai_summary = localStorage.getItem('ziju_ai_summary') || '';
     const den_trial = window.getTrialDay ? window.getTrialDay() : 0;
 
     const isInit = text === '__init__';
@@ -1532,15 +1643,26 @@ async function sendFeedback() {
       const res = await fetch(CHAT_API, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, zprava: isInit ? 'Ahoj, právě jsem otevřel/a chat.' : text, jmeno, pohlavi, den_trial, tykani }),
+        body: JSON.stringify({
+          token,
+          zprava: isInit ? 'Ahoj, právě jsem otevřel/a chat.' : text,
+          jmeno, pohlavi, den_trial, tykani, ai_summary,
+        }),
       });
       const data = await res.json();
       typing.remove();
 
       if (data.ok) {
         addBubble(data.odpoved, 'ai');
-        // Ulož tykání pokud AI odpověděla na první zprávu
-        if (isInit) localStorage.setItem('ziju_chat_init', '1');
+
+        // Ulož detekované tykání/vykání
+        if (data.detectedTykani && !tykani) {
+          localStorage.setItem('ziju_chat_tykani', data.detectedTykani);
+        }
+        // Ulož nové summary
+        if (data.newSummary) {
+          localStorage.setItem('ziju_ai_summary', data.newSummary);
+        }
       } else {
         addBubble('Omlouváme se, došlo k chybě. Zkuste to za chvíli.', 'ai');
       }
