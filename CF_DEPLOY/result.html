@@ -903,15 +903,38 @@ async function init() {
   // Vygeneruj nový
   dbg('krok 5: volám AI...');
   try {
-    const data = await generateProfile();
-    saveProfile(data);
-    showProfile(data);
+    const ctrl = new AbortController();
+    const aiTimer = setTimeout(() => ctrl.abort(), 25000);
+    const aiRes = await fetch('/api/diagnosticky-postreh', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ answers: {
+        jmeno: urlJmeno, pohlavi: urlPohlavi,
+        pohyb: urlPohyb, nalada: urlNalada, spojeni: urlSpojeni,
+        spanek: urlSpanek, motivace: urlMotivace, text: urlText, zalib: urlZalib,
+        vek_skutecny: urlVekSkutecny, vek_pocitovy: urlVekPocitovy
+      }}),
+      signal: ctrl.signal,
+    });
+    clearTimeout(aiTimer);
+    dbg('krok 6: AI odpovědělo, parsuju...');
+    if (!aiRes.ok) throw new Error('HTTP ' + aiRes.status);
+    const data = await aiRes.json();
+    if (!data.postreh) throw new Error('prázdná odpověď');
+    const fullData = { ...data, jmeno: urlJmeno, pohlavi: urlPohlavi,
+      pohyb: urlPohyb, nalada: urlNalada, spojeni: urlSpojeni,
+      spanek: urlSpanek, motivace: urlMotivace,
+      vek_skutecny: urlVekSkutecny, vek_pocitovy: urlVekPocitovy };
+    saveProfile(fullData);
+    showProfile(fullData);
   } catch(e) {
+    dbg('chyba: ' + e.message);
     document.getElementById('loader').innerHTML = `
       <div style="text-align:center;padding:40px 20px">
         <div style="font-size:40px;margin-bottom:16px">😔</div>
         <div style="font-size:16px;color:#a07040;font-family:Georgia,serif;font-style:italic">
           Omlouváme se, profil se nepodařilo načíst.<br>
+          <span style="font-size:12px;color:#b08060">${e.message}</span><br><br>
           <a href="/quiz.html" style="color:#ff8a3d">Zkuste to znovu →</a>
         </div>
       </div>`;
