@@ -885,13 +885,13 @@ async function loadDbUser() {
 
 function dbg(msg) { const el = document.getElementById('debugStep'); if (el) el.textContent = msg; }
 
-// Failsafe: pokud se do 12s nic nenačte, přesměruj na kvíz
+// Failsafe: pokud se do 30s nic nenačte, přesměruj na kvíz
 const _failsafe = setTimeout(() => {
   const loader = document.getElementById('loader');
   if (loader && !loader.classList.contains('hide')) {
     window.location.href = '/quiz.html';
   }
-}, 12000);
+}, 30000);
 
 async function init() {
   dbg('krok 1: čtu localStorage...');
