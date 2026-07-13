@@ -1,7 +1,7 @@
 const USERS_DB_URL = "https://script.google.com/macros/s/AKfycbzQ93QTkghk29y4qPzD4kMAR4TODai1yltMSkEwBlRFH9aDakvtnHRcNoz6Ejw75uSGjw/exec";
 const OBJ_API_URL  = "https://script.google.com/macros/s/AKfycbwrO9765NGUdZ0X3znwnKe6Epcdt4pdnxbIMYmXXEs33PpTEanfUalYxPYFzv1dPCp2/exec";
 const RESEND_URL   = "https://api.resend.com/emails";
-const ADMIN_EMAIL  = "naenergie@gmail.com";
+const ADMIN_EMAIL  = "ziju60plus@gmail.com";
 const TIMEOUT_MS   = 8000;
 
 async function ping(name, url) {
