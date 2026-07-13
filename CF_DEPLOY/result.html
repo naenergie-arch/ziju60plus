@@ -408,6 +408,7 @@ body.premium-90 .tema-tag{background:linear-gradient(90deg,#1a3a8e,#2a5ac8)}
     <div id="temaWrap" class="tema-header" style="display:none"></div>
     <div id="recList" class="carousel-wrap"></div>
   </div>
+  <div id="komunitaSection"></div>
   <div id="odemykaniSection"></div>
   <div id="novinkaSection"></div>
   <div id="previewSection"></div>
@@ -1375,6 +1376,7 @@ function showProfile(data) {
   try { renderCoach(); } catch(e) { console.error('renderCoach', e); }
   try { renderObjevovna(); } catch(e) { console.error('renderObjevovna', e); }
   try { renderCenik(); } catch(e) { console.error('renderCenik', e); }
+  try { renderKomunita(); } catch(e) { console.error('renderKomunita', e); }
   try { renderOdemykani(); } catch(e) { console.error('renderOdemykani', e); }
   try { renderNovinka(); } catch(e) { console.error('renderNovinka', e); }
   try { renderDiag(); } catch(e) { console.error('renderDiag', e); }
@@ -1411,8 +1413,23 @@ function renderOdemykani() {
 // ── Aktuální novinka ──────────────────────────────────────────
 // Chcete-li novinku zobrazit: vyplňte NOVINKA_TEXT a NOVINKA_DO (datum kdy zmizí).
 // Chcete-li novinku skrýt: nechte NOVINKA_TEXT prázdný řetězec.
-const NOVINKA_TEXT = 'Nově: Diagnostika nastavení – zkontrolujte jedním kliknutím, že vám aplikace funguje správně. Tlačítko najdete úplně dole na této stránce.';
+const NOVINKA_TEXT = 'Nově: Diagnostika nastavení – zkontrolujte jedním kliknutím, že vám aplikace funguje správně. Tlačítko najdete úplně dole na této stránce. • Připojte se k naší komunitě na Telegramu – sdílejte zkušenosti s lidmi jako vy 👇';
 const NOVINKA_DO   = '2026-07-16'; // zobrazuje se do tohoto data (včetně)
+
+function renderKomunita() {
+  const el = document.getElementById('komunitaSection');
+  if (!el) return;
+  el.innerHTML = `
+    <div style="background:linear-gradient(135deg,#e8f4fd 0%,#ddeeff 100%);border:1.5px solid #a0c8f0;border-radius:20px;padding:20px 22px;margin-bottom:20px;text-align:center">
+      <div style="font-size:24px;margin-bottom:8px">💬</div>
+      <div style="font-size:16px;font-weight:700;color:#1a3a5a;margin-bottom:6px">Připojte se ke komunitě</div>
+      <div style="font-size:13px;color:#2a4a6a;line-height:1.6;margin-bottom:14px">Sdílejte zkušenosti, tipy a podporu s lidmi ve stejné životní etapě. Pouze pro uživatele Žiju60plus.</div>
+      <a href="https://t.me/+KmGyT-pI-7M0MmI0" target="_blank" rel="noopener"
+        style="display:inline-block;background:#2AABEE;color:#fff;font-weight:700;font-size:14px;padding:12px 28px;border-radius:24px;text-decoration:none">
+        ✈️ Připojit se na Telegramu →
+      </a>
+    </div>`;
+}
 
 function renderNovinka() {
   const el = document.getElementById('novinkaSection');
