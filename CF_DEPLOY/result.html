@@ -1463,6 +1463,20 @@ async function runDiagnostics() {
 
   btn.textContent = 'Spustit znovu';
   btn.disabled = false;
+
+  // Přidej tlačítko Zavřít pokud ještě není
+  if (!document.getElementById('diagCloseBtn')) {
+    const closeBtn = document.createElement('button');
+    closeBtn.id = 'diagCloseBtn';
+    closeBtn.textContent = 'Zavřít';
+    closeBtn.style.cssText = 'margin-top:12px;padding:10px 24px;background:transparent;border:1.5px solid #c8a87a;border-radius:20px;color:#8a6030;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit';
+    closeBtn.onclick = () => {
+      res.style.display = 'none';
+      closeBtn.remove();
+      btn.textContent = 'Spustit kontrolu →';
+    };
+    res.parentNode.appendChild(closeBtn);
+  }
 }
 
 function fadeOutBgAudio() {
