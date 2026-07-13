@@ -401,6 +401,7 @@ body.premium-90 .tema-tag{background:linear-gradient(90deg,#1a3a8e,#2a5ac8)}
     <div id="temaWrap" class="tema-header" style="display:none"></div>
     <div id="recList" class="carousel-wrap"></div>
   </div>
+  <div id="odemykaniSection"></div>
   <div id="novinkaSection"></div>
   <div id="previewSection"></div>
   <div id="coachSection"></div>
@@ -1367,8 +1368,37 @@ function showProfile(data) {
   try { renderCoach(); } catch(e) { console.error('renderCoach', e); }
   try { renderObjevovna(); } catch(e) { console.error('renderObjevovna', e); }
   try { renderCenik(); } catch(e) { console.error('renderCenik', e); }
+  try { renderOdemykani(); } catch(e) { console.error('renderOdemykani', e); }
   try { renderNovinka(); } catch(e) { console.error('renderNovinka', e); }
   try { renderDiag(); } catch(e) { console.error('renderDiag', e); }
+}
+
+// ── Odemykání obsahu podle dne trialu ────────────────────────
+const ODEMYKANI = [
+  null, // den 0 (nepoužito)
+  { icon:'🎉', titulek:'Váš profil je aktivní.', text:'Dnes jste udělali první krok. Prohlédněte si svá doporučení a týdenní téma.' },
+  { icon:'📖', titulek:'Objevovna na vás čeká každý den ve 20 hodin.', text:'Vždy připravujeme rozmanitá a zajímavá překvapení z celého světa.' },
+  { icon:'🤖', titulek:'AI průvodce zná váš profil.', text:'Může s vámi probrat vaše doporučení, odpovědět na otázky o zdraví a kondici nebo vám jednoduše naslouchat. Dostupný v plánu na 90 dní.' },
+  { icon:'📊', titulek:'Vaše vitalita se dá zlepšit.', text:'Už za 30 dní se vaše skóre může výrazně posunout. Stačí malé kroky každý den.' },
+  { icon:'🗓', titulek:'90 dní = 90 malých změn.', text:'Každý den nový podnět přizpůsobený vašemu věku, kondici a cílům. Žádné diety, žádný dril.' },
+  { icon:'⏳', titulek:'Zítra váš bezplatný přístup končí.', text:'Váš profil a doporučení zůstanou uloženy. Nové podněty, osobní týdenní plány a každodenní překvapení v Objevovně najdete v prémiových verzích.' },
+  { icon:'🔔', titulek:'Dnes je poslední den vašeho bezplatného přístupu.', text:'Nenechte si ujít pokračování — 30 dní za 299 Kč (9,90 Kč/den) nebo 90 dní s AI osobním průvodcem za 699 Kč (7,80 Kč/den). Pokračujte na cestě za lepší vitalitou.' },
+];
+
+function renderOdemykani() {
+  const el = document.getElementById('odemykaniSection');
+  if (!el) return;
+  const lvl = getAccessLevel();
+  if (lvl !== 'free_active') { el.innerHTML = ''; return; }
+  const den = Math.min(7, Math.max(1, getTrialDay()));
+  const n = ODEMYKANI[den];
+  if (!n) { el.innerHTML = ''; return; }
+  el.innerHTML = `
+    <div style="background:#f0f8ff;border:1.5px solid #b8d8f0;border-radius:20px;padding:18px 20px;margin-bottom:20px">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#3a6090;margin-bottom:8px">Den ${den} z 7</div>
+      <div style="font-size:15px;font-weight:700;color:#1a3a5a;margin-bottom:6px">${n.icon} ${n.titulek}</div>
+      <div style="font-size:14px;color:#2a4a6a;line-height:1.6">${n.text}</div>
+    </div>`;
 }
 
 // ── Aktuální novinka ──────────────────────────────────────────
