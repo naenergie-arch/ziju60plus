@@ -1399,13 +1399,7 @@ async function runDiagnostics() {
     ? { st:'ok', icon:'🌐', title:'Prohlížeč je plně podporovaný', note:'' }
     : { st:'err', icon:'🌐', title:'Prohlížeč má omezené funkce', note:'Doporučujeme Chrome nebo Safari (nejnovější verze).' });
 
-  // 2. Aplikace na ploše (PWA)
-  const isPwa = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
-  checks.push(isPwa
-    ? { st:'ok', icon:'📱', title:'Aplikace je uložena na ploše', note:'Vše v pořádku.' }
-    : { st:'warn', icon:'📱', title:'Aplikace není uložena na ploše', note:'Uložte si ji pro rychlejší přístup – viz instrukce výše na stránce.' });
-
-  // 3. Profil uložen
+  // 2. Profil uložen
   const profil = (() => { try { return JSON.parse(localStorage.getItem('ziju60_profil')||'null'); } catch { return null; } })();
   const profilOk = profil && profil.postreh;
   checks.push(profilOk
