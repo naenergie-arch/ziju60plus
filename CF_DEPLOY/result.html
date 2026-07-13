@@ -1377,6 +1377,7 @@ function showProfile(data) {
   try { renderCoach(); } catch(e) { console.error('renderCoach', e); }
   try { renderObjevovna(); } catch(e) { console.error('renderObjevovna', e); }
   try { renderCenik(); } catch(e) { console.error('renderCenik', e); }
+  try { renderSvedectvi(); } catch(e) { console.error('renderSvedectvi', e); }
   try { renderKomunita(); } catch(e) { console.error('renderKomunita', e); }
   try { renderOdemykani(); } catch(e) { console.error('renderOdemykani', e); }
   try { renderNovinka(); } catch(e) { console.error('renderNovinka', e); }
@@ -1416,6 +1417,50 @@ function renderOdemykani() {
 // Chcete-li novinku skrýt: nechte NOVINKA_TEXT prázdný řetězec.
 const NOVINKA_TEXT = 'Nově: Diagnostika nastavení – zkontrolujte jedním kliknutím, že vám aplikace funguje správně. Tlačítko najdete úplně dole na této stránce. • Připojte se k naší komunitě na Telegramu – sdílejte zkušenosti s lidmi jako vy 👇';
 const NOVINKA_DO   = '2026-07-16'; // zobrazuje se do tohoto data (včetně)
+
+function renderSvedectvi() {
+  const blok = document.getElementById('svedectviBlok');
+  if (!blok) return;
+  const lvl = getAccessLevel();
+  // Zobraz jen bezplatným uživatelům do 21.7.2026
+  const deadline = new Date('2026-07-21T23:59:59');
+  const uzOdeslano = localStorage.getItem('ziju_svedectvi_odeslano');
+  if (lvl !== 'free_active' || new Date() > deadline || uzOdeslano) {
+    blok.style.display = 'none';
+    return;
+  }
+  blok.style.display = '';
+}
+
+async function odeslatSvedectvi() {
+  const misto = document.getElementById('svedMisto').value.trim();
+  const text = document.getElementById('svedText').value.trim();
+  const souhlas = document.getElementById('svedSouhlas').checked;
+  if (!misto) { alert('Doplňte prosím vaše město.'); return; }
+  if (text.length < 30) { alert('Napište prosím alespoň pár vět (min. 30 znaků).'); return; }
+  if (!souhlas) { alert('Pro získání slevy je nutný souhlas se zveřejněním.'); return; }
+
+  const token = localStorage.getItem('ziju60_user_token') || '';
+  const jmeno = localStorage.getItem('ziju60_user_jmeno') || '';
+  const email = localStorage.getItem('ziju60_user_email') || '';
+
+  try {
+    await fetch(USERS_DB_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'save_svedectvi',
+        token, jmeno, email, misto, text,
+        datum: new Date().toISOString()
+      })
+    });
+  } catch(_) {}
+
+  localStorage.setItem('ziju_svedectvi_odeslano', '1');
+  document.getElementById('svedectviForm').style.display = 'none';
+  document.getElementById('svedThanks').style.display = 'block';
+}
 
 function renderKomunita() {
   const el = document.getElementById('komunitaSection');
@@ -1627,6 +1672,23 @@ window.addEventListener('appinstalled', () => {
 
 <!-- Feedback sekce -->
 <div style="max-width:560px;margin:48px auto 60px;padding:0 20px;">
+  <!-- Svědectví formulář -->
+  <div id="svedectviBlok" style="background:linear-gradient(135deg,#fffbe6,#fff8d6);border:2px solid #f0c840;border-radius:28px;padding:32px 28px;margin-bottom:24px;text-align:center;display:none">
+    <div style="font-size:28px;margin-bottom:10px">🎁</div>
+    <h3 style="font-family:Georgia,serif;font-style:italic;font-size:20px;color:#1a3a2a;margin-bottom:8px">Získejte 50% slevu na 30 dní</h3>
+    <p style="font-size:13px;color:#6a5020;line-height:1.7;margin-bottom:20px">Napište nám své první dojmy z osobního profilu. Pokud souhlasíte se zveřejněním vašeho svědectví na našem webu, dostanete <strong>slevový kód na 30denní program za 149 Kč</strong> místo 299 Kč.<br><small style="color:#a07830">Akce platí pro registrace do 21. 7. 2026.</small></p>
+    <div id="svedectviForm" style="text-align:left;display:flex;flex-direction:column;gap:10px">
+      <input id="svedMisto" type="text" placeholder="Vaše město (např. Brno)" style="padding:11px 14px;border:1.5px solid #e8d0a8;border-radius:12px;font-size:14px;font-family:inherit;color:#2a1f0e;background:#fffdf8;outline:none">
+      <textarea id="svedText" rows="4" placeholder="Napište své první dojmy z osobního profilu..." style="padding:11px 14px;border:1.5px solid #e8d0a8;border-radius:12px;font-size:14px;font-family:inherit;color:#2a1f0e;background:#fffdf8;outline:none;resize:none"></textarea>
+      <label style="font-size:12px;color:#6a5020;display:flex;gap:8px;align-items:flex-start;cursor:pointer">
+        <input type="checkbox" id="svedSouhlas" style="margin-top:2px;flex-shrink:0">
+        Souhlasím se zveřejněním svého svědectví na webu Žiju60plus (jméno + město + text).
+      </label>
+      <button onclick="odeslatSvedectvi()" style="background:#f0a820;color:#fff;border:none;border-radius:999px;padding:13px 28px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;align-self:center">Odeslat a získat slevu →</button>
+    </div>
+    <p id="svedThanks" style="display:none;font-family:Georgia,serif;font-style:italic;font-size:16px;color:#1a3a2a;margin-top:8px">Děkujeme! Vaše svědectví jsme přijali. Slevový kód vám zašleme do 24 hodin. 🙏</p>
+  </div>
+
   <div style="background:#fff8f0;border:1.5px solid #e8d4b0;border-radius:28px;padding:44px 40px;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.06);position:relative;overflow:hidden;">
     <div style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#ff8a3d,#ffb870,#ff8a3d);"></div>
     <div style="font-size:32px;margin-bottom:16px;">🌿</div>
