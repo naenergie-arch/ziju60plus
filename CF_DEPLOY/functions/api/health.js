@@ -62,9 +62,9 @@ async function sendAlert(results, env) {
     body: JSON.stringify({
       from: 'monitoring@ziju60plus.cz',
       to: ADMIN_EMAIL,
-      subject: `🚨 Žiju60plus – ${failed.length} služba/y nefunguje (${new Date().toLocaleString('cs-CZ')})`,
+      subject: failed.length > 0 ? `🚨 Žiju60plus – ${failed.length} služba/y nefunguje (${new Date().toLocaleString('cs-CZ')})` : `✅ Žiju60plus – monitoring report (${new Date().toLocaleString('cs-CZ')})`,
       html: `
-        <h2 style="color:#c00">⚠️ Monitoring Žiju60plus – problém detekován</h2>
+        <h2 style="color:${failed.length > 0 ? '#c00' : '#2a7a2a'}">${failed.length > 0 ? '⚠️ Monitoring Žiju60plus – problém detekován' : '✅ Monitoring Žiju60plus – vše funguje'}</h2>
         <p>Čas kontroly: <strong>${new Date().toLocaleString('cs-CZ')}</strong></p>
         <table border="0" cellspacing="0" cellpadding="0" style="border-collapse:collapse;width:100%;font-family:sans-serif;font-size:14px">
           <tr style="background:#eee">
