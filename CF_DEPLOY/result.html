@@ -1070,7 +1070,7 @@ function saveRating(objId, hodnota, event) {
   wrap.querySelectorAll('.obj-rating-btn').forEach(b => b.className = 'obj-rating-btn');
   event.target.classList.add('selected-' + hodnota);
   // Ulož do GAS
-  const email = localStorage.getItem('ziju_email') || sessionStorage.getItem('ziju_email') || '';
+  const email = localStorage.getItem('ziju60_user_email') || sessionStorage.getItem('ziju60_user_email') || '';
   const token = localStorage.getItem('ziju60_user_token') || '';
   // Zobraz potvrzení
   const confirm = document.createElement('span');
@@ -1100,7 +1100,7 @@ function saveClick(objId, nazev, den, url) {
   // Vizuálně označ jako kliknuté
   document.querySelectorAll(`[data-obj-id="${objId}"]`).forEach(el => el.classList.add('obj-visited'));
   // Ulož do GAS (fire-and-forget)
-  const email2 = localStorage.getItem('ziju_email') || sessionStorage.getItem('ziju_email') || '';
+  const email2 = localStorage.getItem('ziju60_user_email') || sessionStorage.getItem('ziju60_user_email') || '';
   const token2 = localStorage.getItem('ziju60_user_token') || '';
   fetch(OBJ_POST_API, {
     method: 'POST',
