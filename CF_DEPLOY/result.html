@@ -401,6 +401,7 @@ body.premium-90 .tema-tag{background:linear-gradient(90deg,#1a3a8e,#2a5ac8)}
     <div id="temaWrap" class="tema-header" style="display:none"></div>
     <div id="recList" class="carousel-wrap"></div>
   </div>
+  <div id="novinkaSection"></div>
   <div id="previewSection"></div>
   <div id="coachSection"></div>
   <div id="installBanner" style="background:#fff9ee;border:1.5px solid #e8d0a8;border-radius:20px;padding:20px 22px;margin-bottom:20px;text-align:center">
@@ -1366,7 +1367,25 @@ function showProfile(data) {
   try { renderCoach(); } catch(e) { console.error('renderCoach', e); }
   try { renderObjevovna(); } catch(e) { console.error('renderObjevovna', e); }
   try { renderCenik(); } catch(e) { console.error('renderCenik', e); }
+  try { renderNovinka(); } catch(e) { console.error('renderNovinka', e); }
   try { renderDiag(); } catch(e) { console.error('renderDiag', e); }
+}
+
+// ── Aktuální novinka ──────────────────────────────────────────
+// Chcete-li novinku zobrazit: vyplňte NOVINKA_TEXT a NOVINKA_DO (datum kdy zmizí).
+// Chcete-li novinku skrýt: nechte NOVINKA_TEXT prázdný řetězec.
+const NOVINKA_TEXT = 'Nově: Diagnostika nastavení – zkontrolujte jedním kliknutím, že vám aplikace funguje správně. Tlačítko najdete úplně dole na této stránce.';
+const NOVINKA_DO   = '2026-07-16'; // zobrazuje se do tohoto data (včetně)
+
+function renderNovinka() {
+  const el = document.getElementById('novinkaSection');
+  if (!el) return;
+  if (!NOVINKA_TEXT || new Date() > new Date(NOVINKA_DO + 'T23:59:59')) { el.innerHTML = ''; return; }
+  el.innerHTML = `
+    <div style="background:#fffbe6;border:1.5px solid #f0d060;border-radius:20px;padding:18px 20px;margin-bottom:20px">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#a07820;margin-bottom:6px">🆕 Aktuální novinka</div>
+      <div style="font-size:14px;color:#3a2008;line-height:1.6">${NOVINKA_TEXT}</div>
+    </div>`;
 }
 
 function renderDiag() {
