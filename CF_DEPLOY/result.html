@@ -834,8 +834,9 @@ const ACCESS_KEY = 'ziju60_access';
 const DAY_MS = 24 * 3600 * 1000;
 
 function getAccessLevel() {
-  // Preview parametr pro testování (pouze ?preview=90d)
+  // Preview parametr pro testování
   if (params.get('preview') === '90d') return 'active90';
+  if (params.get('preview') === 'free') return 'free_active';
   // DB má přednost před localStorage
   const dbLevel = dbUser?.access_level;
   const dbTs = dbUser?.access_ts ? new Date(dbUser.access_ts).getTime() : null;
