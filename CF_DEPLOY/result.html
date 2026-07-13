@@ -225,6 +225,24 @@ body{background:#fbf4e7;min-height:100vh;font-family:'Montserrat',sans-serif;col
 .access-btns{display:flex;flex-direction:column;gap:10px;align-items:center}
 .btn-later{background:none;border:none;color:#b07840;font-size:13px;cursor:pointer;font-family:inherit;text-decoration:underline;padding:4px}
 
+/* ── DIAGNOSTIKA ── */
+.diag-wrap{background:#fff;border:1.5px solid #e8d0a8;border-radius:20px;padding:20px 22px;font-size:13px}
+.diag-title{font-size:15px;font-family:Georgia,serif;font-style:italic;color:#3a2008;margin-bottom:4px}
+.diag-sub{font-size:12px;color:#a07040;margin-bottom:14px}
+.diag-btn{background:#f8f0e4;border:1.5px solid #e8d0a8;border-radius:12px;padding:10px 20px;font-size:13px;font-weight:600;color:#b07840;cursor:pointer;font-family:inherit;transition:all .18s}
+.diag-btn:hover{background:#fff5e8;border-color:#e87722;color:#e87722}
+.diag-results{margin-top:14px;display:flex;flex-direction:column;gap:8px}
+.diag-item{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-radius:12px;line-height:1.45}
+.diag-item.ok{background:#f0fbf2;border:1px solid #b8e8c0}
+.diag-item.warn{background:#fffbf0;border:1px solid #f0d880}
+.diag-item.err{background:#fff0f0;border:1px solid #f0b8b8}
+.diag-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.diag-text strong{display:block;color:#2a2a2a;font-size:13px}
+.diag-text span{color:#666;font-size:12px}
+.diag-summary{margin-top:12px;padding:10px 14px;border-radius:12px;font-size:13px;font-weight:600;text-align:center}
+.diag-summary.all-ok{background:#f0fbf2;color:#2a6a3a}
+.diag-summary.has-issues{background:#fff8e8;color:#8a5a00}
+
 /* ── NOTICE ── */
 .saved-notice{background:#f0f8f0;border:1px solid #b8d8b8;border-radius:14px;padding:12px 18px;font-size:13px;color:#3a6030;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .saved-notice a{color:#ff8a3d;font-weight:600;white-space:nowrap;text-decoration:none;font-size:12px}
@@ -413,6 +431,7 @@ body.premium-90 .tema-tag{background:linear-gradient(90deg,#1a3a8e,#2a5ac8)}
   </div>
   <div id="objevovnaSection" class="obj-section" style="display:none"></div>
   <div id="cenikSection" class="cenik-section" style="display:none"></div>
+  <div id="diagSection" style="margin-bottom:24px"></div>
 </div>
 
 <script>
@@ -1347,6 +1366,109 @@ function showProfile(data) {
   try { renderCoach(); } catch(e) { console.error('renderCoach', e); }
   try { renderObjevovna(); } catch(e) { console.error('renderObjevovna', e); }
   try { renderCenik(); } catch(e) { console.error('renderCenik', e); }
+  try { renderDiag(); } catch(e) { console.error('renderDiag', e); }
+}
+
+function renderDiag() {
+  const el = document.getElementById('diagSection');
+  if (!el) return;
+  el.innerHTML = `
+    <div class="diag-wrap">
+      <div class="diag-title">🔧 Zkontrolovat nastavení</div>
+      <div class="diag-sub">Ověřte, že u vás aplikace funguje správně a nepřijdete o žádný obsah.</div>
+      <button class="diag-btn" id="diagRunBtn" onclick="runDiagnostics()">Spustit kontrolu →</button>
+      <div class="diag-results" id="diagResults" style="display:none"></div>
+    </div>`;
+}
+
+async function runDiagnostics() {
+  const btn = document.getElementById('diagRunBtn');
+  const res = document.getElementById('diagResults');
+  btn.textContent = 'Kontroluji…';
+  btn.disabled = true;
+  res.style.display = 'flex';
+  res.innerHTML = '<div style="color:#aaa;font-size:13px;padding:8px 0">Probíhá kontrola…</div>';
+
+  const checks = [];
+
+  // 1. Prohlížeč podporovaný
+  const swOk = 'serviceWorker' in navigator;
+  const lsOk = (() => { try { localStorage.setItem('_t','1'); localStorage.removeItem('_t'); return true; } catch { return false; } })();
+  const fetchOk = typeof fetch === 'function';
+  checks.push(swOk && lsOk && fetchOk
+    ? { st:'ok', icon:'🌐', title:'Prohlížeč je plně podporovaný', note:'' }
+    : { st:'err', icon:'🌐', title:'Prohlížeč má omezené funkce', note:'Doporučujeme Chrome nebo Safari (nejnovější verze).' });
+
+  // 2. Aplikace na ploše (PWA)
+  const isPwa = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  checks.push(isPwa
+    ? { st:'ok', icon:'📱', title:'Aplikace je uložena na ploše', note:'Vše v pořádku.' }
+    : { st:'warn', icon:'📱', title:'Aplikace není uložena na ploše', note:'Uložte si ji pro rychlejší přístup – viz instrukce výše na stránce.' });
+
+  // 3. Profil uložen
+  const profil = (() => { try { return JSON.parse(localStorage.getItem('ziju60_profil')||'null'); } catch { return null; } })();
+  const profilOk = profil && profil.postreh;
+  checks.push(profilOk
+    ? { st:'ok', icon:'💾', title:'Váš profil je uložen v zařízení', note:`Platí do ${new Date((profil.ts||0)+7*86400000).toLocaleDateString('cs-CZ')}.` }
+    : { st:'err', icon:'💾', title:'Profil není uložen v zařízení', note:'Při příštím otevření bude potřeba vygenerovat nový profil. Doporučujeme nemazat data prohlížeče.' });
+
+  // 4. Připojení k internetu
+  checks.push(navigator.onLine
+    ? { st:'ok', icon:'📶', title:'Internetové připojení funguje', note:'' }
+    : { st:'err', icon:'📶', title:'Nejste připojeni k internetu', note:'Bez připojení nebude fungovat Objevovna ani AI průvodce.' });
+
+  // 5. Service Worker aktivní
+  let swActive = false;
+  try {
+    const regs = await navigator.serviceWorker.getRegistrations();
+    swActive = regs.some(r => r.active);
+  } catch {}
+  checks.push(swActive
+    ? { st:'ok', icon:'⚙️', title:'Aplikace funguje i offline', note:'Service Worker je aktivní.' }
+    : { st:'warn', icon:'⚙️', title:'Offline režim není aktivní', note:'Otevřete aplikaci s připojením k internetu – aktivuje se automaticky.' });
+
+  // 6. Přihlášení / token
+  const token = localStorage.getItem('ziju60_user_token');
+  checks.push(token
+    ? { st:'ok', icon:'🔑', title:'Váš účet je rozpoznán v zařízení', note:'' }
+    : { st:'warn', icon:'🔑', title:'Účet není uložen v zařízení', note:'Zadejte svůj email pro přihlášení – váš profil a data se obnoví.' });
+
+  // 7. Zvuk
+  let audioOk = false;
+  try { const ctx = new (window.AudioContext||window.webkitAudioContext)(); audioOk = ctx.state !== 'suspended' || true; ctx.close(); audioOk = true; } catch {}
+  checks.push(audioOk
+    ? { st:'ok', icon:'🔊', title:'Zvuk je podporován', note:'' }
+    : { st:'warn', icon:'🔊', title:'Zvuk nemusí fungovat', note:'Zkontrolujte hlasitost zařízení a povolení zvuku v prohlížeči.' });
+
+  // 8. API dostupnost
+  let apiOk = false;
+  try {
+    const r = await Promise.race([
+      fetch('/api/user-db?action=ping').then(r => r.ok),
+      new Promise((_,rej) => setTimeout(() => rej(), 5000))
+    ]);
+    apiOk = r === true;
+  } catch {}
+  checks.push(apiOk
+    ? { st:'ok', icon:'🖥️', title:'Servery aplikace jsou dostupné', note:'' }
+    : { st:'err', icon:'🖥️', title:'Servery jsou nedostupné nebo pomalé', note:'Zkuste to za chvíli. Pokud problém přetrvává, kontaktujte podporu.' });
+
+  // Vykresli výsledky
+  const issues = checks.filter(c => c.st !== 'ok').length;
+  res.innerHTML = checks.map(c => `
+    <div class="diag-item ${c.st}">
+      <span class="diag-icon">${c.icon}</span>
+      <div class="diag-text">
+        <strong>${c.st === 'ok' ? '✓ ' : c.st === 'warn' ? '⚠ ' : '✗ '}${c.title}</strong>
+        ${c.note ? `<span>${c.note}</span>` : ''}
+      </div>
+    </div>`).join('') +
+    `<div class="diag-summary ${issues === 0 ? 'all-ok' : 'has-issues'}">
+      ${issues === 0 ? '✅ Vše funguje správně!' : `⚠️ Nalezeny ${issues} položky vyžadující pozornost`}
+    </div>`;
+
+  btn.textContent = 'Spustit znovu';
+  btn.disabled = false;
 }
 
 function fadeOutBgAudio() {
