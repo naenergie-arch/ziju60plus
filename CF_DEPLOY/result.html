@@ -1428,6 +1428,18 @@ function renderKomunita() {
         style="display:inline-block;background:#2AABEE;color:#fff;font-weight:700;font-size:14px;padding:12px 28px;border-radius:24px;text-decoration:none">
         ✈️ Připojit se na Telegramu →
       </a>
+      <div style="margin-top:14px">
+        <button onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none';this.textContent=this.textContent.includes('▼')?'▲ Skrýt návod':'▼ Nemám Telegram – jak na to?'"
+          style="background:none;border:none;color:#2a6090;font-size:12px;cursor:pointer;font-family:inherit;text-decoration:underline">
+          ▼ Nemám Telegram – jak na to?
+        </button>
+        <div style="display:none;text-align:left;margin-top:10px;background:#fff;border-radius:12px;padding:14px 16px;font-size:13px;color:#2a3a4a;line-height:1.8">
+          <strong>Telegram je zdarma</strong> – stáhněte si ho takto:<br>
+          <strong>Mobil:</strong> Otevřete App Store (iPhone) nebo Google Play (Android) → vyhledejte <em>Telegram</em> → nainstalujte → zaregistrujte se svým telefonním číslem.<br>
+          <strong>PC:</strong> Jděte na <a href="https://telegram.org" target="_blank" style="color:#2AABEE">telegram.org</a> → stáhněte aplikaci → přihlaste se.<br><br>
+          Po instalaci klikněte na tlačítko výše a budete automaticky přidáni do naší komunity.
+        </div>
+      </div>
     </div>`;
 }
 
