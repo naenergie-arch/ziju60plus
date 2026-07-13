@@ -9,6 +9,11 @@
   gtag('config', 'G-SKVJBEPP8G');
 </script>
 <script>
+function gtrack(event_name, params) {
+  try { gtag('event', event_name, params || {}); } catch(e) {}
+}
+</script>
+<script>
 // Zruš service worker při každém načtení result.html
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.getRegistrations().then(function(regs) {
@@ -710,6 +715,7 @@ function renderRec(data) {
 }
 
 function pickReaction(idx, emoji) {
+  gtrack('reakce_klik', { idx: idx, emoji: emoji });
   const reactions = loadReactions();
   // Toggle: kliknutí na stejnou reakci ji zruší
   if (reactions[idx] === emoji) {
@@ -863,6 +869,7 @@ function daysLeft(ts, totalDays) {
 }
 
 async function startCheckout(plan) {
+  gtrack('cenik_klik', { plan: plan });
   const btn = document.querySelector(`[data-plan="${plan}"]`);
   if (btn) { btn.textContent = 'Přesměrováváme…'; btn.disabled = true; }
   try {
@@ -1097,6 +1104,7 @@ function saveRating(objId, hodnota, event) {
   localStorage.setItem('ziju_ratings', JSON.stringify(ratings));
   // Vizuálně aktualizuj tlačítka
   const wrap = event.target.closest('.obj-rating');
+  gtrack('objevovna_hodnoceni', { obj_id: objId, hodnoceni: hodnota });
   wrap.querySelectorAll('.obj-rating-btn').forEach(b => b.className = 'obj-rating-btn');
   event.target.classList.add('selected-' + hodnota);
   // Ulož do GAS
@@ -1116,6 +1124,7 @@ function saveRating(objId, hodnota, event) {
 }
 
 function saveClick(objId, nazev, den, url) {
+  gtrack('objevovna_klik', { obj_id: objId, nazev: nazev, den: den, url: url });
   clickedIds.add(objId);
   localStorage.setItem('ziju_clicked', JSON.stringify([...clickedIds]));
   // Uložit do Users DB
@@ -1357,8 +1366,8 @@ async function renderObjevovna() {
 
 function showProfile(data) {
   clearTimeout(_failsafe);
-  // Přidej premium třídu pro 90d uživatele
   const lvl = getAccessLevel();
+  gtrack('profil_zobrazen', { access_level: lvl, trial_day: getTrialDay() });
   if (lvl === 'active90' || lvl === 'yearly') document.body.classList.add('premium-90');
   // Skryj loader IHNED – chyby v renderování ho nesmí zablokovat
   document.getElementById('page').style.display = '';
@@ -1433,6 +1442,7 @@ function renderSvedectvi() {
 }
 
 async function odeslatSvedectvi() {
+  gtrack('svedectvi_odeslano', {});
   const misto = document.getElementById('svedMisto').value.trim();
   const text = document.getElementById('svedText').value.trim();
   const souhlas = document.getElementById('svedSouhlas').checked;
@@ -1471,6 +1481,7 @@ function renderKomunita() {
       <div style="font-size:16px;font-weight:700;color:#1a3a5a;margin-bottom:6px">Připojte se ke komunitě</div>
       <div style="font-size:13px;color:#2a4a6a;line-height:1.6;margin-bottom:14px">Sdílejte zkušenosti, tipy a podporu s lidmi ve stejné životní etapě. Pouze pro uživatele Žiju60plus.</div>
       <a href="https://t.me/+KmGyT-pI-7M0MmI0" target="_blank" rel="noopener"
+        onclick="gtrack('telegram_klik', { trial_day: getTrialDay() })"
         style="display:inline-block;background:#2AABEE;color:#fff;font-weight:700;font-size:14px;padding:12px 28px;border-radius:24px;text-decoration:none">
         ✈️ Připojit se na Telegramu →
       </a>
@@ -1513,6 +1524,7 @@ function renderDiag() {
 }
 
 async function runDiagnostics() {
+  gtrack('diagnostika_spustena', {});
   const btn = document.getElementById('diagRunBtn');
   const res = document.getElementById('diagResults');
   btn.textContent = 'Kontroluji…';
@@ -1891,6 +1903,7 @@ async function sendFeedback() {
 
   btn.addEventListener('click', async () => {
     panelOpen = !panelOpen;
+    if (panelOpen) gtrack('chat_otevren', { trial_day: getTrialDay() });
     panel.style.display = panelOpen ? 'flex' : 'none';
     if (panelOpen && !historyLoaded) {
       historyLoaded = true;
@@ -1936,6 +1949,7 @@ async function sendFeedback() {
     if (!text || send.disabled) return;
     const d = getLimitData();
     if (d.count >= MAX_DAILY) return;
+    gtrack('chat_zprava_odeslana', { trial_day: getTrialDay() });
     input.value = '';
     input.style.height = 'auto';
     sendMessage(text);
