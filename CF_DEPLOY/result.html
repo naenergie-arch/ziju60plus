@@ -2112,18 +2112,25 @@ async function sendFeedback() {
   }
 })();
 
-// Auto-refresh: při přepnutí záložky zpět + každých 10 minut
+// Auto-refresh: při přepnutí záložky zpět (min. 5 min pryč) + každých 10 minut
 (function() {
   const INTERVAL_MS = 10 * 60 * 1000;
+  const MIN_AWAY_MS = 5 * 60 * 1000;
+  let hiddenAt = null;
   let timer = setTimeout(() => location.reload(), INTERVAL_MS);
 
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') {
-      clearTimeout(timer);
-      location.reload();
+    if (document.visibilityState === 'hidden') {
+      hiddenAt = Date.now();
     } else {
       clearTimeout(timer);
-      timer = setTimeout(() => location.reload(), INTERVAL_MS);
+      const awayMs = hiddenAt ? Date.now() - hiddenAt : 0;
+      if (awayMs >= MIN_AWAY_MS) {
+        location.reload();
+      } else {
+        timer = setTimeout(() => location.reload(), INTERVAL_MS);
+      }
+      hiddenAt = null;
     }
   });
 })();
