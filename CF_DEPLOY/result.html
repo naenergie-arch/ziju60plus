@@ -1514,7 +1514,7 @@ async function renderTopBanner() {
     const r = await fetch('/api/user-db?action=get_stats');
     const d = await r.json();
     if (d.ok && d.members > 0) {
-      membersHtml = `<div style="font-size:13px;color:#2a5a3a;margin-top:8px;opacity:.85">👥 Právě nás je <strong>${d.members}</strong> — vítejte mezi námi.</div>`;
+      membersHtml = `<div style="font-size:13px;color:#2a5a3a;margin-top:8px;opacity:.85">🚀 Projekt jsme spustili 11. 7. 2026 — a už nás je <strong>${d.members}</strong>. Vítejte mezi námi.</div>`;
     }
   } catch(_) {}
   el.innerHTML = `
