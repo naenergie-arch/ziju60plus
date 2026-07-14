@@ -1502,18 +1502,27 @@ function renderKomunita() {
     </div>`;
 }
 
-function renderTopBanner() {
+async function renderTopBanner() {
   const el = document.getElementById('topBannerSection');
   if (!el) return;
   const day = getTrialDay();
   const historickyText = day > 2
     ? `<div style="font-size:14px;color:#1a4a2a;line-height:1.6;margin-top:4px">Už se vám shromažďují i historické příspěvky. Nezapomeňte přidat hodnocení.</div>`
     : '';
+  let membersHtml = '';
+  try {
+    const r = await fetch('/api/user-db?action=get_stats');
+    const d = await r.json();
+    if (d.ok && d.members > 0) {
+      membersHtml = `<div style="font-size:13px;color:#2a5a3a;margin-top:8px;opacity:.85">👥 Právě nás je <strong>${d.members}</strong> — vítejte mezi námi.</div>`;
+    }
+  } catch(_) {}
   el.innerHTML = `
     <div style="background:linear-gradient(135deg,#d4f0dc 0%,#b8e8c8 100%);border:2px solid #4caf50;border-radius:20px;padding:20px 22px;margin-bottom:16px">
       <div style="font-size:20px;font-weight:800;color:#1a4a2a;margin-bottom:8px">🌿 Dnes si projděte Objevovnu</div>
       <div style="font-size:14px;color:#1a4a2a;line-height:1.6">Nový příspěvek je vždy ve 20 hodin.</div>
       ${historickyText}
+      ${membersHtml}
     </div>
     <div style="background:linear-gradient(135deg,#fde8e8 0%,#fad0d0 100%);border:2px solid #e53935;border-radius:20px;padding:16px 22px;margin-bottom:20px">
       <div style="font-size:15px;font-weight:700;color:#7a1a1a">🎁 Zítra vás čeká velké překvapení.</div>
