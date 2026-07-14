@@ -522,6 +522,7 @@ async function verifyOtp() {
     }
     // OTP ok – ulož email, ulož do DB, přejdi na výsledek
     sessionStorage.setItem('ziju_email', gateEmail);
+    saveLead(); // fire-and-forget – zapíše lead do sheetu
     await saveUserToDB();
     submitQuiz();
   } catch (_) {
@@ -571,6 +572,7 @@ async function saveUserToDB() {
     }
   } catch (e) {
     console.error('[saveUserToDB]', e);
+    // Pokračujeme i při chybě — uživatel uvidí profil z URL params
   }
 }
 
