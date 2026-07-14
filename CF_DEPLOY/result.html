@@ -2100,5 +2100,23 @@ async function sendFeedback() {
   window.addEventListener('load', () => setTimeout(initChat, 1500));
 })();
 </script>
+
+<script>
+// Auto-refresh: při přepnutí záložky zpět + každých 10 minut
+(function() {
+  const INTERVAL_MS = 10 * 60 * 1000;
+  let timer = setTimeout(() => location.reload(), INTERVAL_MS);
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      clearTimeout(timer);
+      location.reload();
+    } else {
+      clearTimeout(timer);
+      timer = setTimeout(() => location.reload(), INTERVAL_MS);
+    }
+  });
+})();
+</script>
 </body>
 </html>
