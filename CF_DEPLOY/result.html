@@ -427,6 +427,7 @@ body.premium-90 .tema-tag{background:linear-gradient(90deg,#1a3a8e,#2a5ac8)}
 <div class="page" id="page" style="display:none">
   <div id="savedNotice"></div>
   <div id="topBannerSection"></div>
+  <div id="svedectviFormSection"></div>
   <div id="refreshStamp" style="text-align:right;font-size:11px;color:#aaa;margin-bottom:4px;margin-top:-4px"></div>
   <div id="profileHeader" class="profile-header"></div>
   <div id="postreh" class="postreh-card" style="display:none"></div>
@@ -1476,11 +1477,11 @@ const NOVINKA_TEXT = 'Nově: Diagnostika nastavení – zkontrolujte jedním kli
 const NOVINKA_DO   = '2026-07-16'; // zobrazuje se do tohoto data (včetně)
 
 async function renderSvedectvi() {
-  const el = document.getElementById('svedectviSection');
-  if (!el) return;
+  const elForm = document.getElementById('svedectviFormSection');
+  const elKod  = document.getElementById('svedectviSection');
 
   const token = localStorage.getItem('ziju60_user_token') || '';
-  if (!token) { el.style.display = 'none'; return; }
+  if (!token) return;
 
   // Načti stav svědectví
   let status = 'none', kod = '';
@@ -1490,10 +1491,13 @@ async function renderSvedectvi() {
     if (d.ok) { status = d.status; kod = d.kod || ''; }
   } catch(_) {}
 
-  if (status === 'approved' && kod) {
-    // Zobraz slevový kód
-    el.style.display = '';
-    el.innerHTML = `<div class="sved-section">
+  const jmeno = (dbUser && dbUser.jmeno) ? dbUser.jmeno : '';
+  const od15 = new Date() >= new Date('2026-07-15T00:00:00');
+
+  // Slevový kód — zobraz dole
+  if (status === 'approved' && kod && elKod) {
+    elKod.style.display = '';
+    elKod.innerHTML = `<div class="sved-section">
       <div class="sved-heading">🎁 Váš slevový kód</div>
       <div class="sved-sub">Děkujeme za vaše svědectví! Zde je váš osobní kód na slevu 50 %.</div>
       <div class="sved-kod-box">
@@ -1503,33 +1507,30 @@ async function renderSvedectvi() {
         <div class="sved-kod-note">Zadejte kód při objednávce 30denního programu.<br>Sleva 50 % — platíte jen <strong>149 Kč</strong> místo 299 Kč.</div>
       </div>
     </div>`;
-    return;
   }
 
+  // Formulář — zobraz pod bannerem jen od 15.7. a jen pokud ještě neposlali
+  if (!elForm || !od15) return;
+
   if (status === 'pending') {
-    el.style.display = '';
-    el.innerHTML = `<div class="sved-section">
-      <div class="sved-heading">⏳ Svědectví přijato</div>
-      <div class="sved-pending">Vaše svědectví jsme přijali a posuzujeme ho. Slevový kód vám pošleme emailem do 24 hodin. 🙏</div>
+    elForm.innerHTML = `<div class="sved-section" style="margin-bottom:16px">
+      <div class="sved-pending">⏳ Vaše svědectví jsme přijali a posuzujeme ho. Slevový kód vám pošleme emailem do 24 hodin. 🙏</div>
     </div>`;
     return;
   }
 
-  // status === 'none' — zobraz formulář
-  el.style.display = '';
-  el.innerHTML = `<div class="sved-section">
-    <div class="sved-heading">🎁 Získejte 50% slevu</div>
-    <div class="sved-sub">Napište nám své první dojmy z osobního profilu. Pokud souhlasíte se zveřejněním, dostanete slevový kód na 30denní program.</div>
-    <div class="sved-reward">
-      <div class="sved-reward-icon">💰</div>
-      <div class="sved-reward-text">Za vaše svědectví dostanete kód na <strong>50% slevu</strong> — 30 dní za 149 Kč místo 299 Kč.</div>
-    </div>
+  if (status === 'approved') return; // kód už mají, formulář nepotřebují
+
+  // Zobraz formulář
+  elForm.innerHTML = `<div class="sved-section" style="margin-bottom:16px">
+    <div class="sved-heading">✍️ Napište své svědectví</div>
+    <div class="sved-sub">Za zveřejněné svědectví dostanete <strong>50% slevu</strong> na 30denní program (149 Kč místo 299 Kč).</div>
     <div class="sved-form">
       <input id="svedMisto" class="sved-input" type="text" placeholder="Vaše město (např. Brno)">
-      <textarea id="svedText" class="sved-input" rows="4" placeholder="Napište své první dojmy z osobního profilu (alespoň pár vět)..."></textarea>
+      <textarea id="svedText" class="sved-input" rows="4" placeholder="Jak vám pomohl osobní profil? Napište alespoň pár vět…"></textarea>
       <label style="font-size:12px;color:#6a5020;display:flex;gap:8px;align-items:flex-start;cursor:pointer">
         <input type="checkbox" id="svedSouhlas" style="margin-top:2px;flex-shrink:0">
-        Souhlasím se zveřejněním svého svědectví na webu Žiju60plus (jméno + město + text).
+        Souhlasím se zveřejněním svého svědectví na webu Žiju60plus (${jmeno ? jmeno + ', ' : ''}město + text).
       </label>
       <button class="sved-btn" onclick="odeslatSvedectvi()">Odeslat a získat slevu →</button>
     </div>
