@@ -406,6 +406,7 @@ body.premium-90 .tema-tag{background:linear-gradient(90deg,#1a3a8e,#2a5ac8)}
 <div class="page" id="page" style="display:none">
   <div id="savedNotice"></div>
   <div id="topBannerSection"></div>
+  <div id="refreshStamp" style="text-align:right;font-size:11px;color:#aaa;margin-bottom:4px;margin-top:-4px"></div>
   <div id="profileHeader" class="profile-header"></div>
   <div id="postreh" class="postreh-card" style="display:none"></div>
   <div class="plan7-wrap">
@@ -2102,6 +2103,15 @@ async function sendFeedback() {
 </script>
 
 <script>
+// Zobraz čas posledního načtení
+(function() {
+  const el = document.getElementById('refreshStamp');
+  if (el) {
+    const now = new Date();
+    el.textContent = 'Načteno: ' + now.toLocaleTimeString('cs-CZ');
+  }
+})();
+
 // Auto-refresh: při přepnutí záložky zpět + každých 10 minut
 (function() {
   const INTERVAL_MS = 10 * 60 * 1000;
