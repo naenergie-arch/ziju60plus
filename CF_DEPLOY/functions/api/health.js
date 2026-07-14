@@ -87,12 +87,37 @@ export async function onRequestGet(context) {
   const url = new URL(request.url);
   const sendEmail = url.searchParams.get('alert') === '1';
 
+  const BASE = 'https://ziju60plus.cz';
+
+  async function pingPost(name, path, body) {
+    const start = Date.now();
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
+      const res = await fetch(`${BASE}${path}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+        signal: ctrl.signal,
+      });
+      clearTimeout(timer);
+      const ms = Date.now() - start;
+      return { name, ok: res.ok || res.status === 400, status: res.status, ms };
+    } catch (e) {
+      return { name, ok: false, status: 0, ms: Date.now() - start, error: e.message };
+    }
+  }
+
   // Paralelně otestuj všechny služby
   const results = await Promise.all([
-    ping('UsersDB GAS',    `${USERS_DB_URL}?action=ping`),
-    ping('Objevovna GAS',  `${OBJ_API_URL}?maxDay=0`),
-    ping('Žiju60plus web', 'https://ziju60plus.cz/result'),
+    ping('UsersDB GAS',          `${USERS_DB_URL}?action=ping`),
+    ping('Objevovna GAS',        `${OBJ_API_URL}?maxDay=0`),
+    ping('Žiju60plus web',       `${BASE}/result`),
     pingAI(env.ANTHROPIC_API_KEY),
+    pingPost('E2E: Zápis leadu',    '/api/save-lead',            { test: true }),
+    pingPost('E2E: Uložení do DB',  '/api/user-db',              { action: 'ping' }),
+    pingPost('E2E: Generování AI',  '/api/diagnosticky-postreh', { test: true }),
+    pingPost('E2E: OTP endpoint',   '/api/send-otp',             { email: '' }),
   ]);
 
   const allOk = results.every(r => r.ok);

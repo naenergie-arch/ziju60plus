@@ -1647,58 +1647,6 @@ async function runDiagnostics() {
   checks.push({ st:'info', icon:'✈️', title:'Komunita na Telegramu',
     note:'Připojte se ke skupině Žiju60plus – komunita. Pokud Telegram nemáte, stáhněte si ho zdarma na <a href="https://telegram.org" target="_blank" style="color:#2AABEE">telegram.org</a>, poté klikněte <a href="https://telegram.me/+KmGyT-pI-7M0MmI0" target="_blank" style="color:#2AABEE">sem pro vstup do skupiny</a>.' });
 
-  // 10. End-to-end: zápis leadu
-  try {
-    const r = await Promise.race([
-      fetch('/api/save-lead', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ test: true }) }),
-      new Promise((_,rej) => setTimeout(() => rej(new Error('timeout')), 6000))
-    ]);
-    const d = await r.json();
-    checks.push(d.ok ? { st:'ok', icon:'📋', title:'Zápis leadu funguje' }
-      : { st:'err', icon:'📋', title:'Zápis leadu NEFUNGUJE', note:'Endpoint /api/save-lead vrátil chybu: ' + JSON.stringify(d) });
-  } catch(e) {
-    checks.push({ st:'err', icon:'📋', title:'Zápis leadu NEFUNGUJE', note:'Chyba: ' + e.message });
-  }
-
-  // 11. End-to-end: uložení uživatele do DB
-  try {
-    const r = await Promise.race([
-      fetch('/api/user-db', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'ping' }) }),
-      new Promise((_,rej) => setTimeout(() => rej(new Error('timeout')), 6000))
-    ]);
-    const d = await r.json();
-    checks.push(d.ok ? { st:'ok', icon:'👤', title:'Uložení uživatele do DB funguje' }
-      : { st:'err', icon:'👤', title:'Uložení uživatele do DB NEFUNGUJE', note: JSON.stringify(d) });
-  } catch(e) {
-    checks.push({ st:'err', icon:'👤', title:'Uložení uživatele do DB NEFUNGUJE', note:'Chyba: ' + e.message });
-  }
-
-  // 12. End-to-end: generování profilu (AI)
-  try {
-    const r = await Promise.race([
-      fetch('/api/diagnosticky-postreh', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ test: true }) }),
-      new Promise((_,rej) => setTimeout(() => rej(new Error('timeout')), 6000))
-    ]);
-    const d = await r.json();
-    checks.push(d.ok ? { st:'ok', icon:'🧠', title:'Generování profilu (AI) funguje' }
-      : { st:'err', icon:'🧠', title:'Generování profilu (AI) NEFUNGUJE', note: JSON.stringify(d) });
-  } catch(e) {
-    checks.push({ st:'err', icon:'🧠', title:'Generování profilu (AI) NEFUNGUJE', note:'Chyba: ' + e.message });
-  }
-
-  // 13. End-to-end: OTP email endpoint
-  try {
-    const r = await Promise.race([
-      fetch('/api/send-otp', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email:'' }) }),
-      new Promise((_,rej) => setTimeout(() => rej(new Error('timeout')), 6000))
-    ]);
-    // Očekáváme 400 (email prázdný) — to znamená endpoint funguje
-    checks.push(r.status === 400 ? { st:'ok', icon:'✉️', title:'OTP email endpoint funguje' }
-      : { st:'warn', icon:'✉️', title:'OTP email endpoint — neočekávaná odpověď', note:'Status: ' + r.status });
-  } catch(e) {
-    checks.push({ st:'err', icon:'✉️', title:'OTP email endpoint NEFUNGUJE', note:'Chyba: ' + e.message });
-  }
-
   // Vykresli výsledky
   const issues = checks.filter(c => c.st !== 'ok' && c.st !== 'info').length;
   res.innerHTML = checks.map(c => `
