@@ -498,6 +498,47 @@ fbq('track', 'PageView');
 
 </section>
 
+<!-- SVĚDECTVÍ -->
+<section class="section" id="svedectviSection" style="padding:48px 20px;background:#fff8f0">
+  <div style="max-width:640px;margin:0 auto">
+    <h2 style="font-family:Georgia,serif;font-style:italic;font-size:26px;color:#3a2008;text-align:center;margin-bottom:8px">Co říkají naši členové</h2>
+    <p style="text-align:center;font-size:14px;color:#a07040;margin-bottom:32px">Skutečné příběhy lidí, kteří začali žít lépe po šedesátce</p>
+    <div id="svedectviKarty" style="display:flex;flex-direction:column;gap:16px">
+      <div style="text-align:center;color:#b07840;font-size:14px;padding:24px">Načítám svědectví…</div>
+    </div>
+  </div>
+</section>
+
+<style>
+.sved-karta{background:#fff;border:1.5px solid #f0ddb8;border-radius:20px;padding:24px 22px;position:relative}
+.sved-karta::before{content:'"';position:absolute;top:10px;left:18px;font-size:60px;font-family:Georgia,serif;color:#ffd0a8;line-height:1;pointer-events:none}
+.sved-karta-text{font-size:15px;font-family:Georgia,serif;font-style:italic;color:#3a2008;line-height:1.75;padding-top:24px;margin-bottom:14px}
+.sved-karta-autor{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#b07840}
+</style>
+
+<script>
+(async function() {
+  try {
+    const r = await fetch('/api/user-db?action=get_svedectvi');
+    const d = await r.json();
+    const el = document.getElementById('svedectviKarty');
+    if (!el) return;
+    if (!d.ok || !d.svedectvi || d.svedectvi.length === 0) {
+      el.innerHTML = '';
+      return;
+    }
+    el.innerHTML = d.svedectvi.map(s => `
+      <div class="sved-karta">
+        <div class="sved-karta-text">${s.text.replace(/</g,'&lt;')}</div>
+        <div class="sved-karta-autor">${s.jmeno || 'Člen/ka'}${s.misto ? ' · ' + s.misto : ''}</div>
+      </div>`).join('');
+  } catch(_) {
+    const el = document.getElementById('svedectviKarty');
+    if (el) el.innerHTML = '';
+  }
+})();
+</script>
+
 <!-- SLOVO AUTORA -->
 <section class="section author-section">
   <h2>Slovo autora</h2>
