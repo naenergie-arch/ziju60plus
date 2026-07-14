@@ -1,6 +1,16 @@
 ﻿<!DOCTYPE html>
 <html lang="cs">
 <head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SKVJBEPP8G"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-SKVJBEPP8G');
+  function gtrack(event_name, params) {
+    try { gtag('event', event_name, params || {}); } catch(e) {}
+  }
+</script>
 <meta charset="UTF-8">
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#ff8a3d">
@@ -378,7 +388,9 @@ function goNext() {
     cur++;
     render();
     window.scrollTo({top: 0, behavior: 'smooth'});
+    gtrack('quiz_step', { step: cur, step_name: steps[cur].label });
   } else {
+    gtrack('quiz_complete');
     showEmailGate();
   }
 }
@@ -432,6 +444,7 @@ async function sendOtp() {
     if (!res.ok) { err.textContent = data.error || 'Chyba. Zkuste to znovu.'; btn.disabled = false; btn.textContent = 'Odeslat kód →'; return; }
     otpToken  = data.token;
     gateEmail = email;
+    gtrack('otp_sent');
     showOtpVerify();
   } catch (_) {
     err.textContent = 'Chyba připojení. Zkontrolujte internet.';
@@ -521,9 +534,11 @@ async function verifyOtp() {
       return;
     }
     // OTP ok – ulož email, ulož do DB, přejdi na výsledek
+    gtrack('otp_verified');
     sessionStorage.setItem('ziju_email', gateEmail);
     saveLead(); // fire-and-forget – zapíše lead do sheetu
     await saveUserToDB();
+    gtrack('registration_complete');
     submitQuiz();
   } catch (_) {
     err.textContent = 'Chyba připojení. Zkuste to znovu.';
@@ -650,6 +665,7 @@ function submitQuiz() {
 })();
 
 render();
+gtrack('quiz_start');
 </script>
 <script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js").catch(()=>{});</script>
 </body>
