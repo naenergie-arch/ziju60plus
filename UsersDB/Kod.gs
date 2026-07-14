@@ -26,8 +26,8 @@ function setupUsersDB() {
 
 function getStats() {
   const sheet = getSheet();
-  const total = Math.max(0, sheet.getLastRow() - 1); // minus hlavička
-  const INTERNAL = 2; // naenergie + test účty
+  const total = Math.max(0, sheet.getLastRow() - 1);
+  const INTERNAL = 2;
   return { ok: true, members: Math.max(0, total - INTERNAL) };
 }
 
@@ -76,11 +76,11 @@ function rowToUser(d) {
 function doGet(e) {
   const action = e.parameter.action;
   try {
-    if (action === "load")      return respond(loadUser(e.parameter));
-    if (action === "load_chat") return respond(loadChat(e.parameter));
-    if (action === "ping")            return respond({ ok: true });
-    if (action === "get_stats")       return respond(getStats());
-    if (action === "get_svedectvi")   return respond(getSvedectviPublic());
+    if (action === "load")             return respond(loadUser(e.parameter));
+    if (action === "load_chat")        return respond(loadChat(e.parameter));
+    if (action === "ping")             return respond({ ok: true });
+    if (action === "get_stats")        return respond(getStats());
+    if (action === "get_svedectvi")    return respond(getSvedectviPublic());
     if (action === "get_my_svedectvi") return respond(getMySvedectvi(e.parameter));
     return respond({ error: "Unknown action" }, 400);
   } catch (err) {
@@ -92,14 +92,14 @@ function doPost(e) {
   const body = JSON.parse(e.postData.contents);
   const action = body.action;
   try {
-    if (action === "save")            return respond(saveUser(body));
-    if (action === "update_access")   return respond(updateAccess(body));
-    if (action === "update_objevovna")return respond(updateObjevovna(body));
-    if (action === "set_sheet_id")    return respond(setSheetId(body));
-    if (action === "save_feedback")   return respond(saveFeedback(body));
-    if (action === "save_chat")       return respond(saveChat(body));
-    if (action === "save_svedectvi")  return respond(saveSvedectvi(body));
-    if (action === "approve_svedectvi") return respond(approveSvedectvi(body));
+    if (action === "save")               return respond(saveUser(body));
+    if (action === "update_access")      return respond(updateAccess(body));
+    if (action === "update_objevovna")   return respond(updateObjevovna(body));
+    if (action === "set_sheet_id")       return respond(setSheetId(body));
+    if (action === "save_feedback")      return respond(saveFeedback(body));
+    if (action === "save_chat")          return respond(saveChat(body));
+    if (action === "save_svedectvi")     return respond(saveSvedectvi(body));
+    if (action === "approve_svedectvi")  return respond(approveSvedectvi(body));
     return respond({ error: "Unknown action" }, 400);
   } catch (err) {
     return respond({ error: err.message }, 500);
@@ -114,24 +114,18 @@ function respond(data, code) {
 
 // ── Actions ────────────────────────────────────────────────────
 
-// Uloží nebo aktualizuje uživatele po ověření OTP
 function saveUser(body) {
   const sheet = getSheet();
   const now = new Date().toISOString();
   const email = body.email;
   if (!email) throw new Error("email required");
-
   const existing = findRowByEmail(sheet, email);
-
   if (existing) {
-    // Vrací se – aktualizuj last_login, ale profil nech
     sheet.getRange(existing.row, 18).setValue(now);
     const user = rowToUser(existing.data);
     user.last_login = now;
     return { ok: true, token: user.token, user, returning: true };
   }
-
-  // Nový uživatel
   const token = generateToken(email);
   const trial_start = now;
   const row = [
@@ -146,7 +140,6 @@ function saveUser(body) {
   return { ok: true, token, user: rowToUser(row), returning: false };
 }
 
-// Načte uživatele podle tokenu nebo emailu
 function loadUser(params) {
   const sheet = getSheet();
   let found;
@@ -156,14 +149,11 @@ function loadUser(params) {
     found = findRowByEmail(sheet, params.email);
   }
   if (!found) return { ok: false, error: "not_found" };
-
-  // Aktualizuj last_login
   const now = new Date().toISOString();
   sheet.getRange(found.row, 18).setValue(now);
   return { ok: true, user: rowToUser(found.data) };
 }
 
-// Aktualizuje access_level po platbě (volá dekujeme.html nebo webhook)
 function updateAccess(body) {
   const sheet = getSheet();
   if (!body.token) throw new Error("token required");
@@ -174,7 +164,6 @@ function updateAccess(body) {
   return { ok: true };
 }
 
-// Označí překvapení jako zobrazené
 function updateObjevovna(body) {
   const sheet = getSheet();
   if (!body.token) throw new Error("token required");
@@ -186,7 +175,6 @@ function updateObjevovna(body) {
   return { ok: true, shown: current };
 }
 
-// Uloží feedback do listu "Feedback"
 function saveFeedback(body) {
   const id = PropertiesService.getScriptProperties().getProperty("SHEET_ID");
   const ss = SpreadsheetApp.openById(id);
@@ -201,7 +189,6 @@ function saveFeedback(body) {
   return { ok: true };
 }
 
-// Nastaví SHEET_ID do Script Properties (spusť jednou po setupu)
 function setSheetId(body) {
   if (!body.sheet_id) throw new Error("sheet_id required");
   PropertiesService.getScriptProperties().setProperty("SHEET_ID", body.sheet_id);
@@ -233,7 +220,6 @@ function saveSvedectvi(body) {
     now, body.jmeno||'', body.email||'', body.misto||'',
     body.text, body.token||'', '', '', ''
   ]);
-  // Notifikace na email
   try {
     GmailApp.sendEmail(
       'poukazy@ziju60plus.cz',
@@ -250,7 +236,6 @@ function saveSvedectvi(body) {
 }
 
 function approveSvedectvi(body) {
-  // Volá se z časového triggeru – kontroluje sheet a posílá kódy
   const sheet = getSvedectviSheet();
   const data = sheet.getDataRange().getValues();
   const stripeKey = PropertiesService.getScriptProperties().getProperty("STRIPE_SECRET_KEY");
@@ -260,7 +245,6 @@ function approveSvedectvi(body) {
     const kodOdeslan = data[i][8];
     if (schvaleno !== 'ANO' || kodOdeslan === 'ANO') continue;
 
-    // Vygeneruj unikátní Stripe kód přes API
     const email = data[i][2];
     const jmeno = data[i][1];
     let kod = '';
@@ -284,11 +268,9 @@ function approveSvedectvi(body) {
 
     if (!kod) continue;
 
-    // Ulož kód do sheetu
     sheet.getRange(i + 1, 8).setValue(kod);
     sheet.getRange(i + 1, 9).setValue('ANO');
 
-    // Pošli email uživateli
     try {
       GmailApp.sendEmail(
         email,
@@ -305,51 +287,6 @@ function approveSvedectvi(body) {
     }
   }
   return { ok: true };
-}
-
-// ── Chat historie ──────────────────────────────────────────────
-
-function getChatSheet() {
-  const id = PropertiesService.getScriptProperties().getProperty("SHEET_ID");
-  const ss = SpreadsheetApp.openById(id);
-  let sheet = ss.getSheetByName("Chat_Historie");
-  if (!sheet) {
-    sheet = ss.insertSheet("Chat_Historie");
-    sheet.getRange(1, 1, 1, 5).setValues([["token", "datum", "role", "zprava", "den_trial"]]);
-    sheet.setFrozenRows(1);
-    sheet.getRange(1, 1, 1, 5).setBackground("#f0c060").setFontWeight("bold");
-  }
-  return sheet;
-}
-
-// Uloží jednu zprávu do historie
-function saveChat(body) {
-  if (!body.token) throw new Error("token required");
-  if (!body.role || !body.zprava) throw new Error("role a zprava required");
-  const sheet = getChatSheet();
-  const now = new Date().toISOString();
-  sheet.appendRow([body.token, now, body.role, body.zprava, body.den_trial || 0]);
-  return { ok: true };
-}
-
-// Načte celou historii pro daný token (posledních max 100 zpráv)
-function loadChat(params) {
-  if (!params.token) throw new Error("token required");
-  const sheet = getChatSheet();
-  const data = sheet.getDataRange().getValues();
-  const history = [];
-  for (let i = 1; i < data.length; i++) {
-    if (data[i][0] === params.token) {
-      history.push({
-        datum: data[i][1],
-        role: data[i][2],
-        zprava: data[i][3],
-        den_trial: data[i][4]
-      });
-    }
-  }
-  // Vrátíme posledních 100 zpráv
-  return { ok: true, history: history.slice(-100) };
 }
 
 // ── Veřejná svědectví ──────────────────────────────────────────
@@ -371,7 +308,6 @@ function getSvedectviPublic() {
   return { ok: true, svedectvi: result };
 }
 
-// Vrátí stav svědectví pro přihlášeného uživatele (token)
 function getMySvedectvi(params) {
   if (!params.token) return { ok: false, error: 'token required' };
   const userSheet = getSheet();
@@ -391,4 +327,46 @@ function getMySvedectvi(params) {
     }
   }
   return { ok: true, status: 'none', kod: '' };
+}
+
+// ── Chat historie ──────────────────────────────────────────────
+
+function getChatSheet() {
+  const id = PropertiesService.getScriptProperties().getProperty("SHEET_ID");
+  const ss = SpreadsheetApp.openById(id);
+  let sheet = ss.getSheetByName("Chat_Historie");
+  if (!sheet) {
+    sheet = ss.insertSheet("Chat_Historie");
+    sheet.getRange(1, 1, 1, 5).setValues([["token", "datum", "role", "zprava", "den_trial"]]);
+    sheet.setFrozenRows(1);
+    sheet.getRange(1, 1, 1, 5).setBackground("#f0c060").setFontWeight("bold");
+  }
+  return sheet;
+}
+
+function saveChat(body) {
+  if (!body.token) throw new Error("token required");
+  if (!body.role || !body.zprava) throw new Error("role a zprava required");
+  const sheet = getChatSheet();
+  const now = new Date().toISOString();
+  sheet.appendRow([body.token, now, body.role, body.zprava, body.den_trial || 0]);
+  return { ok: true };
+}
+
+function loadChat(params) {
+  if (!params.token) throw new Error("token required");
+  const sheet = getChatSheet();
+  const data = sheet.getDataRange().getValues();
+  const history = [];
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][0] === params.token) {
+      history.push({
+        datum: data[i][1],
+        role: data[i][2],
+        zprava: data[i][3],
+        den_trial: data[i][4]
+      });
+    }
+  }
+  return { ok: true, history: history.slice(-100) };
 }

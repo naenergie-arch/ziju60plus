@@ -22,7 +22,7 @@ function runMonitor() {
   } catch (e) {
     // Pokud selže i samotný health endpoint – pošli nouzový email
     GmailApp.sendEmail(
-      'naenergie@gmail.com',
+      'ziju60plus@gmail.com',
       '🚨 Žiju60plus – health endpoint nedostupný',
       'Health endpoint ' + HEALTH_URL + ' selhal s chybou: ' + e.message +
       '\n\nČas: ' + new Date().toLocaleString('cs-CZ')

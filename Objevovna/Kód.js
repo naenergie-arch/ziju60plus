@@ -202,8 +202,8 @@ function doPost(e) {
       let sh = ss.getSheetByName('Interakce');
       if (!sh) {
         sh = ss.insertSheet('Interakce');
-        sh.appendRow(['Datum','Email','ObjID','Název','Den_trial','URL']);
-        sh.getRange(1,1,1,6).setBackground('#c9daf8').setFontWeight('bold');
+        sh.appendRow(['Datum','Email','ObjID','Název','Den_trial','URL','Token']);
+        sh.getRange(1,1,1,7).setBackground('#c9daf8').setFontWeight('bold');
         sh.setFrozenRows(1);
       }
       sh.appendRow([
@@ -213,6 +213,7 @@ function doPost(e) {
         data.nazev || '',
         data.den || 0,
         data.url || '',
+        data.token || '',
       ]);
       return ContentService
         .createTextOutput(JSON.stringify({ ok: true }))

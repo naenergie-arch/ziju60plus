@@ -1,4 +1,4 @@
-const USERS_DB_URL = "https://script.google.com/macros/s/AKfycbzQ93QTkghk29y4qPzD4kMAR4TODai1yltMSkEwBlRFH9aDakvtnHRcNoz6Ejw75uSGjw/exec";
+const USERS_DB_URL = "https://script.google.com/macros/s/AKfycbzLyxewZyw7EpAcmJ4XOpdDUSudoIhPdmN2IQDE_zg4yHa09-SIrELmF6Idq4IcRMFJzA/exec";
 const OBJ_API_URL  = "https://script.google.com/macros/s/AKfycbyVD5zhbzY09kMu3KLd3nEU9tcgymmoyALWn_pTyGPAAO1XfpXwd6F6dQKBqZIIsFOd/exec";
 const RESEND_URL   = "https://api.resend.com/emails";
 const ADMIN_EMAIL  = "ziju60plus@gmail.com";
