@@ -1,4 +1,4 @@
-const OBJ_GAS_URL = "https://script.google.com/macros/s/AKfycbzFibgwKBpdHy6pfD_87-XXmHhIcQjPb1U65OGDTnGQl5DX-wj4c0KwNlFreZuy-031/exec";
+const OBJ_GAS_URL = "https://script.google.com/macros/s/AKfycbyVD5zhbzY09kMu3KLd3nEU9tcgymmoyALWn_pTyGPAAO1XfpXwd6F6dQKBqZIIsFOd/exec";
 
 export async function onRequestPost(context) {
   const body = await context.request.json();
