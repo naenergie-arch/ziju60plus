@@ -1619,8 +1619,12 @@ async function runDiagnostics() {
     ? { st:'ok', icon:'🖥️', title:'Servery aplikace jsou dostupné', note:'' }
     : { st:'err', icon:'🖥️', title:'Servery jsou nedostupné nebo pomalé', note:'Zkuste to za chvíli. Pokud problém přetrvává, kontaktujte podporu.' });
 
+  // 9. Telegram komunita
+  checks.push({ st:'info', icon:'✈️', title:'Komunita na Telegramu',
+    note:'Připojte se ke skupině Žiju60plus – komunita. Pokud Telegram nemáte, stáhněte si ho zdarma na <a href="https://telegram.org" target="_blank" style="color:#2AABEE">telegram.org</a>, poté klikněte <a href="https://telegram.me/+KmGyT-pI-7M0MmI0" target="_blank" style="color:#2AABEE">sem pro vstup do skupiny</a>.' });
+
   // Vykresli výsledky
-  const issues = checks.filter(c => c.st !== 'ok').length;
+  const issues = checks.filter(c => c.st !== 'ok' && c.st !== 'info').length;
   res.innerHTML = checks.map(c => `
     <div class="diag-item ${c.st}">
       <span class="diag-icon">${c.icon}</span>
