@@ -2,6 +2,11 @@ const USERS_DB_URL = "https://script.google.com/macros/s/AKfycbyhy-R_I72lvLgl4-t
 
 export async function onRequestPost(context) {
   const body = await context.request.json();
+  if (body.action === "ping") {
+    return new Response(JSON.stringify({ ok: true, test: true }), {
+      headers: { "Content-Type": "application/json" }
+    });
+  }
   const res = await fetch(USERS_DB_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

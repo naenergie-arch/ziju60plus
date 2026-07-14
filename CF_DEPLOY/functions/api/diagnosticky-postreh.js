@@ -127,6 +127,13 @@ export async function onRequestPost(context) {
     });
   }
 
+  // Testovací ping — ověří endpoint bez volání AI
+  if (body.test === true) {
+    return new Response(JSON.stringify({ ok: true, test: true, postreh: 'test' }), {
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
   const { answers } = body;
   const jmeno    = (answers.jmeno || '').trim();
   const pohlavi  = answers.pohlavi || 'muz';

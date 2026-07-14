@@ -10,6 +10,13 @@ export async function onRequestPost(context) {
     });
   }
 
+  // Testovací ping — ověří že endpoint přijímá POST a vrací JSON
+  if (data.test === true) {
+    return new Response(JSON.stringify({ ok: true, test: true }), {
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+
   const { email, jmeno, pohlavi, pohyb, nalada, spojeni, spanek, motivace, zalib, text, total } = data;
 
   if (!email || !jmeno) {
