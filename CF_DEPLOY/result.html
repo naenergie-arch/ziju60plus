@@ -405,6 +405,7 @@ body.premium-90 .tema-tag{background:linear-gradient(90deg,#1a3a8e,#2a5ac8)}
 
 <div class="page" id="page" style="display:none">
   <div id="savedNotice"></div>
+  <div id="topBannerSection"></div>
   <div id="profileHeader" class="profile-header"></div>
   <div id="postreh" class="postreh-card" style="display:none"></div>
   <div class="plan7-wrap">
@@ -1384,6 +1385,7 @@ function showProfile(data) {
   try { renderReactionStats(); } catch(e) { console.error('renderReactionStats', e); }
   try { renderPreview(); } catch(e) { console.error('renderPreview', e); }
   try { renderCoach(); } catch(e) { console.error('renderCoach', e); }
+  try { renderTopBanner(); } catch(e) { console.error('renderTopBanner', e); }
   try { renderObjevovna(); } catch(e) { console.error('renderObjevovna', e); }
   try { renderCenik(); } catch(e) { console.error('renderCenik', e); }
   try { renderSvedectvi(); } catch(e) { console.error('renderSvedectvi', e); }
@@ -1497,6 +1499,24 @@ function renderKomunita() {
           Po instalaci klikněte na tlačítko výše a budete automaticky přidáni do naší komunity.
         </div>
       </div>
+    </div>`;
+}
+
+function renderTopBanner() {
+  const el = document.getElementById('topBannerSection');
+  if (!el) return;
+  const day = getTrialDay();
+  const historickyText = day > 2
+    ? `<div style="font-size:14px;color:#1a4a2a;line-height:1.6;margin-top:4px">Už se vám shromažďují i historické příspěvky. Nezapomeňte přidat hodnocení.</div>`
+    : '';
+  el.innerHTML = `
+    <div style="background:linear-gradient(135deg,#d4f0dc 0%,#b8e8c8 100%);border:2px solid #4caf50;border-radius:20px;padding:20px 22px;margin-bottom:16px">
+      <div style="font-size:20px;font-weight:800;color:#1a4a2a;margin-bottom:8px">🌿 Dnes si projděte Objevovnu</div>
+      <div style="font-size:14px;color:#1a4a2a;line-height:1.6">Nový příspěvek je vždy ve 20 hodin.</div>
+      ${historickyText}
+    </div>
+    <div style="background:linear-gradient(135deg,#fde8e8 0%,#fad0d0 100%);border:2px solid #e53935;border-radius:20px;padding:16px 22px;margin-bottom:20px">
+      <div style="font-size:15px;font-weight:700;color:#7a1a1a">🎁 Zítra vás čeká velké překvapení.</div>
     </div>`;
 }
 
