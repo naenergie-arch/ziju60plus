@@ -1594,19 +1594,27 @@ async function odeslatSvedectvi() {
   const btn = document.querySelector('#svedectviFormSection .sved-btn');
   if (btn) { btn.disabled = true; btn.textContent = 'Odesílám...'; }
 
+  let ok = false;
   try {
-    await fetch('/api/user-db', {
+    const r = await fetch('/api/user-db', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'save_svedectvi', token, jmeno, email, misto, text })
     });
+    const d = await r.json();
+    ok = d.ok === true;
   } catch(_) {}
 
   const el = document.getElementById('svedectviFormSection');
-  if (el) el.innerHTML = `<div class="sved-section">
-    <div class="sved-heading">⏳ Svědectví přijato</div>
-    <div class="sved-pending">Vaše svědectví jsme přijali a posuzujeme ho. Slevový kód vám pošleme emailem do 24 hodin. 🙏</div>
-  </div>`;
+  if (ok) {
+    if (el) el.innerHTML = `<div class="sved-section">
+      <div class="sved-heading">⏳ Svědectví přijato</div>
+      <div class="sved-pending">Vaše svědectví jsme přijali a posuzujeme ho. Slevový kód vám pošleme emailem do 24 hodin. 🙏</div>
+    </div>`;
+  } else {
+    if (btn) { btn.disabled = false; btn.textContent = 'Odeslat a získat slevu →'; }
+    alert('Nepodařilo se odeslat svědectví. Zkuste to prosím znovu.');
+  }
 }
 
 function renderKomunita() {

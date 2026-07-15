@@ -596,8 +596,8 @@ fbq('track', 'PageView');
     const d = await r.json();
     const el = document.getElementById('svedectviKarty');
     if (!el) return;
-    if (!d.ok || !d.svedectvi || d.svedectvi.length === 0) {
-      el.innerHTML = '';
+    if (!d.ok || !d.svedectvi || d.svedectvi.length < 2) {
+      document.getElementById('svedectviSection').style.display = 'none';
       return;
     }
     el.innerHTML = d.svedectvi.map(s => `
