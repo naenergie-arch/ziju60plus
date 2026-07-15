@@ -5,78 +5,61 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – Žiju60plus</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{min-height:100vh;background:#1a1a2e;font-family:'Segoe UI',Arial,sans-serif;display:flex;align-items:center;justify-content:center;padding:20px}
-.wrap{background:#fff;border-radius:20px;padding:32px 28px;max-width:420px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,.3)}
-h1{font-size:18px;color:#1a1a2e;margin-bottom:6px;font-weight:700}
-.sub{font-size:13px;color:#888;margin-bottom:24px}
-label{font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
-input{width:100%;border:1.5px solid #ddd;border-radius:10px;padding:11px 14px;font-size:15px;color:#222;outline:none;transition:border-color .2s;margin-bottom:16px}
-input:focus{border-color:#ff8a3d}
-.btn{width:100%;background:#ff8a3d;color:#fff;border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;transition:background .2s}
-.btn:hover{background:#e06010}
-.btn:disabled{background:#ccc;cursor:default}
-.err{font-size:13px;color:#e53935;margin-top:-10px;margin-bottom:12px;display:none}
-/* Po přihlášení */
-.user-list{display:none}
-.search-box{width:100%;border:1.5px solid #ddd;border-radius:10px;padding:10px 14px;font-size:14px;margin-bottom:14px;outline:none}
-.search-box:focus{border-color:#ff8a3d}
-.user-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border:1.5px solid #eee;border-radius:10px;margin-bottom:8px;cursor:pointer;transition:border-color .18s,background .18s}
+body{margin:0;padding:20px;min-height:100vh;background:#1a1a2e;font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center}
+.box{background:#ffffff;border-radius:16px;padding:30px 24px;width:100%;max-width:400px}
+.box h2{font-size:17px;color:#111;margin:0 0 4px}
+.box p{font-size:13px;color:#777;margin:0 0 20px}
+.box input{display:block;width:100%;border:2px solid #ddd;border-radius:8px;padding:10px 12px;font-size:15px;color:#111;margin-bottom:12px;outline:none;font-family:Arial,sans-serif}
+.box input:focus{border-color:#ff8a3d}
+.box button{display:block;width:100%;background:#ff8a3d;color:#fff;border:none;border-radius:8px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:Arial,sans-serif}
+.box button:hover{background:#d96800}
+#err{color:#e53935;font-size:13px;margin-bottom:10px;display:none}
+#userSection{display:none}
+.user-item{border:1.5px solid #eee;border-radius:8px;padding:10px 12px;margin-bottom:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
 .user-item:hover{border-color:#ff8a3d;background:#fff8f0}
-.user-name{font-size:14px;font-weight:600;color:#222}
-.user-email{font-size:12px;color:#888;margin-top:2px}
-.user-day{font-size:11px;color:#ff8a3d;font-weight:600;margin-top:2px}
-.btn-login{background:#ff8a3d;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0;white-space:nowrap}
-.btn-login:hover{background:#e06010}
-.count{font-size:12px;color:#888;margin-bottom:12px}
-.divider{border:none;border-top:1.5px solid #eee;margin:20px 0}
-.manual-wrap label{margin-bottom:6px}
-.loading{text-align:center;color:#888;font-size:14px;padding:20px}
+.uname{font-size:14px;font-weight:700;color:#111}
+.uemail{font-size:12px;color:#888}
+.uday{font-size:11px;color:#ff8a3d;font-weight:600}
+.go-btn{background:#ff8a3d;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;white-space:nowrap}
+#count{font-size:12px;color:#888;margin-bottom:10px}
+.divider{border:none;border-top:1px solid #eee;margin:16px 0}
 </style>
 </head>
 <body>
+<div class="box">
 
-<div class="wrap">
-  <!-- PIN -->
   <div id="pinSection">
-    <h1>🔐 Admin přístup</h1>
-    <div class="sub">Žiju60plus – správa uživatelů</div>
-    <label>PIN</label>
-    <input type="password" id="pinInput" placeholder="Zadejte PIN" onkeydown="if(event.key==='Enter')checkPin()">
-    <div class="err" id="pinErr">Nesprávný PIN.</div>
-    <button class="btn" onclick="checkPin()">Vstoupit →</button>
+    <h2>🔐 Admin přístup</h2>
+    <p>Žiju60plus – správa uživatelů</p>
+    <div id="err">Nesprávný PIN.</div>
+    <input type="password" id="pin" placeholder="PIN" onkeydown="if(event.key==='Enter')login()">
+    <button onclick="login()">Vstoupit →</button>
   </div>
 
-  <!-- Seznam uživatelů -->
-  <div class="user-list" id="userSection">
-    <h1>👤 Přihlásit jako uživatel</h1>
-    <div class="sub" id="userCount"></div>
-    <input class="search-box" id="searchBox" placeholder="Hledat jméno nebo email…" oninput="filterUsers()">
-    <div id="userList"><div class="loading">Načítám uživatele…</div></div>
-    <hr class="divider">
-    <div class="manual-wrap">
-      <label>Nebo zadej email ručně</label>
-      <input type="email" id="manualEmail" placeholder="email@example.cz" onkeydown="if(event.key==='Enter')loginManual()">
-      <button class="btn" onclick="loginManual()">Přihlásit →</button>
-    </div>
+  <div id="userSection">
+    <h2>👤 Přihlásit jako uživatel</h2>
+    <p id="count"></p>
+    <input type="text" id="search" placeholder="Hledat jméno nebo email…" oninput="filter()">
+    <div id="list"><p style="color:#888;font-size:13px">Načítám…</p></div>
+    <div class="divider"></div>
+    <p style="font-size:12px;font-weight:700;color:#555;text-transform:uppercase;margin-bottom:8px">Nebo zadej email ručně</p>
+    <input type="email" id="manualEmail" placeholder="email@example.cz" onkeydown="if(event.key==='Enter')loginManual()">
+    <button onclick="loginManual()">Přihlásit →</button>
   </div>
+
 </div>
-
 <script>
 const PIN = '60plus2026';
-let allUsers = [];
+let users = [];
 
-function checkPin() {
-  const val = document.getElementById('pinInput').value;
-  if (val === PIN) {
+function login() {
+  if (document.getElementById('pin').value === PIN) {
     document.getElementById('pinSection').style.display = 'none';
-    document.getElementById('userSection').style.display = '';
+    document.getElementById('userSection').style.display = 'block';
     loadUsers();
   } else {
-    const err = document.getElementById('pinErr');
-    err.style.display = 'block';
-    document.getElementById('pinInput').value = '';
-    document.getElementById('pinInput').focus();
+    document.getElementById('err').style.display = 'block';
+    document.getElementById('pin').value = '';
   }
 }
 
@@ -84,60 +67,42 @@ async function loadUsers() {
   try {
     const r = await fetch('/api/user-db?action=load_all&admin_key=ZJ60_ADMIN_2026');
     const d = await r.json();
-    if (d.ok && d.users) {
-      allUsers = d.users;
-    } else {
-      // Fallback: načti přes GAS přímo — nebo zobraz jen manuální vstup
-      allUsers = [];
+    if (d.ok && d.users && d.users.length) {
+      users = d.users;
+      render(users);
+      return;
     }
-  } catch(_) {
-    allUsers = [];
-  }
-  renderUsers(allUsers);
+  } catch(e) {}
+  document.getElementById('list').innerHTML = '<p style="color:#888;font-size:13px">Seznam není dostupný. Použij manuální zadání.</p>';
 }
 
-function getTrialDay(trialStart) {
-  if (!trialStart) return 1;
-  const start = new Date(new Date(trialStart).toDateString()).getTime();
-  const today = new Date(new Date().toDateString()).getTime();
-  return Math.max(1, Math.floor((today - start) / 86400000) + 1);
+function day(ts) {
+  if (!ts) return 1;
+  const s = new Date(new Date(ts).toDateString()).getTime();
+  const t = new Date(new Date().toDateString()).getTime();
+  return Math.max(1, Math.floor((t-s)/86400000)+1);
 }
 
-function renderUsers(users) {
-  const el = document.getElementById('userList');
-  const countEl = document.getElementById('userCount');
-  if (!users.length) {
-    el.innerHTML = '<div class="loading">Žádní uživatelé nebo seznam není dostupný.</div>';
-    countEl.textContent = 'Použij manuální zadání emailu níže.';
-    return;
-  }
-  countEl.textContent = `Celkem ${users.length} uživatelů`;
-  el.innerHTML = users.map((u, i) => {
-    const day = getTrialDay(u.trial_start);
-    return `<div class="user-item" onclick="loginEmail('${u.email}')">
+function render(list) {
+  document.getElementById('count').textContent = 'Celkem ' + list.length + ' uživatelů';
+  if (!list.length) { document.getElementById('list').innerHTML = '<p style="color:#888;font-size:13px">Žádný výsledek.</p>'; return; }
+  document.getElementById('list').innerHTML = list.map(u => `
+    <div class="user-item" onclick="go('${u.email}')">
       <div>
-        <div class="user-name">${u.jmeno || '—'} <span style="font-weight:400;color:#aaa">${u.pohlavi || ''}</span></div>
-        <div class="user-email">${u.email}</div>
-        <div class="user-day">Den ${day} · ${u.vek_skutecny ? u.vek_skutecny + ' let' : ''}</div>
+        <div class="uname">${u.jmeno||'—'}</div>
+        <div class="uemail">${u.email}</div>
+        <div class="uday">Den ${day(u.trial_start)} · ${u.vek_skutecny||'?'} let</div>
       </div>
-      <button class="btn-login" onclick="event.stopPropagation();loginEmail('${u.email}')">→</button>
-    </div>`;
-  }).join('');
+      <button class="go-btn" onclick="event.stopPropagation();go('${u.email}')">→</button>
+    </div>`).join('');
 }
 
-function filterUsers() {
-  const q = document.getElementById('searchBox').value.toLowerCase();
-  if (!q) { renderUsers(allUsers); return; }
-  const filtered = allUsers.filter(u =>
-    (u.jmeno || '').toLowerCase().includes(q) ||
-    (u.email || '').toLowerCase().includes(q)
-  );
-  renderUsers(filtered);
+function filter() {
+  const q = document.getElementById('search').value.toLowerCase();
+  render(q ? users.filter(u => (u.jmeno||'').toLowerCase().includes(q)||(u.email||'').toLowerCase().includes(q)) : users);
 }
 
-async function loginEmail(email) {
-  if (!email) return;
-  // Ulož token do localStorage a přejdi na result
+async function go(email) {
   const r = await fetch('/api/user-db?action=load&email=' + encodeURIComponent(email));
   const d = await r.json();
   if (d.ok && d.user && d.user.token) {
@@ -152,12 +117,12 @@ async function loginEmail(email) {
 }
 
 function loginManual() {
-  const email = document.getElementById('manualEmail').value.trim();
-  if (!email || !email.includes('@')) { alert('Zadejte platný email.'); return; }
-  loginEmail(email);
+  const e = document.getElementById('manualEmail').value.trim();
+  if (!e || !e.includes('@')) { alert('Zadejte platný email.'); return; }
+  go(e);
 }
 
-document.getElementById('pinInput').focus();
+document.getElementById('pin').focus();
 </script>
 </body>
 </html>
