@@ -1286,9 +1286,9 @@ function saveClick(objId, nazev, den, url) {
   }
   // Vizuálně označ jako kliknuté
   document.querySelectorAll(`[data-obj-id="${objId}"]`).forEach(el => el.classList.add('obj-visited'));
-  // Ulož do GAS (fire-and-forget)
-  const email2 = localStorage.getItem('ziju60_user_email') || sessionStorage.getItem('ziju60_user_email') || '';
-  const token2 = localStorage.getItem('ziju60_user_token') || '';
+  // Ulož do GAS (fire-and-forget) — správný email/token
+  const email2 = (dbUser && dbUser.email) || localStorage.getItem('ziju60_user_email') || '';
+  const token2 = params.get('ut') || localStorage.getItem('ziju60_user_token') || '';
   fetch(OBJ_POST_API, {
     method: 'POST',
     mode: 'no-cors',
