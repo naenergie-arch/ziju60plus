@@ -1539,18 +1539,25 @@ async function renderSvedectvi() {
   const od15 = new Date() >= new Date('2026-07-15T00:00:00');
 
   // Slevový kód — zobraz dole
-  if (status === 'approved' && kod && elKod) {
+  if (status === 'approved' && elKod) {
     elKod.style.display = '';
-    elKod.innerHTML = `<div class="sved-section">
-      <div class="sved-heading">🎁 Váš slevový kód</div>
-      <div class="sved-sub">Děkujeme za vaše svědectví! Zde je váš osobní kód na slevu 50 %.</div>
-      <div class="sved-kod-box">
-        <div class="sved-kod-label">Váš slevový kód</div>
-        <div class="sved-kod" onclick="navigator.clipboard.writeText('${kod}').then(()=>this.style.background='#d0ffd8')" title="Klikněte pro zkopírování">${kod}</div>
-        <div class="sved-kod-copy" onclick="navigator.clipboard.writeText('${kod}').then(()=>this.textContent='✅ Zkopírováno!')">📋 Kopírovat kód</div>
-        <div class="sved-kod-note">Zadejte kód při objednávce 30denního programu.<br>Sleva 50 % — platíte jen <strong>149 Kč</strong> místo 299 Kč.</div>
-      </div>
-    </div>`;
+    if (kod) {
+      elKod.innerHTML = `<div class="sved-section">
+        <div class="sved-heading">🎁 Váš slevový kód</div>
+        <div class="sved-sub">Děkujeme za vaše svědectví! Zde je váš osobní kód na slevu 50 %.</div>
+        <div class="sved-kod-box">
+          <div class="sved-kod-label">Váš slevový kód</div>
+          <div class="sved-kod" onclick="navigator.clipboard.writeText('${kod}').then(()=>this.style.background='#d0ffd8')" title="Klikněte pro zkopírování">${kod}</div>
+          <div class="sved-kod-copy" onclick="navigator.clipboard.writeText('${kod}').then(()=>this.textContent='✅ Zkopírováno!')">📋 Kopírovat kód</div>
+          <div class="sved-kod-note">Zadejte kód při objednávce 30denního programu.<br>Sleva 50 % — platíte jen <strong>149 Kč</strong> místo 299 Kč.</div>
+        </div>
+      </div>`;
+    } else {
+      elKod.innerHTML = `<div class="sved-section">
+        <div class="sved-heading">⏳ Svědectví schváleno</div>
+        <div class="sved-pending">Váš slevový kód se připravuje — pošleme vám ho emailem do 24 hodin. 🙏</div>
+      </div>`;
+    }
   }
 
   // Formulář — zobraz pod bannerem jen od 15.7. a jen pokud ještě neposlali
@@ -2246,12 +2253,20 @@ async function sendFeedback() {
   }
 })();
 
-// Auto-refresh: při přepnutí záložky zpět (min. 5 min pryč) + každých 10 minut
+// Auto-refresh: při přepnutí záložky zpět (min. 20 min pryč) + každých 30 minut
+// Reload probíhá bez zvuku — audio se zastaví před přenačtením
 (function() {
-  const INTERVAL_MS = 10 * 60 * 1000;
-  const MIN_AWAY_MS = 5 * 60 * 1000;
+  const INTERVAL_MS = 30 * 60 * 1000;
+  const MIN_AWAY_MS = 20 * 60 * 1000;
   let hiddenAt = null;
-  let timer = setTimeout(() => location.reload(), INTERVAL_MS);
+
+  function silentReload() {
+    const a = document.getElementById('bgAudioResult');
+    if (a) { a.pause(); a.currentTime = 0; }
+    location.reload();
+  }
+
+  let timer = setTimeout(silentReload, INTERVAL_MS);
 
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') {
@@ -2260,9 +2275,9 @@ async function sendFeedback() {
       clearTimeout(timer);
       const awayMs = hiddenAt ? Date.now() - hiddenAt : 0;
       if (awayMs >= MIN_AWAY_MS) {
-        location.reload();
+        silentReload();
       } else {
-        timer = setTimeout(() => location.reload(), INTERVAL_MS);
+        timer = setTimeout(silentReload, INTERVAL_MS);
       }
       hiddenAt = null;
     }
