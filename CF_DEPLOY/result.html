@@ -634,10 +634,13 @@ function renderHeader(data) {
         <div class="score-num">${skore}<small style="font-size:16px;color:#b07840">/100</small></div>
         <div class="score-label">Skóre vitality</div>
       </div>` : ''}
+      ${vekSkut > 0 ? `<div class="score-box" style="border-color:#a0b8e0;background:#f0f4fb">
+        <div class="score-num" style="color:#2a4a8a">${vekSkut} <small style="font-size:14px">let</small></div>
+        <div class="score-label" style="color:#2a4a8a">Skutečný věk</div>
+      </div>` : ''}
       ${showBio ? `<div class="score-box bio">
         <div class="score-num">${bioVek} <small style="font-size:14px">let</small></div>
         <div class="score-label">Biologický věk</div>
-        <div class="score-note">Váš skutečný věk: ${vekSkut} let</div>
       </div>` : ''}
     </div>`;
 }
