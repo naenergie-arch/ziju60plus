@@ -1136,7 +1136,8 @@ async function generateAndShow(answers) {
 }
 
 async function init() {
-  const saved = loadSaved();
+  const adminToken = params.get('ut'); // Admin: token v URL → přeskočit localStorage
+  const saved = adminToken ? null : loadSaved();
   const savedName = saved?.jmeno || '';
   const hasNewParams = urlJmeno && (urlJmeno !== savedName || !saved?.postreh);
 
