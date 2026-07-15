@@ -1487,7 +1487,7 @@ function renderOdemykani() {
 // Chcete-li novinku zobrazit: vyplňte NOVINKA_TEXT a NOVINKA_DO (datum kdy zmizí).
 // Chcete-li novinku skrýt: nechte NOVINKA_TEXT prázdný řetězec.
 const NOVINKA_TEXT = 'Nově: Diagnostika nastavení – zkontrolujte jedním kliknutím, že vám aplikace funguje správně. Tlačítko najdete úplně dole na této stránce. • Připojte se k naší komunitě na Telegramu – sdílejte zkušenosti s lidmi jako vy 👇';
-const NOVINKA_DO   = '2026-07-16'; // zobrazuje se do tohoto data (včetně)
+const NOVINKA_DO   = '2026-07-21'; // zobrazuje se do tohoto data (včetně)
 
 async function renderSvedectviPublic() {
   const el = document.getElementById('svedectviPublicSection');
@@ -1591,7 +1591,7 @@ async function odeslatSvedectvi() {
   const jmeno = (dbUser && dbUser.jmeno) ? dbUser.jmeno : '';
   const email = (dbUser && dbUser.email) ? dbUser.email : '';
 
-  const btn = document.querySelector('#svedectviSection .sved-btn');
+  const btn = document.querySelector('#svedectviFormSection .sved-btn');
   if (btn) { btn.disabled = true; btn.textContent = 'Odesílám...'; }
 
   try {
@@ -1602,7 +1602,7 @@ async function odeslatSvedectvi() {
     });
   } catch(_) {}
 
-  const el = document.getElementById('svedectviSection');
+  const el = document.getElementById('svedectviFormSection');
   if (el) el.innerHTML = `<div class="sved-section">
     <div class="sved-heading">⏳ Svědectví přijato</div>
     <div class="sved-pending">Vaše svědectví jsme přijali a posuzujeme ho. Slevový kód vám pošleme emailem do 24 hodin. 🙏</div>
