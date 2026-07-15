@@ -1,4 +1,4 @@
-const USERS_DB_URL = "https://script.google.com/macros/s/AKfycbyB-lbVijtHSTQQOhETQd23h2Fb6HCt3RYbtcUy8V4u_XMSErslX6ce_v78FzKhUY6_tw/exec";
+const USERS_DB_URL = "https://script.google.com/macros/s/AKfycbzvXFlH3hlt5CCjgqDoVcHFS96jx9NMQeCa3HRagPvusn4jKIiAWS1LOVTChAh1qdSQkQ/exec";
 
 export async function onRequestPost(context) {
   const body = await context.request.json();
