@@ -1077,7 +1077,7 @@ async function loadDbUser() {
     if (!token && !email) return;
     const param = token ? `token=${encodeURIComponent(token)}` : `email=${encodeURIComponent(email)}`;
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 4000);
+    const timer = setTimeout(() => controller.abort(), 10000);
     const res = await fetch(`/api/user-db?action=load&${param}`, { signal: controller.signal });
     clearTimeout(timer);
     const data = await res.json();
@@ -1223,7 +1223,19 @@ async function init() {
     return;
   }
 
-  // Ani URL params ani DB uživatel → kvíz
+  // Admin režim: pokud DB nenačtena, zobraz chybu místo přesměrování na kvíz
+  if (adminToken) {
+    document.getElementById('loader').innerHTML = `
+      <div style="text-align:center;padding:40px 20px">
+        <div style="font-size:40px;margin-bottom:16px">⚠️</div>
+        <div style="font-size:15px;color:#a07040;font-family:Georgia,serif;font-style:italic">
+          Uživatel nenalezen nebo DB timeout.<br>
+          <a href="javascript:location.reload()" style="color:#ff8a3d">Zkusit znovu →</a>
+        </div>
+      </div>`;
+    return;
+  }
+  // Běžný uživatel bez dat → kvíz
   window.location.href = '/quiz.html';
 }
 
