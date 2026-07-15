@@ -275,6 +275,17 @@ body{background:#fbf4e7;min-height:100vh;font-family:'Montserrat',sans-serif;col
 .sved-kod{font-size:28px;font-weight:800;color:#2a7a3a;letter-spacing:.08em;font-family:monospace;background:#fff;border:2px dashed #52c060;border-radius:12px;padding:12px 20px;display:inline-block;margin:8px 0 12px;cursor:pointer}
 .sved-kod-copy{font-size:12px;color:#52c060;font-weight:600;cursor:pointer}
 .sved-kod-note{font-size:13px;color:#3a6030;margin-top:8px;line-height:1.5}
+/* ── Veřejné karty svědectví ── */
+.sved-public-wrap{margin-bottom:24px}
+.sved-public-title{font-size:17px;font-family:Georgia,serif;font-style:italic;color:#3a2008;text-align:center;margin-bottom:14px}
+.sved-cards{display:flex;flex-direction:column;gap:12px}
+.sved-card{background:#fff;border:1.5px solid #e8d0a8;border-radius:18px;padding:18px 20px;box-shadow:0 2px 8px rgba(180,120,40,.07)}
+.sved-card-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.sved-card-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#ff8a3d,#e06010);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.sved-card-meta{display:flex;flex-direction:column;gap:2px}
+.sved-card-name{font-size:14px;font-weight:700;color:#3a2008}
+.sved-card-info{font-size:12px;color:#a07040}
+.sved-card-text{font-size:14px;color:#5a3a18;line-height:1.7;font-style:italic}
 
 /* ── NOTICE ── */
 .saved-notice{background:#f0f8f0;border:1px solid #b8d8b8;border-radius:14px;padding:12px 18px;font-size:13px;color:#3a6030;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
@@ -470,6 +481,7 @@ body.premium-90 .tema-tag{background:linear-gradient(90deg,#1a3a8e,#2a5ac8)}
   </div>
   <div id="objevovnaSection" class="obj-section" style="display:none"></div>
   <div id="cenikSection" class="cenik-section" style="display:none"></div>
+  <div id="svedectviPublicSection"></div>
   <div id="svedectviSection" style="display:none"></div>
   <div id="diagSection" style="margin-bottom:24px"></div>
 </div>
@@ -1435,6 +1447,7 @@ function showProfile(data) {
   try { renderTopBanner(); } catch(e) { console.error('renderTopBanner', e); }
   try { renderObjevovna(); } catch(e) { console.error('renderObjevovna', e); }
   try { renderCenik(); } catch(e) { console.error('renderCenik', e); }
+  renderSvedectviPublic().catch(e => console.error('renderSvedectviPublic', e));
   renderSvedectvi().catch(e => console.error('renderSvedectvi', e));
   try { renderKomunita(); } catch(e) { console.error('renderKomunita', e); }
   try { renderOdemykani(); } catch(e) { console.error('renderOdemykani', e); }
@@ -1475,6 +1488,34 @@ function renderOdemykani() {
 // Chcete-li novinku skrýt: nechte NOVINKA_TEXT prázdný řetězec.
 const NOVINKA_TEXT = 'Nově: Diagnostika nastavení – zkontrolujte jedním kliknutím, že vám aplikace funguje správně. Tlačítko najdete úplně dole na této stránce. • Připojte se k naší komunitě na Telegramu – sdílejte zkušenosti s lidmi jako vy 👇';
 const NOVINKA_DO   = '2026-07-16'; // zobrazuje se do tohoto data (včetně)
+
+async function renderSvedectviPublic() {
+  const el = document.getElementById('svedectviPublicSection');
+  if (!el) return;
+  try {
+    const r = await fetch('/api/user-db?action=get_svedectvi');
+    const d = await r.json();
+    if (!d.ok || !d.svedectvi || !d.svedectvi.length) return;
+    const karty = d.svedectvi.map(s => {
+      const initials = (s.jmeno || '?').charAt(0).toUpperCase();
+      const info = [s.vek ? s.vek + ' let' : '', s.misto].filter(Boolean).join(' · ');
+      return `<div class="sved-card">
+        <div class="sved-card-header">
+          <div class="sved-card-avatar">${initials}</div>
+          <div class="sved-card-meta">
+            <div class="sved-card-name">${s.jmeno || 'Anonym'}</div>
+            ${info ? `<div class="sved-card-info">${info}</div>` : ''}
+          </div>
+        </div>
+        <div class="sved-card-text">„${s.text}"</div>
+      </div>`;
+    }).join('');
+    el.innerHTML = `<div class="sved-public-wrap">
+      <div class="sved-public-title">💬 Co říkají ostatní účastníci</div>
+      <div class="sved-cards">${karty}</div>
+    </div>`;
+  } catch(_) {}
+}
 
 async function renderSvedectvi() {
   const elForm = document.getElementById('svedectviFormSection');
@@ -1622,6 +1663,7 @@ async function renderTopBanner() {
     <div style="background:linear-gradient(135deg,#fde8e8 0%,#fad0d0 100%);border:2px solid #e53935;border-radius:20px;padding:16px 22px;margin-bottom:20px">
       <div style="font-size:15px;font-weight:700;color:#7a1a1a">🎁 Získejte 50% slevu na 30denní program</div>
       <div style="font-size:13px;color:#5a1a1a;margin-top:6px;line-height:1.6">Napište do formuláře níže své první dojmy — co se vám líbí, co vás upoutalo, co třeba ne.</div>
+      <div style="font-size:12px;color:#7a1a1a;margin-top:8px;font-style:italic">Platí pro všechny, kdo se zaregistrovali do 7denní výzvy s datumem do 21. 7. 2026 včetně.</div>
     </div>` : `
     <div style="background:linear-gradient(135deg,#fde8e8 0%,#fad0d0 100%);border:2px solid #e53935;border-radius:20px;padding:16px 22px;margin-bottom:20px">
       <div style="font-size:15px;font-weight:700;color:#7a1a1a">🎁 Zítra vás čeká velké překvapení.</div>
