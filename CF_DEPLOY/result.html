@@ -255,6 +255,11 @@ body{background:#fbf4e7;min-height:100vh;font-family:'Montserrat',sans-serif;col
 .diag-summary.all-ok{background:#f0fbf2;color:#2a6a3a}
 .diag-summary.has-issues{background:#fff8e8;color:#8a5a00}
 
+/* ── BLOKY ── */
+.blok-nadpis{display:flex;align-items:center;gap:14px;margin:32px 0 16px}
+.blok-cislo{font-size:42px;font-family:Georgia,serif;font-weight:700;color:#ff8a3d;line-height:1;flex-shrink:0;opacity:.9}
+.blok-titulek{font-size:18px;font-family:Georgia,serif;font-style:italic;color:#3a2008;font-weight:700;border-bottom:2px solid #f0ddb8;padding-bottom:6px;flex:1}
+
 /* ── SVĚDECTVÍ ── */
 .sved-section{background:linear-gradient(135deg,#fff8f0,#ffecd6);border:1.5px solid #f0ddb8;border-radius:22px;padding:28px 24px;margin-bottom:20px}
 .sved-heading{font-size:18px;font-family:Georgia,serif;font-style:italic;color:#3a2008;margin-bottom:6px;text-align:center}
@@ -437,9 +442,9 @@ body.premium-90 .tema-tag{background:linear-gradient(90deg,#1a3a8e,#2a5ac8)}
 
 <div class="page" id="page" style="display:none">
   <div id="savedNotice"></div>
-  <div id="topBannerSection"></div>
-  <div id="svedectviFormSection"></div>
   <div id="refreshStamp" style="text-align:right;font-size:11px;color:#aaa;margin-bottom:4px;margin-top:-4px"></div>
+
+  <!-- HLAVIČKA + PROFIL -->
   <div id="profileHeader" class="profile-header"></div>
   <div id="postreh" class="postreh-card" style="display:none"></div>
   <div class="plan7-wrap">
@@ -448,25 +453,47 @@ body.premium-90 .tema-tag{background:linear-gradient(90deg,#1a3a8e,#2a5ac8)}
     <div id="temaWrap" class="tema-header" style="display:none"></div>
     <div id="recList" class="carousel-wrap"></div>
   </div>
-  <div id="komunitaSection"></div>
-  <div id="odemykaniSection"></div>
+
+  <!-- OBJEVOVNA -->
+  <div id="objevovnaSection" class="obj-section" style="display:none"></div>
+
+  <!-- ① AKCE A OZNÁMENÍ -->
+  <div class="blok-nadpis">
+    <div class="blok-cislo">①</div>
+    <div class="blok-titulek">Akce a oznámení</div>
+  </div>
+  <div id="topBannerSection"></div>
   <div id="novinkaSection"></div>
+  <div id="svedectviPublicSection"></div>
+  <div id="svedectviFormSection"></div>
+  <div id="svedectviSection" style="display:none"></div>
+
+  <!-- ② CO VÁS ČEKÁ? -->
+  <div class="blok-nadpis">
+    <div class="blok-cislo">②</div>
+    <div class="blok-titulek">Co vás čeká?</div>
+  </div>
   <div id="previewSection"></div>
   <div id="coachSection"></div>
+  <div id="cenikSection" class="cenik-section" style="display:none"></div>
+  <div id="odemykaniSection"></div>
+
+  <!-- ③ NASTAVENÍ -->
+  <div class="blok-nadpis">
+    <div class="blok-cislo">③</div>
+    <div class="blok-titulek">Nastavení</div>
+  </div>
   <div id="installBanner" style="background:#fff9ee;border:1.5px solid #e8d0a8;border-radius:20px;padding:20px 22px;margin-bottom:20px;text-align:center">
     <div style="font-size:22px;margin-bottom:6px">📱</div>
     <div style="font-size:15px;font-family:Georgia,serif;font-style:italic;color:#3a2008;margin-bottom:6px">Mějte profil vždy po ruce</div>
     <div style="font-size:13px;color:#a07040;margin-bottom:14px">Uložte si Žiju60plus jako ikonu na plochu</div>
-    <!-- Android: dynamické tlačítko -->
     <button id="installBtn" class="price-btn" style="display:none;width:auto;padding:12px 28px;font-size:15px;margin-bottom:12px">Přidat na plochu →</button>
-    <!-- iOS: statický návod -->
     <div id="iosHint" style="display:none;background:#fff8ee;border:1px solid #f0ddb8;border-radius:12px;padding:12px 16px;font-size:13px;color:#7a5010;line-height:1.7;text-align:left">
       <strong>iPhone / iPad:</strong><br>
       1. Klepněte na ikonu <strong>Sdílet</strong> (čtverec se šipkou nahoru) v dolní liště Safari<br>
       2. Přejeďte dolů a klepněte na <strong>„Přidat na plochu"</strong><br>
       3. Potvrďte tlačítkem <strong>„Přidat"</strong>
     </div>
-    <!-- Android/Desktop: manuální návod + dynamické tlačítko pokud přijde prompt -->
     <div id="desktopHint" style="display:none;background:#fff8ee;border:1px solid #f0ddb8;border-radius:12px;padding:12px 16px;font-size:13px;color:#7a5010;line-height:1.7;text-align:left">
       <strong>Chrome (počítač):</strong><br>
       1. Klikněte na <strong>tři tečky ⋮</strong> vpravo nahoře<br>
@@ -479,11 +506,15 @@ body.premium-90 .tema-tag{background:linear-gradient(90deg,#1a3a8e,#2a5ac8)}
       3. Potvrďte tlačítkem <strong>„Přidat"</strong>
     </div>
   </div>
-  <div id="objevovnaSection" class="obj-section" style="display:none"></div>
-  <div id="cenikSection" class="cenik-section" style="display:none"></div>
-  <div id="svedectviPublicSection"></div>
-  <div id="svedectviSection" style="display:none"></div>
-  <div id="diagSection" style="margin-bottom:24px"></div>
+  <div id="diagSection" style="margin-bottom:20px"></div>
+
+  <!-- ④ CO BY VÁM UDĚLALO RADOST? -->
+  <div class="blok-nadpis">
+    <div class="blok-cislo">④</div>
+    <div class="blok-titulek">Co by vám udělalo radost?</div>
+  </div>
+  <div id="komunitaSection"></div>
+
 </div>
 
 <script>
