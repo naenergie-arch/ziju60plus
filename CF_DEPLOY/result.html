@@ -966,7 +966,8 @@ function renderCenik() {
   let html = '';
 
   if (level === 'free_active') {
-    const left = daysLeft(profile?.ts || Date.now(), 7);
+    const trialTs = dbUser?.trial_start ? new Date(dbUser.trial_start).getTime() : (profile?.ts || Date.now());
+    const left = daysLeft(trialTs, 7);
     html = `
       <div class="access-strip">
         <div class="access-days">⏳ Zbývá vám <strong>${left} ${left === 1 ? 'den' : left < 5 ? 'dny' : 'dní'}</strong> z bezplatného profilu</div>
