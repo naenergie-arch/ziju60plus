@@ -1061,7 +1061,8 @@ let dbUser = null;
 
 async function loadDbUser() {
   try {
-    const token = localStorage.getItem('ziju60_user_token');
+    const urlToken = params.get('ut'); // admin: token v URL má přednost
+    const token = urlToken || localStorage.getItem('ziju60_user_token');
     const email = localStorage.getItem('ziju60_user_email');
     if (!token && !email) return;
     const param = token ? `token=${encodeURIComponent(token)}` : `email=${encodeURIComponent(email)}`;

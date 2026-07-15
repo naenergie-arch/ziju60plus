@@ -123,11 +123,8 @@ async function go(email) {
     const r = await fetch('/api/user-db?action=load&email=' + encodeURIComponent(email));
     const d = await r.json();
     if (d.ok && d.user && d.user.token) {
-      localStorage.setItem('ziju60_user_token', d.user.token);
-      localStorage.setItem('ziju60_user_email', email);
-      localStorage.removeItem('ziju_trial_start');
-      localStorage.removeItem('ziju_clicked');
-      window.location.href = '/result.html';
+      // Otevři profil s tokenem v URL — každé okno je nezávislé
+      window.open('/result.html?ut=' + encodeURIComponent(d.user.token), '_blank');
     } else {
       alert('Uživatel nenalezen: ' + email);
     }
