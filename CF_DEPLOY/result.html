@@ -1557,7 +1557,7 @@ async function renderSvedectvi() {
   const elForm = document.getElementById('svedectviFormSection');
   const elKod  = document.getElementById('svedectviSection');
 
-  const token = localStorage.getItem('ziju60_user_token') || '';
+  const token = params.get('ut') || localStorage.getItem('ziju60_user_token') || '';
   if (!token) return;
 
   // Načti stav svědectví
