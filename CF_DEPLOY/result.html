@@ -610,7 +610,13 @@ function loadSaved() {
   } catch { return null; }
 }
 function saveProfile(data) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({...data, ts:Date.now()})); } catch {}
+  const ut = new URLSearchParams(location.search).get('ut');
+  if (ut) {
+    // Admin režim: ukládáme jen do sessionStorage per token, ne do localStorage
+    try { sessionStorage.setItem('ziju_admin_' + ut, JSON.stringify({...data, ts:Date.now()})); } catch {}
+  } else {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify({...data, ts:Date.now()})); } catch {}
+  }
 }
 function clearSaved() {
   try { localStorage.removeItem(STORAGE_KEY); } catch {}
@@ -1138,6 +1144,22 @@ async function generateAndShow(answers) {
 
 async function init() {
   const adminToken = params.get('ut'); // Admin: token v URL → přeskočit localStorage
+
+  // Admin: zkus sessionStorage (profil už byl jednou vygenerován v tomto sezení)
+  if (adminToken) {
+    try {
+      const cached = sessionStorage.getItem('ziju_admin_' + adminToken);
+      if (cached) {
+        const data = JSON.parse(cached);
+        if (data && data.postreh) {
+          loadDbUser().catch(() => {});
+          showProfile(data);
+          return;
+        }
+      }
+    } catch {}
+  }
+
   const saved = adminToken ? null : loadSaved();
   const savedName = saved?.jmeno || '';
   const hasNewParams = urlJmeno && (urlJmeno !== savedName || !saved?.postreh);
