@@ -1242,8 +1242,9 @@ async function init() {
 const OBJ_API      = '/api/objevovna';
 const OBJ_POST_API = '/api/objevovna';
 
-// Kliknuté ObjID — inicializuje se v renderObjevovna() až po načtení dbUser
-let clickedIds = new Set(JSON.parse(localStorage.getItem('ziju_clicked') || '[]'));
+// Kliknuté ObjID — admin režim ignoruje localStorage, bere jen DB
+const _adminMode = !!new URLSearchParams(location.search).get('ut');
+let clickedIds = new Set(_adminMode ? [] : JSON.parse(localStorage.getItem('ziju_clicked') || '[]'));
 let ratings = JSON.parse(localStorage.getItem('ziju_ratings') || '{}');
 
 function saveRating(objId, hodnota, event) {
