@@ -1107,21 +1107,37 @@ const _failsafe = setTimeout(() => {
   }
 }, 45000);
 
+async function callAI(answers) {
+  const ctrl = new AbortController();
+  const aiTimer = setTimeout(() => ctrl.abort(), 38000);
+  const aiRes = await fetch('/api/diagnosticky-postreh', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ answers }),
+    signal: ctrl.signal,
+  });
+  clearTimeout(aiTimer);
+  if (!aiRes.ok) {
+    let detail = '';
+    try { const j = await aiRes.json(); detail = j.error || ''; } catch {}
+    throw new Error('HTTP ' + aiRes.status + (detail ? ': ' + detail : ''));
+  }
+  const data = await aiRes.json();
+  if (!data.postreh) throw new Error('prázdná odpověď');
+  return data;
+}
+
 async function generateAndShow(answers) {
   startBgAudio();
   try {
-    const ctrl = new AbortController();
-    const aiTimer = setTimeout(() => ctrl.abort(), 35000);
-    const aiRes = await fetch('/api/diagnosticky-postreh', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ answers }),
-      signal: ctrl.signal,
-    });
-    clearTimeout(aiTimer);
-    if (!aiRes.ok) throw new Error('HTTP ' + aiRes.status);
-    const data = await aiRes.json();
-    if (!data.postreh) throw new Error('prázdná odpověď');
+    let data;
+    try {
+      data = await callAI(answers);
+    } catch(e1) {
+      // Automatický retry po 3 sekundách
+      await new Promise(r => setTimeout(r, 3000));
+      data = await callAI(answers);
+    }
     const fullData = { ...data,
       jmeno: answers.jmeno, pohlavi: answers.pohlavi,
       pohyb: answers.pohyb, nalada: answers.nalada, spojeni: answers.spojeni,
