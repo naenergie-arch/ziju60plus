@@ -1255,9 +1255,9 @@ function saveRating(objId, hodnota, event) {
   gtrack('objevovna_hodnoceni', { obj_id: objId, hodnoceni: hodnota });
   wrap.querySelectorAll('.obj-rating-btn').forEach(b => b.className = 'obj-rating-btn');
   event.target.classList.add('selected-' + hodnota);
-  // Ulož do GAS
-  const email = localStorage.getItem('ziju60_user_email') || sessionStorage.getItem('ziju60_user_email') || '';
-  const token = localStorage.getItem('ziju60_user_token') || '';
+  // Ulož do GAS — použít správný token (admin URL nebo localStorage)
+  const email = (dbUser && dbUser.email) || localStorage.getItem('ziju60_user_email') || '';
+  const token = params.get('ut') || localStorage.getItem('ziju60_user_token') || '';
   // Zobraz potvrzení
   const confirm = document.createElement('span');
   confirm.textContent = ' ✓ uloženo';
