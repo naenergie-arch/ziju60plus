@@ -1214,10 +1214,8 @@ async function init() {
 const OBJ_API      = '/api/objevovna';
 const OBJ_POST_API = '/api/objevovna';
 
-// Kliknuté ObjID — merge z DB + localStorage
-const _localClicked = JSON.parse(localStorage.getItem('ziju_clicked') || '[]');
-const _dbClicked = (dbUser && dbUser.objevovna_shown) ? dbUser.objevovna_shown : [];
-let clickedIds = new Set([..._localClicked, ..._dbClicked]);
+// Kliknuté ObjID — inicializuje se v renderObjevovna() až po načtení dbUser
+let clickedIds = new Set(JSON.parse(localStorage.getItem('ziju_clicked') || '[]'));
 let ratings = JSON.parse(localStorage.getItem('ziju_ratings') || '{}');
 
 function saveRating(objId, hodnota, event) {
@@ -1249,8 +1247,8 @@ function saveClick(objId, nazev, den, url) {
   gtrack('objevovna_klik', { obj_id: objId, nazev: nazev, den: den, url: url });
   clickedIds.add(objId);
   localStorage.setItem('ziju_clicked', JSON.stringify([...clickedIds]));
-  // Uložit do Users DB
-  const token = localStorage.getItem('ziju60_user_token');
+  // Uložit do Users DB — použít URL token (admin) nebo localStorage token (běžný uživatel)
+  const token = params.get('ut') || localStorage.getItem('ziju60_user_token');
   if (token) {
     fetch('/api/user-db', {
       method: 'POST',
@@ -1313,6 +1311,11 @@ function formatCountdown(sec) {
 }
 
 async function renderObjevovna() {
+  // Merge DB kliknutí – dbUser je teď načtený
+  if (dbUser && dbUser.objevovna_shown && dbUser.objevovna_shown.length) {
+    dbUser.objevovna_shown.forEach(id => clickedIds.add(id));
+  }
+
   const el = document.getElementById('objevovnaSection');
   const day = getTrialDay();
   const secsLeft = getSecondsUntil20();
