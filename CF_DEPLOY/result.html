@@ -1084,14 +1084,16 @@ async function loadDbUser() {
     const data = await res.json();
     if (data.ok && data.user) {
       dbUser = data.user;
-      // Synchronizuj trial_start do localStorage pro zpětnou kompatibilitu
-      if (dbUser.trial_start) localStorage.setItem('ziju_trial_start', dbUser.trial_start);
-      if (dbUser.access_level && dbUser.access_level !== 'free') {
-        const existing = JSON.parse(localStorage.getItem('ziju60_access') || 'null');
-        if (!existing) {
-          localStorage.setItem('ziju60_access', JSON.stringify({
-            level: dbUser.access_level, ts: new Date(dbUser.access_ts || dbUser.trial_start).getTime()
-          }));
+      // V admin režimu NIKDY nepsat do localStorage — zabraňuje kontaminaci mezi účty
+      if (!params.get('ut')) {
+        if (dbUser.trial_start) localStorage.setItem('ziju_trial_start', dbUser.trial_start);
+        if (dbUser.access_level && dbUser.access_level !== 'free') {
+          const existing = JSON.parse(localStorage.getItem('ziju60_access') || 'null');
+          if (!existing) {
+            localStorage.setItem('ziju60_access', JSON.stringify({
+              level: dbUser.access_level, ts: new Date(dbUser.access_ts || dbUser.trial_start).getTime()
+            }));
+          }
         }
       }
     }
