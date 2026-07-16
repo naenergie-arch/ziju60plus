@@ -750,7 +750,8 @@ function renderRec(data) {
     const link = (obj) => {
       if (!obj || !obj.url) return '';
       const safe = obj.url.replace(/"/g, '%22');
-      return `<a class="rec-link" href="${safe}" target="_blank" rel="noopener">🔗 ${obj.nazev || 'Více informací'}</a>`;
+      const nazevSafe = (obj.nazev || '').replace(/'/g, '');
+      return `<a class="rec-link" href="${safe}" target="_blank" rel="noopener" onclick="gtrack('plan_link_klik',{den:${i+1},nazev:'${nazevSafe}',kat:'${r.kat||''}',url:'${safe}'})">🔗 ${obj.nazev || 'Více informací'}</a>`;
     };
     const odkazyHtml = (r.odkaz1?.url || r.odkaz2?.url)
       ? `<div class="rec-links">${link(r.odkaz1)}${link(r.odkaz2)}</div>` : '';
@@ -845,8 +846,8 @@ function initCarousel(total) {
     document.getElementById('carNext').disabled = cur===total-1;
   }
 
-  window.carMove = (d) => go(cur+d);
-  window.carGo   = (n) => go(n);
+  window.carMove = (d) => { go(cur+d); gtrack('plan_den_prepnuti', {den: cur+1}); };
+  window.carGo   = (n) => { go(n); gtrack('plan_den_prepnuti', {den: n+1}); };
   go(0);
 
   // Swipe
