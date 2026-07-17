@@ -985,6 +985,11 @@ function daysLeft(ts, totalDays) {
 }
 
 async function startCheckout(plan) {
+  // Blokace 30d/90d objednávek dokud běží free trial
+  if (plan === 'access30' || plan === 'direct90') {
+    alert('Objednání bude možné po vyčerpání vašich bezplatných dní. Slevový kód použijete při objednávce.');
+    return;
+  }
   gtrack('cenik_klik', { plan: plan });
   const btn = document.querySelector(`[data-plan="${plan}"]`);
   if (btn) { btn.textContent = 'Přesměrováváme…'; btn.disabled = true; }
@@ -1001,10 +1006,12 @@ async function startCheckout(plan) {
   }
 }
 
+let _renderedAccessLevel = null;
 function renderCenik() {
   const el = document.getElementById('cenikSection');
   el.style.display = '';
   const level = getAccessLevel();
+  _renderedAccessLevel = level;
   const paid = (() => { try { return JSON.parse(localStorage.getItem(ACCESS_KEY) || 'null'); } catch { return null; } })();
   const profile = loadSaved();
 
@@ -1017,12 +1024,11 @@ function renderCenik() {
     html = `
       <div class="access-strip">
         <div class="access-days">⏳ Zbývá vám <strong>${left} ${left === 1 ? 'den' : left < 5 ? 'dny' : 'dní'}</strong> z bezplatného profilu</div>
-        <div class="access-btns">
-          <button class="price-btn" data-plan="access30" onclick="startCheckout('access30')">30 dní za 299 Kč →</button>
-          <button class="price-btn" data-plan="direct90" onclick="startCheckout('direct90')" style="background:#3a2008">90 dní za 699 Kč → <small style="font-weight:400;font-style:normal">+ AI asistent</small></button>
-          <button class="btn-later" onclick="document.getElementById('cenikSection').style.display='none'">Zatím nechci</button>
+        <div class="access-btns-blocked" style="margin-top:12px;padding:14px 18px;background:rgba(255,180,60,0.12);border:1px solid rgba(255,180,60,0.35);border-radius:12px;text-align:center">
+          <div style="font-size:15px;font-weight:700;color:#f0c060;margin-bottom:6px">🎁 Máte slevový kód?</div>
+          <div style="font-size:14px;color:#ccc;line-height:1.5">Objednání 30denního nebo 90denního programu bude možné po vyčerpání vašich bezplatných dní.<br>Slevový kód použijete při objednávce.</div>
         </div>
-        <div class="price-note">Po 30 dnech možnost prodloužit na 90 dní za pouhých 400 Kč</div>
+        <button class="btn-later" style="margin-top:10px" onclick="document.getElementById('cenikSection').style.display='none'">Zavřít</button>
       </div>`;
 
   } else if (level === 'free_expired') {

@@ -26,6 +26,13 @@ export async function onRequestPost(context) {
     if (body.plan && PRICES[body.plan]) plan = body.plan;
   } catch (_) {}
 
+  // Dočasná blokace 30d a 90d — slevové kódy v oběhu, objednávky otevřeme po vyčerpání free dní
+  if (plan === "access30" || plan === "direct90") {
+    return new Response(JSON.stringify({ error: "ORDERS_BLOCKED", message: "Objednání bude možné po vyčerpání bezplatných dní." }), {
+      status: 403, headers: { "Content-Type": "application/json" },
+    });
+  }
+
   const priceId = PRICES[plan];
   const isSubscription = plan === "yearly";
 
