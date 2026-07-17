@@ -719,6 +719,23 @@ function loadReactions() {
 function saveReaction(idx, emoji) {
   const r = loadReactions(); r[idx] = emoji;
   try { localStorage.setItem(REACTION_KEY, JSON.stringify(r)); } catch {}
+  // Uložit reakci také do Google Sheetu (na pozadí, neblokuje UI)
+  try {
+    const token = localStorage.getItem('ziju60_token') || '';
+    if (token) {
+      const emojiToKod = { '🌟': 'splneno', '🤔': 'vaham', '⏳': 'prijdu' };
+      fetch('/api/user-db', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'save_reakce',
+          token: token,
+          den: idx + 1,
+          reakce: emojiToKod[emoji] || emoji
+        })
+      }).catch(() => {});
+    }
+  } catch {}
 }
 
 const EXTRA_DAYS = [
