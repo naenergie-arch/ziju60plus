@@ -839,6 +839,7 @@ function pickReaction(idx, emoji, nazev, kat) {
     delete reactions[idx];
     try { localStorage.setItem(REACTION_KEY, JSON.stringify(reactions)); } catch {}
     document.querySelectorAll(`.reaction-btn[data-idx="${idx}"]`).forEach(btn => btn.classList.remove('selected'));
+    saveReaction(idx, '', nazev, kat); // prázdná reakce = odoznačeno
   } else {
     saveReaction(idx, emoji, nazev, kat);
     document.querySelectorAll(`.reaction-btn[data-idx="${idx}"]`).forEach(btn => {
