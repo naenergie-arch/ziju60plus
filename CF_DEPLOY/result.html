@@ -615,8 +615,8 @@ function loadSaved() {
 function saveProfile(data) {
   const ut = new URLSearchParams(location.search).get('ut');
   if (ut) {
-    // Admin režim: ukládáme jen do sessionStorage per token, ne do localStorage
-    try { sessionStorage.setItem('ziju_admin_' + ut, JSON.stringify({...data, ts:Date.now()})); } catch {}
+    // Admin režim: ukládáme do localStorage per token (trvalé přes záložky)
+    try { localStorage.setItem('ziju_admin_' + ut, JSON.stringify({...data, ts:Date.now()})); } catch {}
   } else {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify({...data, ts:Date.now()})); } catch {}
   }
@@ -939,20 +939,12 @@ function getAccessLevel() {
 
   if (dbLevel === 'yearly') return 'yearly';
   if (dbLevel === '90d') return (dbTs && Date.now() - dbTs < 90 * DAY_MS) ? 'active90' : 'expired90';
-  if (dbLevel === '30d') return (Date.now() - dbTs < 30 * DAY_MS) ? 'active30' : 'expired30';
+  if (dbLevel === '30d') return (dbTs && Date.now() - dbTs < 30 * DAY_MS) ? 'active30' : 'expired30';
 
-  // Pokud DB říká free, ignoruj localStorage (zabrání kontaminaci mezi uživateli)
-  if (!dbLevel) {
-    let paid = null;
-    try { paid = JSON.parse(localStorage.getItem(ACCESS_KEY) || 'null'); } catch {}
-    if (paid?.level === 'yearly') return 'yearly';
-    if (paid?.level === '90d') return (Date.now() - paid.ts < 90 * DAY_MS) ? 'active90' : 'expired90';
-    if (paid?.level === '30d') return (Date.now() - paid.ts < 30 * DAY_MS) ? 'active30' : 'expired30';
-  }
-
+  // DB říká free (nebo uživatel není v DB) → ignoruj localStorage, žádný paid fallback
   // Trial — délka dle trial_days (default 7)
   const trialDays = dbUser?.trial_days || 7;
-  const trialStart = (dbUser?.trial_start) || localStorage.getItem('ziju_trial_start');
+  const trialStart = dbUser?.trial_start || localStorage.getItem('ziju_trial_start');
   const profileAge = trialStart ? Date.now() - new Date(trialStart).getTime() : Infinity;
   return profileAge < trialDays * DAY_MS ? 'free_active' : 'free_expired';
 }
@@ -988,9 +980,8 @@ function renderCenik() {
   let html = '';
 
   if (level === 'free_active') {
-    const trialTs = dbUser?.trial_start ? new Date(dbUser.trial_start).getTime() : (profile?.ts || Date.now());
     const trialDays = dbUser?.trial_days || 7;
-    const left = daysLeft(trialTs, trialDays);
+    const left = Math.max(0, trialDays - getTrialDay());
     html = `
       <div class="access-strip">
         <div class="access-days">⏳ Zbývá vám <strong>${left} ${left === 1 ? 'den' : left < 5 ? 'dny' : 'dní'}</strong> z bezplatného profilu</div>
@@ -1183,10 +1174,10 @@ async function init() {
   // Admin: zkus sessionStorage (profil už byl jednou vygenerován v tomto sezení)
   if (adminToken) {
     try {
-      const cached = sessionStorage.getItem('ziju_admin_' + adminToken);
+      const cached = localStorage.getItem('ziju_admin_' + adminToken);
       if (cached) {
         const data = JSON.parse(cached);
-        if (data && data.postreh) {
+        if (data && data.postreh && Date.now() - (data.ts||0) < 7*24*3600*1000) {
           loadDbUser().catch(() => {});
           showProfile(data);
           return;
