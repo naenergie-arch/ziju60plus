@@ -1544,11 +1544,14 @@ function showProfile(data) {
 const ODEMYKANI = [
   null, // den 0 (nepoužito)
   { icon:'🎉', titulek:'Váš profil je aktivní.', text:'Dnes jste udělali první krok. Prohlédněte si svá doporučení a týdenní téma.' },
-  { icon:'📖', titulek:'Objevovna na vás čeká každý den ve 20 hodin.', text:'Vždy připravujeme rozmanitá a zajímavá překvapení z celého světa.' },
+  { icon:'📖', titulek:'Objevovna na vás čeká každý den.', text:'Každý den přibyde nové překvapení — tip, nástroj nebo inspirace. Nezapomeňte přidat hodnocení.' },
   { icon:'🤖', titulek:'AI průvodce zná váš profil.', text:'Může s vámi probrat vaše doporučení, odpovědět na otázky o zdraví a kondici nebo vám jednoduše naslouchat. Dostupný v plánu na 90 dní.' },
   { icon:'📊', titulek:'Vaše vitalita se dá zlepšit.', text:'Už za 30 dní se vaše skóre může výrazně posunout. Stačí malé kroky každý den.' },
   { icon:'🗓', titulek:'90 dní = 90 malých změn.', text:'Každý den nový podnět přizpůsobený vašemu věku, kondici a cílům. Žádné diety, žádný dril.' },
-  { icon:'⏳', titulek:'Zítra váš bezplatný přístup končí.', text:'Váš profil a doporučení zůstanou uloženy. Nové podněty, osobní týdenní plány a každodenní překvapení v Objevovně najdete v prémiových verzích.' },
+  { icon:'⭐', titulek:'Jak vám to jde?', text:'Podívejte se na svůj přehled 7 dní — kolik aktivit jste splnili a které vám nejvíce sedí. Pomůže vám to vybrat správný plán.' },
+  { icon:'⏳', titulek:'Zbývají vám 3 dny.', text:'Váš profil a doporučení zůstanou uloženy. Pokud chcete pokračovat, 30 dní za 299 Kč nebo 90 dní s AI průvodcem za 699 Kč.' },
+  { icon:'⏳', titulek:'Zbývají vám 2 dny.', text:'Nenechte si ujít pokračování — 30 dní za 299 Kč (9,90 Kč/den) nebo 90 dní s AI osobním průvodcem za 699 Kč (7,80 Kč/den).' },
+  { icon:'🔔', titulek:'Zítra váš bezplatný přístup končí.', text:'Váš profil a doporučení zůstanou uloženy. Nové podněty, osobní plány a Objevovna čekají v prémiových verzích.' },
   { icon:'🔔', titulek:'Dnes je poslední den vašeho bezplatného přístupu.', text:'Nenechte si ujít pokračování — 30 dní za 299 Kč (9,90 Kč/den) nebo 90 dní s AI osobním průvodcem za 699 Kč (7,80 Kč/den). Pokračujte na cestě za lepší vitalitou.' },
 ];
 
@@ -1568,7 +1571,7 @@ function renderOdemykani() {
         <div style="font-size:13px;color:#2a6a2a">Jako poděkování za vaši trpělivost máte nyní celých ${trialDays} dní zdarma.</div>
       </div>
     </div>` : '';
-  const n = ODEMYKANI[Math.min(den, 7)];
+  const n = ODEMYKANI[Math.min(den, ODEMYKANI.length - 1)];
   const denBlock = n ? `
     <div style="background:#f0f8ff;border:1.5px solid #b8d8f0;border-radius:20px;padding:18px 20px;margin-bottom:20px">
       <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#3a6090;margin-bottom:8px">Den ${den} z ${trialDays}</div>
@@ -1586,7 +1589,7 @@ function renderOdemykani() {
 // Chcete-li novinku skrýt: nechte NOVINKA_TEXT prázdný řetězec.
 const NOVINKA_TEXT = `<strong>📋 Jak vytěžit maximum z vašich 10 dní?</strong><br><br>
 <strong>📅 Plán aktivit</strong> — každý den jedna konkrétní aktivita, přesně pro vás. Stačí přejet prstem doprava a uvidíte, co vás čeká zítra, pozítří… až do dne desátého.<br><br>
-<strong>🎁 Objevovna</strong> — každý večer ve 20:00 se odemkne nové překvapení. Tip, nástroj nebo inspirace, o které jste možná ještě neslyšeli. Rozhodně to nestihněte propásnout.<br><br>
+<strong>🎁 Objevovna</strong> — každý den přibude nové překvapení. Tip, nástroj nebo inspirace, o které jste možná ještě neslyšeli. Rozhodně to nestihněte propásnout.<br><br>
 <strong>⭐ Hodnocení</strong> — pod každou aktivitou řekněte, jestli jste ji splnili, nebo ji odložíte na jindy. Pomůže vám to udržet přehled o tom, co jste za 10 dní zvládli.<br><br>
 <strong>Co z toho získáte?</strong> Za 10 dní budete vědět, které aktivity vám skutečně sedí, a budete mít základ pro svůj vlastní dlouhodobý plán vitality.`;
 const NOVINKA_DO   = '2026-07-27'; // zobrazuje se do tohoto data (včetně)
@@ -1772,7 +1775,7 @@ async function renderTopBanner() {
   el.innerHTML = `
     <div style="background:linear-gradient(135deg,#d4f0dc 0%,#b8e8c8 100%);border:2px solid #4caf50;border-radius:20px;padding:20px 22px;margin-bottom:16px">
       <div style="font-size:20px;font-weight:800;color:#1a4a2a;margin-bottom:8px">🌿 Dnes si projděte Objevovnu</div>
-      <div style="font-size:14px;color:#1a4a2a;line-height:1.6">Nový příspěvek je vždy ve 20 hodin.</div>
+      <div style="font-size:14px;color:#1a4a2a;line-height:1.6">Každý den přibude nové překvapení.</div>
       ${historickyText}
       ${membersHtml}
     </div>
