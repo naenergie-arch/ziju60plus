@@ -764,7 +764,8 @@ async function renderRec(data) {
   const baseItems = (data.doporuceni||[]).slice(0,7);
   let items = baseItems;
   if (trialDays > 7) {
-    const token = localStorage.getItem('ziju60_user_token') || '';
+    const urlToken = new URLSearchParams(window.location.search).get('ut') || '';
+    const token = localStorage.getItem('ziju60_user_token') || urlToken;
     const extraDays = token ? await loadExtendedPlan(token) : [];
     items = [...baseItems, ...extraDays.slice(0, trialDays - 7)];
   }
