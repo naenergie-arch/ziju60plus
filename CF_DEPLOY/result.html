@@ -465,9 +465,9 @@ body.premium-90 .tema-tag{background:linear-gradient(90deg,#1a3a8e,#2a5ac8)}
     <div class="blok-cislo">①</div>
     <div class="blok-titulek">Akce a oznámení</div>
   </div>
+  <div id="novinkaSection"></div>
   <div id="odemykaniSection"></div>
   <div id="topBannerSection"></div>
-  <div id="novinkaSection"></div>
   <div id="svedectviPublicSection"></div>
   <div id="svedectviFormSection"></div>
   <div id="svedectviSection" style="display:none"></div>
@@ -1809,9 +1809,9 @@ function renderNovinka() {
   if (!el) return;
   if (!NOVINKA_TEXT || new Date() > new Date(NOVINKA_DO + 'T23:59:59')) { el.innerHTML = ''; return; }
   el.innerHTML = `
-    <div style="background:#fffbe6;border:1.5px solid #f0d060;border-radius:20px;padding:18px 20px;margin-bottom:20px">
-      <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#a07820;margin-bottom:6px">🆕 Aktuální novinka</div>
-      <div style="font-size:14px;color:#3a2008;line-height:1.6">${NOVINKA_TEXT}</div>
+    <div style="background:linear-gradient(135deg,#e8eaff 0%,#d8dcff 100%);border:2px solid #6070e0;border-radius:20px;padding:20px 22px;margin-bottom:20px">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#3040a0;margin-bottom:8px">📋 Jak na to</div>
+      <div style="font-size:14px;color:#1a2060;line-height:1.7">${NOVINKA_TEXT}</div>
     </div>`;
 }
 
