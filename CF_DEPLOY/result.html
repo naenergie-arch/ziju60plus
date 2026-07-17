@@ -140,29 +140,29 @@ body{background:#fbf4e7;min-height:100vh;font-family:'Montserrat',sans-serif;col
 .coach-desc{font-size:14px;color:#d4b896;line-height:1.65}
 
 /* Navigace carousel */
-.carousel-nav{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:14px}
-.car-btn{width:38px;height:38px;border-radius:50%;border:1.5px solid #e8d0a8;background:#fff;color:#b07840;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .18s;flex-shrink:0}
-.car-btn:hover:not(:disabled){border-color:#ff8a3d;color:#ff8a3d}
-.car-btn:disabled{opacity:.35;cursor:default}
+.carousel-nav{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:16px}
+.car-btn{width:52px;height:52px;border-radius:50%;border:2.5px solid #ff8a3d;background:#ff8a3d;color:#fff;font-size:26px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .18s;flex-shrink:0;box-shadow:0 3px 12px rgba(255,138,61,.35)}
+.car-btn:hover:not(:disabled){background:#d96800;border-color:#d96800;transform:scale(1.08)}
+.car-btn:disabled{opacity:.3;cursor:default;box-shadow:none;transform:none}
 .car-dots{display:flex;gap:7px;align-items:center}
 .car-dot{width:8px;height:8px;border-radius:50%;background:#e8d0a8;cursor:pointer;transition:all .25s}
 .car-dot.active{background:#ff8a3d;transform:scale(1.25)}
 .car-progress{font-size:12px;color:#b07840;font-weight:600;margin-left:4px}
 
 /* ── PLÁN 7 DNÍ – wrapper ── */
-.plan7-wrap{background:linear-gradient(160deg,#fff8f0 0%,#fff3e6 100%);border:3px solid #f0c060;border-radius:28px;padding:24px 20px 20px;margin-bottom:24px;box-shadow:0 0 0 5px #f5d888, 0 0 0 9px #f0c060, 0 6px 28px rgba(200,150,0,.18)}
-.plan7-heading{font-family:Georgia,serif;font-style:italic;font-size:22px;color:#3a2008;text-align:center;margin-bottom:4px}
-.plan7-heading-line{width:48px;height:3px;background:linear-gradient(90deg,#ff8a3d,#f0c060);border-radius:2px;margin:0 auto 16px}
-.carousel-swipe-hint{text-align:center;font-size:13px;color:#b07840;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:8px;opacity:.8}
+.plan7-wrap{background:linear-gradient(160deg,#fff8f0 0%,#fff3e6 100%);border:3px solid #f0c060;border-radius:28px;padding:28px 20px 24px;margin-bottom:24px;box-shadow:0 0 0 5px #f5d888, 0 0 0 9px #f0c060, 0 6px 28px rgba(200,150,0,.18)}
+.plan7-heading{font-family:Georgia,serif;font-style:italic;font-size:26px;color:#3a2008;text-align:center;margin-bottom:6px}
+.plan7-heading-line{width:60px;height:4px;background:linear-gradient(90deg,#ff8a3d,#f0c060);border-radius:2px;margin:0 auto 20px}
+.carousel-swipe-hint{text-align:center;font-size:15px;color:#b07840;margin-top:14px;display:flex;align-items:center;justify-content:center;gap:10px;font-weight:600}
 #reactionStats{margin-top:16px;background:#fff9ee;border:1.5px solid #e8d0a8;border-radius:16px;padding:14px 16px;text-align:center}
 .rstats-title{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#b07840;margin-bottom:10px}
 .rstats-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
 .rstats-item{font-size:13px;padding:5px 12px;border-radius:999px;color:#5a3a10}
 .rstats-done{background:#e8f8e0}.rstats-vah{background:#fff8e0}.rstats-later{background:#f0f0ff}.rstats-open{background:#f5f0e8}
-.swipe-hand{font-size:18px;animation:nudge 1.8s ease-in-out infinite}
+.swipe-hand{font-size:22px;animation:nudge 1.8s ease-in-out infinite}
 .swipe-hand.left{animation-delay:.3s;transform:scaleX(-1);display:inline-block}
-@keyframes nudge{0%,100%{transform:translateX(0)}50%{transform:translateX(6px)}}
-@keyframes nudgeL{0%,100%{transform:translateX(0)}50%{transform:translateX(-6px)}}
+@keyframes nudge{0%,100%{transform:translateX(0)}50%{transform:translateX(8px)}}
+@keyframes nudgeL{0%,100%{transform:translateX(0)}50%{transform:translateX(-8px)}}
 .swipe-hand.left{animation:nudgeL 1.8s ease-in-out infinite;animation-delay:.3s}
 
 /* ── OBJEVOVNA ── */
@@ -1386,14 +1386,17 @@ async function renderObjevovna() {
   let todayHtml = '';
   let archiveData = {};
 
-  if (secsLeft > 0) {
-    // Před 20:00 — ukáž odpočet pro dnešek
+  // Den 1: obsah viditelný ihned. Den 2+: nový obsah se přidá ve 20:00.
+  const showCountdown = secsLeft > 0 && day > 1;
+
+  if (showCountdown) {
+    // Den 2+ před 20:00 — ukáž odpočet jen pro dnešní nový příspěvek
     todayHtml = `
       <div class="obj-title">Dnešní překvapení</div>
       <div class="obj-day-badge">${getTrialDayLabel()}</div>
       <div class="obj-countdown">
         <div class="obj-countdown-time" id="objTimer">${formatCountdown(secsLeft)}</div>
-        <div class="obj-countdown-label">Odkryje se dnes ve 20:00</div>
+        <div class="obj-countdown-label">Nový příspěvek dnes ve 20:00</div>
       </div>`;
     // Spusť odpočet
     let s = secsLeft;
@@ -1406,25 +1409,25 @@ async function renderObjevovna() {
     }, 1000);
   }
 
-  // Vždy načti data z GAS — pro dnešek (po 20:00) i pro archív minulých dní
-  if (secsLeft <= 0 || day > 1) {
-    try {
-      const maxDay = secsLeft > 0 ? day - 1 : day; // před 20:00 načti jen minulé dny
-      const res = await fetch(`${OBJ_API}?maxDay=${maxDay}`);
-      const data = await res.json();
-      if (data.ok) archiveData = data.archive || {};
+  // Vždy načti data — Den 1 vždy, Den 2+ buď celý den nebo jen archív před 20:00
+  try {
+    const maxDay = showCountdown ? day - 1 : day; // před 20:00 (Den 2+) načti jen minulé dny
+    const res = await fetch(`${OBJ_API}?maxDay=${maxDay}`);
+    const data = await res.json();
+    if (data.ok) archiveData = data.archive || {};
 
-      if (secsLeft <= 0) {
-        const todaySurprises = archiveData[day] || [];
-        if (todaySurprises.length) {
-          todayHtml = `
-            <div class="obj-title">Dnešní překvapení</div>
-            <div class="obj-day-badge">${getTrialDayLabel()} · odhaleno ve 20:00</div>
-            ${todaySurprises.map(s => objCard(s, false)).join('')}`;
-        }
+    if (!showCountdown) {
+      // Den 1 kdykoliv, nebo Den 2+ po 20:00
+      const todaySurprises = archiveData[day] || [];
+      if (todaySurprises.length) {
+        const badge = day === 1 ? getTrialDayLabel() : `${getTrialDayLabel()} · odhaleno ve 20:00`;
+        todayHtml = `
+          <div class="obj-title">Dnešní překvapení</div>
+          <div class="obj-day-badge">${badge}</div>
+          ${todaySurprises.map(s => objCard(s, false)).join('')}`;
       }
-    } catch(_) {}
-  }
+    }
+  } catch(_) {}
 
   // Archív minulých dní — vždy zobraz pokud existují
   let archiveHtml = '';
