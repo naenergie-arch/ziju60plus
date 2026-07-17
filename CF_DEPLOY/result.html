@@ -1479,10 +1479,15 @@ async function renderObjevovna() {
         }
       }
 
+      // Jednořádkový popis dne: názvy položek oddělené „ · "
+      const dayTeaser = items.map(s => s.nazev).join(' · ');
       pastDaysHtml.push(`
         <div class="obj-archive-day">
           <button class="obj-archive-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
-            Den ${d} · ${dayClicked}/${items.length} otevřeno ${allDone ? '✓' : ''}
+            <div style="text-align:left">
+              <div style="font-weight:700;font-size:13px">Den ${d} ${allDone ? '✓' : ''}</div>
+              <div style="font-size:11px;color:#c9a0ff;margin-top:2px;font-weight:400">${dayTeaser}</div>
+            </div>
             <span class="arr">▾</span>
           </button>
           <div class="obj-archive-body">${aiCommentHtml}${itemsHtml}</div>
@@ -1522,8 +1527,13 @@ async function renderObjevovna() {
     <div class="obj-status-item">Zbývá prozkoumat: <strong>${totalRevealed - totalClicked}</strong></div>
   </div>` : '';
 
+  const trialDaysTotal = (dbUser && dbUser.trial_days) || 7;
   el.innerHTML = `
     <div class="obj-heading">🎁 Objevovna</div>
+    <div style="font-size:13px;color:#c9a0ff;line-height:1.6;margin-bottom:16px;border-bottom:1px solid rgba(255,255,255,.12);padding-bottom:14px">
+      Každý den ve 20:00 přibude nové překvapení — tip, nástroj nebo inspirace, o které jste možná ještě neslyšeli.
+      Za ${trialDaysTotal} dní budete mít celkem ${trialDaysTotal} příspěvků. Vždy vidíte nejnovější nahoře a pod ním archív předchozích dní.
+    </div>
     ${statusHtml}
     ${todayHtml}
     ${archiveHtml}`;
