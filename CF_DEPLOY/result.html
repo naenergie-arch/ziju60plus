@@ -1179,7 +1179,7 @@ async function init() {
       if (cached) {
         const data = JSON.parse(cached);
         if (data && data.postreh && Date.now() - (data.ts||0) < 7*24*3600*1000) {
-          loadDbUser().catch(() => {});
+          await loadDbUser(); // Musí být před showProfile – jinak getTrialDay() nemá dbUser.trial_start
           showProfile(data);
           return;
         }
