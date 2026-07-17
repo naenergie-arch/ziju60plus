@@ -768,7 +768,7 @@ function renderRec(data) {
       {e:'🤔', label:'Váhám'},
       {e:'⏳', label:'Příště'},
     ].map(rb => `
-      <button class="reaction-btn${sel===rb.e?' selected':''}" data-idx="${i}" data-emoji="${rb.e}" onclick="pickReaction(${i},'${rb.e}',${JSON.stringify(r.nazev||'')},${JSON.stringify(r.kat||'')})">
+      <button class="reaction-btn${sel===rb.e?' selected':''}" data-idx="${i}" data-emoji="${rb.e}" data-nazev="${(r.nazev||'').replace(/"/g,'&quot;')}" data-kat="${r.kat||''}" onclick="pickReaction(${i},'${rb.e}',this)">
         <span class="r-emoji">${rb.e}</span>${rb.label}
       </button>`).join('');
 
@@ -831,7 +831,9 @@ function renderRec(data) {
   initCarousel(items.length);
 }
 
-function pickReaction(idx, emoji, nazev, kat) {
+function pickReaction(idx, emoji, btnEl) {
+  const nazev = btnEl ? btnEl.dataset.nazev || '' : '';
+  const kat   = btnEl ? btnEl.dataset.kat   || '' : '';
   gtrack('reakce_klik', { idx: idx, emoji: emoji });
   const reactions = loadReactions();
   // Toggle: kliknutí na stejnou reakci ji zruší
