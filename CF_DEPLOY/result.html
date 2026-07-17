@@ -143,8 +143,8 @@ body{background:#fbf4e7;min-height:100vh;font-family:'Montserrat',sans-serif;col
 
 /* Navigace carousel */
 .carousel-nav{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:16px}
-.car-btn{width:52px;height:52px;border-radius:50%;border:2.5px solid #ff8a3d;background:#ff8a3d;color:#fff;font-size:26px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .18s;flex-shrink:0;box-shadow:0 3px 12px rgba(255,138,61,.35)}
-.car-btn:hover:not(:disabled){background:#d96800;border-color:#d96800;transform:scale(1.08)}
+.car-btn{width:52px;height:52px;border-radius:50%;border:2.5px solid #a080e0;background:linear-gradient(135deg,#a080e0,#7050c0);color:#fff;font-size:26px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .18s;flex-shrink:0;box-shadow:0 3px 12px rgba(120,80,200,.35)}
+.car-btn:hover:not(:disabled){background:linear-gradient(135deg,#7050c0,#5030a0);border-color:#7050c0;transform:scale(1.08)}
 .car-btn:disabled{opacity:.3;cursor:default;box-shadow:none;transform:none}
 .car-dots{display:flex;gap:7px;align-items:center}
 .car-dot{width:8px;height:8px;border-radius:50%;background:#e8d0a8;cursor:pointer;transition:all .25s}
@@ -797,9 +797,9 @@ function renderRec(data) {
       <button class="car-btn" id="carNext" onclick="carMove(1)">›</button>
     </div>
     <div class="carousel-swipe-hint">
-      <span class="swipe-hand left">👈</span>
+      <span class="swipe-hand left" onclick="carMove(-1)" style="cursor:pointer">👈</span>
       <span>přejeďte pro další den</span>
-      <span class="swipe-hand">👉</span>
+      <span class="swipe-hand" onclick="carMove(1)" style="cursor:pointer">👉</span>
     </div>
     <div id="reactionStats" style="display:none"></div>`;
 
