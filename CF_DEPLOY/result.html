@@ -451,7 +451,7 @@ body.premium-90 .tema-tag{background:linear-gradient(90deg,#1a3a8e,#2a5ac8)}
   <div id="postreh" class="postreh-card" style="display:none"></div>
 
   <div class="plan7-wrap">
-    <div class="plan7-heading">Toto je plán pro vašich 7 dní</div>
+    <div class="plan7-heading" id="plan7Heading">Toto je plán pro vašich 7 dní</div>
     <div class="plan7-heading-line"></div>
     <div id="temaWrap" class="tema-header" style="display:none"></div>
     <div id="recList" class="carousel-wrap"></div>
@@ -707,7 +707,7 @@ function renderTema(data) {
   el.style.display = '';
   el.innerHTML = `
     <div class="tema-tag">🗓 ${data.tydenni_tema||'Váš první týden'}</div>
-    <div class="tema-sub">Inspirace na příštích 7 dní z Knihovny života – vyberte si, co vám sedí</div>`;
+    <div class="tema-sub">Inspirace na příštích ${dbUser?.trial_days || 7} dní z Knihovny života – vyberte si, co vám sedí</div>`;
 }
 
 const REACTION_KEY = 'ziju60_reactions';
@@ -719,9 +719,18 @@ function saveReaction(idx, emoji) {
   try { localStorage.setItem(REACTION_KEY, JSON.stringify(r)); } catch {}
 }
 
+const EXTRA_DAYS = [
+  { ikona:'🧠', nazev:'Mozek a kreativita', popis:'Trénink mysli je stejně důležitý jako pohyb těla. Dnes věnujte 10 minut své hlavě.', prinos:['Luštěte křížovku nebo sudoku','Naučte se 3 nová slova v cizím jazyce','Napište nebo nakreslete něco rukou — pero a papír, ne telefon'], kat:'mozek' },
+  { ikona:'🤝', nazev:'Lidé kolem vás', popis:'Kvalitní vztahy prodlužují život více než vitamíny. Dejte dnes o sobě vědět.', prinos:['Zavolejte někomu, komu jste dlouho nevolali','Naplánujte setkání s přítelem nebo rodinou','Řekněte dnes někomu, co na něm oceňujete'], kat:'spolecnost' },
+  { ikona:'🌟', nazev:'Váš nový začátek', popis:'10 dní je jen začátek. Co si berete dál? Zastavte se a oslavte, co jste zvládli.', prinos:['Zapište si 3 věci, které se za těchto 10 dní zlepšily','Vyberte jednu návyku, kterou chcete udržet','Oslavte sami sebe — udělali jste něco pro sebe'], kat:'motivace' },
+];
+
 function renderRec(data) {
   const el = document.getElementById('recList');
-  const items = (data.doporuceni||[]).slice(0,7);
+  const trialDays = dbUser?.trial_days || 7;
+  const baseItems = (data.doporuceni||[]).slice(0,7);
+  const items = trialDays > 7 ? [...baseItems, ...EXTRA_DAYS.slice(0, trialDays - 7)] : baseItems;
+  const totalDays = items.length;
   const reactions = loadReactions();
 
   // Track
@@ -736,8 +745,8 @@ function renderRec(data) {
         <span class="r-emoji">${rb.e}</span>${rb.label}
       </button>`).join('');
 
-    // Progress bar: den i+1 ze 7
-    const progBlocks = Array.from({length:7},(_,b)=>
+    // Progress bar: den i+1 z totalDays
+    const progBlocks = Array.from({length:totalDays},(_,b)=>
       `<div class="prog-block${b<i+1?' done':''}"></div>`).join('');
 
     // Přínosy
@@ -759,7 +768,7 @@ function renderRec(data) {
     return `<div class="rec-card">
       <div class="rec-progress">
         <div class="prog-blocks">${progBlocks}</div>
-        <div class="prog-label">Den ${i+1} ze 7</div>
+        <div class="prog-label">Den ${i+1} ze ${totalDays}</div>
       </div>
       <div class="rec-top">
         <span class="rec-icon">${r.ikona||'🌸'}</span>
@@ -930,19 +939,22 @@ function getAccessLevel() {
 
   if (dbLevel === 'yearly') return 'yearly';
   if (dbLevel === '90d') return (dbTs && Date.now() - dbTs < 90 * DAY_MS) ? 'active90' : 'expired90';
-  if (dbLevel === '30d') return (dbTs && Date.now() - dbTs < 30 * DAY_MS) ? 'active30' : 'expired30';
+  if (dbLevel === '30d') return (Date.now() - dbTs < 30 * DAY_MS) ? 'active30' : 'expired30';
 
-  // Fallback na localStorage
-  let paid = null;
-  try { paid = JSON.parse(localStorage.getItem(ACCESS_KEY) || 'null'); } catch {}
-  if (paid?.level === 'yearly') return 'yearly';
-  if (paid?.level === '90d') return (Date.now() - paid.ts < 90 * DAY_MS) ? 'active90' : 'expired90';
-  if (paid?.level === '30d') return (Date.now() - paid.ts < 30 * DAY_MS) ? 'active30' : 'expired30';
+  // Pokud DB říká free, ignoruj localStorage (zabrání kontaminaci mezi uživateli)
+  if (!dbLevel) {
+    let paid = null;
+    try { paid = JSON.parse(localStorage.getItem(ACCESS_KEY) || 'null'); } catch {}
+    if (paid?.level === 'yearly') return 'yearly';
+    if (paid?.level === '90d') return (Date.now() - paid.ts < 90 * DAY_MS) ? 'active90' : 'expired90';
+    if (paid?.level === '30d') return (Date.now() - paid.ts < 30 * DAY_MS) ? 'active30' : 'expired30';
+  }
 
-  // Trial
+  // Trial — délka dle trial_days (default 7)
+  const trialDays = dbUser?.trial_days || 7;
   const trialStart = (dbUser?.trial_start) || localStorage.getItem('ziju_trial_start');
   const profileAge = trialStart ? Date.now() - new Date(trialStart).getTime() : Infinity;
-  return profileAge < 7 * DAY_MS ? 'free_active' : 'free_expired';
+  return profileAge < trialDays * DAY_MS ? 'free_active' : 'free_expired';
 }
 
 function daysLeft(ts, totalDays) {
@@ -977,7 +989,8 @@ function renderCenik() {
 
   if (level === 'free_active') {
     const trialTs = dbUser?.trial_start ? new Date(dbUser.trial_start).getTime() : (profile?.ts || Date.now());
-    const left = daysLeft(trialTs, 7);
+    const trialDays = dbUser?.trial_days || 7;
+    const left = daysLeft(trialTs, trialDays);
     html = `
       <div class="access-strip">
         <div class="access-days">⏳ Zbývá vám <strong>${left} ${left === 1 ? 'den' : left < 5 ? 'dny' : 'dní'}</strong> z bezplatného profilu</div>
@@ -1569,15 +1582,28 @@ function renderOdemykani() {
   if (!el) return;
   const lvl = getAccessLevel();
   if (lvl !== 'free_active') { el.innerHTML = ''; return; }
-  const den = Math.min(7, Math.max(1, getTrialDay()));
-  const n = ODEMYKANI[den];
-  if (!n) { el.innerHTML = ''; return; }
-  el.innerHTML = `
+  const trialDays = dbUser?.trial_days || 7;
+  const den = Math.min(trialDays, Math.max(1, getTrialDay()));
+  // Banner o prodloužení (jen pro uživatele s trial_days > 7)
+  const extensionBanner = trialDays > 7 ? `
+    <div style="background:#e8f8e8;border:1.5px solid #6abf6a;border-radius:20px;padding:16px 20px;margin-bottom:14px;display:flex;align-items:center;gap:12px">
+      <span style="font-size:24px">🎁</span>
+      <div>
+        <div style="font-size:14px;font-weight:700;color:#1a5a1a;margin-bottom:2px">Váš program jsme prodloužili o 3 dny</div>
+        <div style="font-size:13px;color:#2a6a2a">Jako poděkování za vaši trpělivost máte nyní celých ${trialDays} dní zdarma.</div>
+      </div>
+    </div>` : '';
+  const n = ODEMYKANI[Math.min(den, 7)];
+  const denBlock = n ? `
     <div style="background:#f0f8ff;border:1.5px solid #b8d8f0;border-radius:20px;padding:18px 20px;margin-bottom:20px">
-      <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#3a6090;margin-bottom:8px">Den ${den} z 7</div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#3a6090;margin-bottom:8px">Den ${den} z ${trialDays}</div>
       <div style="font-size:15px;font-weight:700;color:#1a3a5a;margin-bottom:6px">${n.icon} ${n.titulek}</div>
       <div style="font-size:14px;color:#2a4a6a;line-height:1.6">${n.text}</div>
-    </div>`;
+    </div>` : '';
+  el.innerHTML = extensionBanner + denBlock;
+  // Aktualizuj nadpis plánu
+  const planHeading = document.getElementById('plan7Heading');
+  if (planHeading) planHeading.textContent = `Toto je plán pro vašich ${trialDays} dní`;
 }
 
 // ── Aktuální novinka ──────────────────────────────────────────
