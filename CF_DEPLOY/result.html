@@ -981,7 +981,8 @@ function renderCenik() {
 
   if (level === 'free_active') {
     const trialDays = dbUser?.trial_days || 7;
-    const left = Math.max(0, trialDays - getTrialDay());
+    const currentDay = getTrialDay();
+    const left = currentDay <= 1 ? trialDays : Math.max(0, trialDays - currentDay);
     html = `
       <div class="access-strip">
         <div class="access-days">⏳ Zbývá vám <strong>${left} ${left === 1 ? 'den' : left < 5 ? 'dny' : 'dní'}</strong> z bezplatného profilu</div>
