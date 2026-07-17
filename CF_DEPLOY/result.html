@@ -721,7 +721,7 @@ function saveReaction(idx, emoji) {
   try { localStorage.setItem(REACTION_KEY, JSON.stringify(r)); } catch {}
   // Uložit reakci také do Google Sheetu (na pozadí, neblokuje UI)
   try {
-    const token = localStorage.getItem('ziju60_token') || '';
+    const token = localStorage.getItem('ziju60_user_token') || '';
     if (token) {
       const emojiToKod = { '🌟': 'splneno', '🤔': 'vaham', '⏳': 'prijdu' };
       fetch('/api/user-db', {
