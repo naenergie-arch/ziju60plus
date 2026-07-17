@@ -716,7 +716,7 @@ const REACTION_KEY = 'ziju60_reactions';
 function loadReactions() {
   try { return JSON.parse(localStorage.getItem(REACTION_KEY)||'{}'); } catch { return {}; }
 }
-function saveReaction(idx, emoji) {
+function saveReaction(idx, emoji, nazev, kat) {
   const r = loadReactions(); r[idx] = emoji;
   try { localStorage.setItem(REACTION_KEY, JSON.stringify(r)); } catch {}
   // Uložit reakci také do Google Sheetu (na pozadí, neblokuje UI)
@@ -731,6 +731,8 @@ function saveReaction(idx, emoji) {
           action: 'save_reakce',
           token: token,
           den: idx + 1,
+          aktivita_nazev: nazev || '',
+          aktivita_kod: kat || '',
           reakce: emojiToKod[emoji] || emoji
         })
       }).catch(() => {});
@@ -766,7 +768,7 @@ function renderRec(data) {
       {e:'🤔', label:'Váhám'},
       {e:'⏳', label:'Příště'},
     ].map(rb => `
-      <button class="reaction-btn${sel===rb.e?' selected':''}" data-idx="${i}" data-emoji="${rb.e}" onclick="pickReaction(${i},'${rb.e}')">
+      <button class="reaction-btn${sel===rb.e?' selected':''}" data-idx="${i}" data-emoji="${rb.e}" onclick="pickReaction(${i},'${rb.e}',${JSON.stringify(r.nazev||'')},${JSON.stringify(r.kat||'')})">
         <span class="r-emoji">${rb.e}</span>${rb.label}
       </button>`).join('');
 
@@ -829,7 +831,7 @@ function renderRec(data) {
   initCarousel(items.length);
 }
 
-function pickReaction(idx, emoji) {
+function pickReaction(idx, emoji, nazev, kat) {
   gtrack('reakce_klik', { idx: idx, emoji: emoji });
   const reactions = loadReactions();
   // Toggle: kliknutí na stejnou reakci ji zruší
@@ -838,7 +840,7 @@ function pickReaction(idx, emoji) {
     try { localStorage.setItem(REACTION_KEY, JSON.stringify(reactions)); } catch {}
     document.querySelectorAll(`.reaction-btn[data-idx="${idx}"]`).forEach(btn => btn.classList.remove('selected'));
   } else {
-    saveReaction(idx, emoji);
+    saveReaction(idx, emoji, nazev, kat);
     document.querySelectorAll(`.reaction-btn[data-idx="${idx}"]`).forEach(btn => {
       btn.classList.toggle('selected', btn.dataset.emoji === emoji);
     });
