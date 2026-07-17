@@ -740,23 +740,34 @@ function saveReaction(idx, emoji, nazev, kat) {
   } catch {}
 }
 
-const EXTRA_DAYS = [
-  { ikona:'🧠', nazev:'Mozek a kreativita', popis:'Trénink mysli je stejně důležitý jako pohyb těla. Dnes věnujte 10 minut své hlavě.', prinos:['Luštěte křížovku nebo sudoku','Naučte se 3 nová slova v cizím jazyce','Napište nebo nakreslete něco rukou — pero a papír, ne telefon'], kat:'mozek',
-    odkaz1:{ nazev:'Sudoku online – trénink mozku zdarma', url:'https://sudokuonline.cz/' },
-    odkaz2:{ nazev:'Jak se naučit kreslit – návod pro začátečníky', url:'https://www.fyft.cz/malovani-kresleni-clanky/jak-se-naucit-kreslit-navod-tipy/' } },
-  { ikona:'🤝', nazev:'Lidé kolem vás', popis:'Kvalitní vztahy prodlužují život více než vitamíny. Dejte dnes o sobě vědět.', prinos:['Zavolejte někomu, komu jste dlouho nevolali','Naplánujte setkání s přítelem nebo rodinou','Řekněte dnes někomu, co na něm oceňujete'], kat:'spolecnost',
-    odkaz1:{ nazev:'Najít nové přátele v dospělosti – jak na to', url:'https://www.mojepsychologie.cz/relax/spolecnost/najit-v-dospelosti-nove-pratele-je-tezke-ale-ne-nemozne-budte-trpelivi-a-otevrete-se-671' },
-    odkaz2:{ nazev:'Klub seniorů – kde hledat a jak se zapojit', url:'https://www.sensen.cz/kluby' } },
-  { ikona:'🌟', nazev:'Váš nový začátek', popis:'10 dní je jen začátek. Co si berete dál? Zastavte se a oslavte, co jste zvládli.', prinos:['Zapište si 3 věci, které se za těchto 10 dní zlepšily','Vyberte jednu návyku, kterou chcete udržet','Oslavte sami sebe — udělali jste něco pro sebe'], kat:'motivace',
-    odkaz1:{ nazev:'Jak si stanovit cíle a dosáhnout jich', url:'https://ondrejsams.cz/jak-si-stanovit-cile/' },
-    odkaz2:{ nazev:'Přijetí stáří – video', url:'https://www.youtube.com/watch?v=-eQDgrwRF0A&t=88s' } },
-];
+// EXTRA_DAYS se načítají dynamicky z GAS (getExtendedPlan)
+let EXTRA_DAYS_CACHE = null;
 
-function renderRec(data) {
+async function loadExtendedPlan(token) {
+  if (EXTRA_DAYS_CACHE) return EXTRA_DAYS_CACHE;
+  try {
+    const cached = sessionStorage.getItem('ziju60_extended_plan');
+    if (cached) { EXTRA_DAYS_CACHE = JSON.parse(cached); return EXTRA_DAYS_CACHE; }
+    const res = await fetch(`/api/user-db?action=get_extended_plan&token=${encodeURIComponent(token)}`);
+    const d = await res.json();
+    if (d.ok && d.plan && d.plan.length) {
+      EXTRA_DAYS_CACHE = d.plan;
+      try { sessionStorage.setItem('ziju60_extended_plan', JSON.stringify(d.plan)); } catch {}
+    }
+  } catch {}
+  return EXTRA_DAYS_CACHE || [];
+}
+
+async function renderRec(data) {
   const el = document.getElementById('recList');
   const trialDays = dbUser?.trial_days || 7;
   const baseItems = (data.doporuceni||[]).slice(0,7);
-  const items = trialDays > 7 ? [...baseItems, ...EXTRA_DAYS.slice(0, trialDays - 7)] : baseItems;
+  let items = baseItems;
+  if (trialDays > 7) {
+    const token = localStorage.getItem('ziju60_user_token') || '';
+    const extraDays = token ? await loadExtendedPlan(token) : [];
+    items = [...baseItems, ...extraDays.slice(0, trialDays - 7)];
+  }
   const totalDays = items.length;
   const reactions = loadReactions();
 
@@ -1540,7 +1551,7 @@ async function renderObjevovna() {
     ${archiveHtml}`;
 }
 
-function showProfile(data) {
+async function showProfile(data) {
   clearTimeout(_failsafe);
   const lvl = getAccessLevel();
   gtrack('profil_zobrazen', { access_level: lvl, trial_day: getTrialDay() });
@@ -1556,7 +1567,7 @@ function showProfile(data) {
   try { renderHeader(data); } catch(e) { console.error('renderHeader', e); }
   try { renderPostreh(data); } catch(e) { console.error('renderPostreh', e); }
   try { renderTema(data); } catch(e) { console.error('renderTema', e); }
-  try { renderRec(data); } catch(e) { console.error('renderRec', e); }
+  try { await renderRec(data); } catch(e) { console.error('renderRec', e); }
   try { renderReactionStats(); } catch(e) { console.error('renderReactionStats', e); }
   try { renderPreview(); } catch(e) { console.error('renderPreview', e); }
   try { renderCoach(); } catch(e) { console.error('renderCoach', e); }
