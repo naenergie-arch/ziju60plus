@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monitoring – Žiju60plus</title>
+<style>
+body{margin:0;padding:24px 16px;background:#0f1020;font-family:Arial,sans-serif;color:#fff;min-height:100vh}
+.wrap{max-width:600px;margin:0 auto}
+h2{font-size:18px;margin:0 0 4px;color:#fff}
+.sub{font-size:12px;color:#888;margin:0 0 20px}
+.status-ok{color:#4caf50;font-weight:700}
+.status-err{color:#f44336;font-weight:700}
+table{width:100%;border-collapse:collapse;margin-bottom:20px}
+th{text-align:left;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#888;padding:8px 12px;border-bottom:1px solid #2a2a3a}
+td{padding:10px 12px;border-bottom:1px solid #1a1a2e;font-size:14px}
+tr.ok td{background:#0d1f0d}
+tr.err td{background:#1f0d0d}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+.dot.ok{background:#4caf50}
+.dot.err{background:#f44336}
+.ms{color:#888;font-size:12px}
+button{background:#ff8a3d;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:20px}
+button:hover{background:#d96800}
+button:disabled{background:#555;cursor:default}
+.headline{font-size:22px;font-weight:700;margin-bottom:4px}
+.ts{font-size:12px;color:#888;margin-bottom:20px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="headline" id="headline">⏳ Kontroluji…</div>
+  <div class="ts" id="ts"></div>
+  <button id="btn" onclick="run()">🔄 Zkontrolovat znovu</button>
+  <table>
+    <thead><tr><th>Služba</th><th>Stav</th><th>Odezva</th><th>Detail</th></tr></thead>
+    <tbody id="tbody"><tr><td colspan="4" style="color:#888;text-align:center;padding:24px">Načítám…</td></tr></tbody>
+  </table>
+  <p style="font-size:11px;color:#555">Email se odesílá pouze při detekci chyby.</p>
+</div>
+<script>
+async function run() {
+  const btn = document.getElementById('btn');
+  btn.disabled = true; btn.textContent = '⏳ Kontroluji…';
+  document.getElementById('headline').textContent = '⏳ Kontroluji…';
+  try {
+    const res = await fetch('/api/health');
+    const d = await res.json();
+    const allOk = d.ok;
+    document.getElementById('headline').innerHTML = allOk
+      ? '<span style="color:#4caf50">✅ Vše funguje</span>'
+      : '<span style="color:#f44336">🚨 Detekován problém</span>';
+    document.getElementById('ts').textContent = 'Čas kontroly: ' + new Date(d.checked_at).toLocaleString('cs-CZ');
+    document.getElementById('tbody').innerHTML = (d.results || []).map(r => `
+      <tr class="${r.ok ? 'ok' : 'err'}">
+        <td><span class="dot ${r.ok ? 'ok' : 'err'}"></span>${r.name}</td>
+        <td class="${r.ok ? 'status-ok' : 'status-err'}">${r.ok ? '✅ OK' : '❌ CHYBA'}</td>
+        <td class="ms">${r.ms} ms</td>
+        <td style="color:#aaa;font-size:12px">${r.error || r.status || ''}</td>
+      </tr>`).join('');
+  } catch(e) {
+    document.getElementById('headline').innerHTML = '<span style="color:#f44336">❌ Chyba spojení</span>';
+    document.getElementById('tbody').innerHTML = `<tr><td colspan="4" style="color:#f44336">${e.message}</td></tr>`;
+  }
+  btn.disabled = false; btn.textContent = '🔄 Zkontrolovat znovu';
+}
+run();
+</script>
+</body>
+</html>
