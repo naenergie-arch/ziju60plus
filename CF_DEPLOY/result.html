@@ -1601,8 +1601,12 @@ function renderOdemykani() {
 // ── Aktuální novinka ──────────────────────────────────────────
 // Chcete-li novinku zobrazit: vyplňte NOVINKA_TEXT a NOVINKA_DO (datum kdy zmizí).
 // Chcete-li novinku skrýt: nechte NOVINKA_TEXT prázdný řetězec.
-const NOVINKA_TEXT = 'Nově: Diagnostika nastavení – zkontrolujte jedním kliknutím, že vám aplikace funguje správně. Tlačítko najdete úplně dole na této stránce. • Připojte se k naší komunitě na Telegramu – sdílejte zkušenosti s lidmi jako vy 👇';
-const NOVINKA_DO   = '2026-07-21'; // zobrazuje se do tohoto data (včetně)
+const NOVINKA_TEXT = `<strong>📋 Jak vytěžit maximum z vašich 10 dní?</strong><br><br>
+<strong>📅 Plán aktivit</strong> — každý den jedna konkrétní aktivita, přesně pro vás. Stačí přejet prstem doprava a uvidíte, co vás čeká zítra, pozítří… až do dne desátého.<br><br>
+<strong>🎁 Objevovna</strong> — každý večer ve 20:00 se odemkne nové překvapení. Tip, nástroj nebo inspirace, o které jste možná ještě neslyšeli. Rozhodně to nestihněte propásnout.<br><br>
+<strong>⭐ Hodnocení</strong> — pod každou aktivitou řekněte, jestli jste ji splnili, nebo ji odložíte na jindy. Pomůže vám to udržet přehled o tom, co jste za 10 dní zvládli.<br><br>
+<strong>Co z toho získáte?</strong> Za 10 dní budete vědět, které aktivity vám skutečně sedí, a budete mít základ pro svůj vlastní dlouhodobý plán vitality.`;
+const NOVINKA_DO   = '2026-07-27'; // zobrazuje se do tohoto data (včetně)
 
 async function renderSvedectviPublic() {
   const el = document.getElementById('svedectviPublicSection');
