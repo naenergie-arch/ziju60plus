@@ -1,4 +1,4 @@
-const USERS_DB_URL = "https://script.google.com/macros/s/AKfycby63M5NhB4hyehJ4G0UWV0Ij7W8KRP_bdwvlndAtPo2qlS7NFgZgGWlTKUqE2wi2kA4ng/exec";
+const USERS_DB_URL = "https://script.google.com/macros/s/AKfycbyKiBEiSCsOWKr2DzD1Upetmrkq4k9o58j2NIV10fS-QH0Vk6WvEnjbKE5gSr6n3fGr6Q/exec";
 
 async function safeJson(res) {
   const text = await res.text();
