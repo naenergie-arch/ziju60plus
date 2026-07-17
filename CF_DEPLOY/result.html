@@ -1355,7 +1355,6 @@ async function renderObjevovna() {
 
   const el = document.getElementById('objevovnaSection');
   const day = getTrialDay();
-  const secsLeft = getSecondsUntil20();
 
   el.style.display = '';
 
@@ -1386,46 +1385,18 @@ async function renderObjevovna() {
   let todayHtml = '';
   let archiveData = {};
 
-  // Den 1: obsah viditelný ihned. Den 2+: nový obsah se přidá ve 20:00.
-  const showCountdown = secsLeft > 0 && day > 1;
-
-  if (showCountdown) {
-    // Den 2+ před 20:00 — ukáž odpočet jen pro dnešní nový příspěvek
-    todayHtml = `
-      <div class="obj-title">Dnešní překvapení</div>
-      <div class="obj-day-badge">${getTrialDayLabel()}</div>
-      <div class="obj-countdown">
-        <div class="obj-countdown-time" id="objTimer">${formatCountdown(secsLeft)}</div>
-        <div class="obj-countdown-label">Nový příspěvek dnes ve 20:00</div>
-      </div>`;
-    // Spusť odpočet
-    let s = secsLeft;
-    const t = setInterval(() => {
-      s--;
-      const timerEl = document.getElementById('objTimer');
-      if (!timerEl) { clearInterval(t); return; }
-      if (s <= 0) { clearInterval(t); renderObjevovna(); return; }
-      timerEl.textContent = formatCountdown(s);
-    }, 1000);
-  }
-
-  // Vždy načti data — Den 1 vždy, Den 2+ buď celý den nebo jen archív před 20:00
+  // Vždy načti obsah pro dnešní den (bez odpočtu)
   try {
-    const maxDay = showCountdown ? day - 1 : day; // před 20:00 (Den 2+) načti jen minulé dny
-    const res = await fetch(`${OBJ_API}?maxDay=${maxDay}`);
+    const res = await fetch(`${OBJ_API}?maxDay=${day}`);
     const data = await res.json();
     if (data.ok) archiveData = data.archive || {};
 
-    if (!showCountdown) {
-      // Den 1 kdykoliv, nebo Den 2+ po 20:00
-      const todaySurprises = archiveData[day] || [];
-      if (todaySurprises.length) {
-        const badge = day === 1 ? getTrialDayLabel() : `${getTrialDayLabel()} · odhaleno ve 20:00`;
-        todayHtml = `
-          <div class="obj-title">Dnešní překvapení</div>
-          <div class="obj-day-badge">${badge}</div>
-          ${todaySurprises.map(s => objCard(s, false)).join('')}`;
-      }
+    const todaySurprises = archiveData[day] || [];
+    if (todaySurprises.length) {
+      todayHtml = `
+        <div class="obj-title">Dnešní překvapení</div>
+        <div class="obj-day-badge">${getTrialDayLabel()}</div>
+        ${todaySurprises.map(s => objCard(s, false)).join('')}`;
     }
   } catch(_) {}
 
@@ -1481,11 +1452,12 @@ async function renderObjevovna() {
 
       // Jednořádkový popis dne: názvy položek oddělené „ · "
       const dayTeaser = items.map(s => s.nazev).join(' · ');
+      const dayWord = 'Den ' + (ORDINALS[d] || d + '.');
       pastDaysHtml.push(`
         <div class="obj-archive-day">
           <button class="obj-archive-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
             <div style="text-align:left">
-              <div style="font-weight:700;font-size:13px">Den ${d} ${allDone ? '✓' : ''}</div>
+              <div style="font-weight:700;font-size:14px">${dayWord} ${allDone ? '✓' : ''}</div>
               <div style="font-size:11px;color:#c9a0ff;margin-top:2px;font-weight:400">${dayTeaser}</div>
             </div>
             <span class="arr">▾</span>
@@ -1515,12 +1487,10 @@ async function renderObjevovna() {
       if (clickedIds.has(s.objId)) totalClicked++;
     });
   }
-  if (secsLeft <= 0) {
-    (archiveData[day] || []).forEach(s => {
-      totalRevealed++;
-      if (clickedIds.has(s.objId)) totalClicked++;
-    });
-  }
+  (archiveData[day] || []).forEach(s => {
+    totalRevealed++;
+    if (clickedIds.has(s.objId)) totalClicked++;
+  });
   const statusHtml = totalRevealed > 0 ? `<div class="obj-status-bar">
     <div class="obj-status-item">Odhaleno: <strong>${totalRevealed}</strong></div>
     <div class="obj-status-item">Otevřeno: <strong>${totalClicked}</strong></div>
@@ -1531,7 +1501,7 @@ async function renderObjevovna() {
   el.innerHTML = `
     <div class="obj-heading">🎁 Objevovna</div>
     <div style="font-size:13px;color:#c9a0ff;line-height:1.6;margin-bottom:16px;border-bottom:1px solid rgba(255,255,255,.12);padding-bottom:14px">
-      Každý den ve 20:00 přibude nové překvapení — tip, nástroj nebo inspirace, o které jste možná ještě neslyšeli.
+      Každý den přibude nové překvapení — tip, nástroj nebo inspirace, o které jste možná ještě neslyšeli.
       Za ${trialDaysTotal} dní budete mít celkem ${trialDaysTotal} příspěvků. Vždy vidíte nejnovější nahoře a pod ním archív předchozích dní.
     </div>
     ${statusHtml}
