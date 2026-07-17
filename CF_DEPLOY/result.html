@@ -108,9 +108,11 @@ body{background:#fbf4e7;min-height:100vh;font-family:'Montserrat',sans-serif;col
 .rec-tip{background:#f0f8f0;border-left:3px solid #52c060;border-radius:0 10px 10px 0;padding:10px 14px;font-size:13px;color:#3a5030;font-style:italic;margin-bottom:14px;line-height:1.5}
 
 /* Odkazy */
-.rec-links{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
-.rec-link{display:inline-flex;align-items:center;gap:5px;background:#fff8ee;border:1.5px solid #e8d0a8;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;color:#b07840;text-decoration:none;transition:all .18s;cursor:pointer}
-.rec-link:hover{border-color:#ff8a3d;background:#fff5ec;color:#c06010}
+.rec-links{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.rec-links-label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8060c0;margin-bottom:2px}
+.rec-links-row{display:flex;gap:8px;flex-wrap:wrap}
+.rec-link{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#f0e8ff 0%,#e4d4ff 100%);border:2px solid #a080e0;border-radius:20px;padding:8px 16px;font-size:13px;font-weight:700;color:#5030a0;text-decoration:none;transition:all .18s;cursor:pointer}
+.rec-link:hover{border-color:#7050c0;background:linear-gradient(135deg,#e4d4ff 0%,#d4c0ff 100%);color:#3010808;transform:translateY(-1px)}
 
 /* Progress bar */
 .rec-progress{display:flex;align-items:center;gap:8px;margin-bottom:14px}
@@ -763,7 +765,7 @@ function renderRec(data) {
       return `<a class="rec-link" href="${safe}" target="_blank" rel="noopener" onclick="gtrack('plan_link_klik',{den:${i+1},nazev:'${nazevSafe}',kat:'${r.kat||''}',url:'${safe}'})">🔗 ${obj.nazev || 'Více informací'}</a>`;
     };
     const odkazyHtml = (r.odkaz1?.url || r.odkaz2?.url)
-      ? `<div class="rec-links">${link(r.odkaz1)}${link(r.odkaz2)}</div>` : '';
+      ? `<div class="rec-links"><div class="rec-links-label">👆 Klikněte na odkaz${r.odkaz1?.url && r.odkaz2?.url ? 'y' : ''}</div><div class="rec-links-row">${link(r.odkaz1)}${link(r.odkaz2)}</div></div>` : '';
 
     return `<div class="rec-card">
       <div class="rec-progress">
