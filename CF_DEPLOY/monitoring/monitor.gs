@@ -2,7 +2,7 @@
 // Spouštěj každých 30 minut pomocí GAS Time Trigger
 // Nastavení: Spouštěče → Přidat spouštěč → runMonitor → Časovač → Každých 30 minut
 
-const HEALTH_URL = 'https://ziju60plus.cz/api/health?alert=1';
+const HEALTH_URL = 'https://ziju60plus.cz/api/health'; // bez ?alert=1 → email jen při chybě
 
 function runMonitor() {
   try {
