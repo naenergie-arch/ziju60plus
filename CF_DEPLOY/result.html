@@ -709,7 +709,7 @@ function renderTema(data) {
   el.style.display = '';
   el.innerHTML = `
     <div class="tema-tag">🗓 ${data.tydenni_tema||'Váš první týden'}</div>
-    <div class="tema-sub">Inspirace na příštích ${dbUser?.trial_days || 7} dní z Knihovny života – vyberte si, co vám sedí</div>`;
+    <div class="tema-sub">Inspirace na příštích ${getTrialDays()} dní z Knihovny života – vyberte si, co vám sedí</div>`;
 }
 
 const REACTION_KEY = 'ziju60_reactions';
@@ -754,7 +754,7 @@ const EXTRA_DAYS = [
 
 function renderRec(data) {
   const el = document.getElementById('recList');
-  const trialDays = dbUser?.trial_days || 7;
+  const trialDays = getTrialDays();
   const baseItems = (data.doporuceni||[]).slice(0,7);
   const items = trialDays > 7 ? [...baseItems, ...EXTRA_DAYS.slice(0, trialDays - 7)] : baseItems;
   const totalDays = items.length;
@@ -974,7 +974,7 @@ function getAccessLevel() {
 
   // DB říká free (nebo uživatel není v DB) → ignoruj localStorage, žádný paid fallback
   // Trial — délka dle trial_days (default 7)
-  const trialDays = dbUser?.trial_days || 7;
+  const trialDays = getTrialDays();
   const trialStart = dbUser?.trial_start || localStorage.getItem('ziju_trial_start');
   const profileAge = trialStart ? Date.now() - new Date(trialStart).getTime() : Infinity;
   return profileAge < trialDays * DAY_MS ? 'free_active' : 'free_expired';
@@ -1018,7 +1018,7 @@ function renderCenik() {
   let html = '';
 
   if (level === 'free_active') {
-    const trialDays = dbUser?.trial_days || 7;
+    const trialDays = getTrialDays();
     const currentDay = getTrialDay();
     const left = currentDay <= 1 ? trialDays : Math.max(0, trialDays - currentDay);
     html = `
@@ -1115,6 +1115,9 @@ async function generateProfile() {
 
 // ── DB uživatel (načte se na začátku init) ────────────────────────
 let dbUser = null;
+function getTrialDays() {
+  return (dbUser && dbUser.trial_days) || parseInt(localStorage.getItem('ziju_trial_days') || '0') || 7;
+}
 
 async function loadDbUser() {
   try {
@@ -1132,6 +1135,7 @@ async function loadDbUser() {
       dbUser = data.user;
       // V admin režimu NIKDY nepsat do localStorage — zabraňuje kontaminaci mezi účty
       if (!params.get('ut')) {
+        if (dbUser.trial_days) localStorage.setItem('ziju_trial_days', String(dbUser.trial_days));
         if (dbUser.trial_start) localStorage.setItem('ziju_trial_start', dbUser.trial_start);
         if (dbUser.access_level && dbUser.access_level !== 'free') {
           const existing = JSON.parse(localStorage.getItem('ziju60_access') || 'null');
@@ -1538,7 +1542,7 @@ async function renderObjevovna() {
     <div class="obj-status-item">Zbývá prozkoumat: <strong>${totalRevealed - totalClicked}</strong></div>
   </div>` : '';
 
-  const trialDaysTotal = (dbUser && dbUser.trial_days) || 7;
+  const trialDaysTotal = getTrialDays();
   el.innerHTML = `
     <div class="obj-heading">🎁 Objevovna</div>
     <div style="font-size:13px;color:#c9a0ff;line-height:1.6;margin-bottom:16px;border-bottom:1px solid rgba(255,255,255,.12);padding-bottom:14px">
@@ -1601,7 +1605,7 @@ function renderOdemykani() {
   if (!el) return;
   const lvl = getAccessLevel();
   if (lvl !== 'free_active') { el.innerHTML = ''; return; }
-  const trialDays = dbUser?.trial_days || 7;
+  const trialDays = getTrialDays();
   const den = Math.min(trialDays, Math.max(1, getTrialDay()));
   // Banner o prodloužení (jen pro uživatele s trial_days > 7)
   const extensionBanner = trialDays > 7 ? `
