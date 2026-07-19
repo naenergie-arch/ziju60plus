@@ -906,24 +906,50 @@ function objArchivePage(dir) {
 
 function initCarousel(total) {
   let cur = 0;
+  let blockOffset = 0; // 0, 10, 20 ... (blok dní)
   const planDays = getPlanDays();
+  const blockSize = total; // počet karet = velikost bloku
+  const maxBlock = Math.max(0, Math.floor((planDays - 1) / blockSize)) * blockSize;
   const track = () => document.getElementById('carTrack');
 
-  function go(n) {
-    cur = Math.max(0, Math.min(total-1, n));
+  function updateUI() {
     track().style.transform = `translateX(-${cur*100}%)`;
-    document.getElementById('carPrev').disabled = cur===0;
-    document.getElementById('carNext').disabled = cur===total-1;
+    const absDay = blockOffset + cur + 1;
+    document.getElementById('carPrev').disabled = cur===0 && blockOffset===0;
+    document.getElementById('carNext').disabled = cur===blockSize-1 && blockOffset>=maxBlock;
     const p10 = document.getElementById('carPrev10');
     const n10 = document.getElementById('carNext10');
-    if (p10) p10.disabled = cur===0;
-    if (n10) n10.disabled = cur===total-1;
+    if (p10) p10.disabled = blockOffset===0;
+    if (n10) n10.disabled = blockOffset>=maxBlock;
     const dd = document.getElementById('carDayDisplay');
-    if (dd) dd.innerHTML = `Den <strong>${cur+1}</strong> <span style="color:#b07840">ze ${planDays}</span>`;
+    if (dd) dd.innerHTML = `Den <strong>${absDay}</strong> <span style="color:#b07840">ze ${planDays}</span>`;
+    // Aktualizuj den label v kartě (prog-day-big)
+    document.querySelectorAll('.prog-day-big').forEach((el, i) => {
+      const d = blockOffset + i + 1;
+      el.innerHTML = `Den <strong>${d}</strong> <span class="prog-day-total">ze ${planDays}</span>`;
+      const fill = el.closest('.rec-card')?.querySelector('.prog-bar-fill');
+      if (fill) fill.style.width = Math.round(d/planDays*100) + '%';
+    });
   }
 
-  window.carMove = (d) => { go(cur+d); gtrack('plan_den_prepnuti', {den: cur+1}); };
-  window.carGo   = (n) => { go(n); gtrack('plan_den_prepnuti', {den: n+1}); };
+  function go(n) {
+    cur = Math.max(0, Math.min(blockSize-1, n));
+    updateUI();
+    gtrack('plan_den_prepnuti', {den: blockOffset+cur+1});
+  }
+
+  function skipBlock(dir) {
+    blockOffset = Math.max(0, Math.min(maxBlock, blockOffset + dir * blockSize));
+    cur = 0;
+    updateUI();
+    gtrack('plan_den_prepnuti', {den: blockOffset+1});
+  }
+
+  window.carMove = (d) => {
+    if (Math.abs(d) >= blockSize) { skipBlock(d > 0 ? 1 : -1); return; }
+    go(cur+d);
+  };
+  window.carGo = (n) => { go(n); };
   go(0);
 
   // Swipe
