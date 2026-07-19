@@ -194,6 +194,11 @@ body{background:#fbf4e7;min-height:100vh;font-family:'Montserrat',sans-serif;col
 .obj-archive-body.open{display:block}
 .obj-archive-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px;margin-bottom:8px}
 .obj-archive-card:last-child{margin-bottom:0}
+.obj-archive-nav{display:flex;align-items:center;justify-content:space-between;margin-top:14px;gap:8px}
+.obj-archive-nav-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:8px 16px;color:#e0d0ff;font-size:13px;font-weight:600;cursor:pointer}
+.obj-archive-nav-btn:disabled{opacity:0.35;cursor:default}
+.obj-archive-nav-btn:not(:disabled):hover{background:rgba(255,255,255,.2)}
+.obj-archive-nav-label{font-size:12px;color:#c9a0ff}
 .obj-archive-card .obj-card-kat{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#c9a0ff;margin-bottom:4px}
 .obj-archive-card .obj-card-nazev{font-size:15px;font-weight:700;color:#fff;margin-bottom:4px}
 .obj-archive-card .obj-card-link{display:inline-block;font-size:12px;color:#f0c060;text-decoration:none;font-weight:600}
@@ -460,6 +465,7 @@ body.premium-90 .tema-tag{background:linear-gradient(90deg,#1a3a8e,#2a5ac8)}
   </div>
 
   <!-- OBJEVOVNA -->
+  <div id="vitalityScoreSection" style="display:none"></div>
   <div id="objevovnaSection" class="obj-section" style="display:none"></div>
 
   <!-- ① AKCE A OZNÁMENÍ -->
@@ -709,7 +715,7 @@ function renderTema(data) {
   el.style.display = '';
   el.innerHTML = `
     <div class="tema-tag">🗓 ${data.tydenni_tema||'Váš první týden'}</div>
-    <div class="tema-sub">Inspirace na příštích ${getTrialDays()} dní z Knihovny života – vyberte si, co vám sedí</div>`;
+    <div class="tema-sub">Inspirace na příštích ${getPlanDays()} dní z Knihovny života – vyberte si, co vám sedí</div>`;
 }
 
 const REACTION_KEY = 'ziju60_reactions';
@@ -810,6 +816,7 @@ function renderRec(data) {
     </div>`;
   }).join('');
 
+  window._planItems = items;
   el.innerHTML = `
     <div class="carousel-track-outer">
       <div class="carousel-track" id="carTrack">${cardsHtml}</div>
@@ -850,6 +857,7 @@ function pickReaction(idx, emoji) {
     });
   }
   renderReactionStats();
+  try { renderVitalityScore(); } catch(e) {}
 }
 
 function renderReactionStats() {
@@ -860,17 +868,29 @@ function renderReactionStats() {
   const splneno = vals.filter(v => v === '🌟').length;
   const vaham   = vals.filter(v => v === '🤔').length;
   const priste  = vals.filter(v => v === '⏳').length;
-  const total   = 7;
+  const total   = getPlanDays();
   if (vals.length === 0) { el.style.display = 'none'; return; }
   el.style.display = '';
   el.innerHTML = `
-    <div class="rstats-title">Váš přehled 7 dní</div>
+    <div class="rstats-title">Váš přehled ${getPlanDays()} dní</div>
     <div class="rstats-row">
       <span class="rstats-item rstats-done">🌟 Splněno <strong>${splneno}</strong></span>
       <span class="rstats-item rstats-vah">🤔 Váhám <strong>${vaham}</strong></span>
       <span class="rstats-item rstats-later">⏳ Příště <strong>${priste}</strong></span>
       <span class="rstats-item rstats-open">○ Bez reakce <strong>${total - vals.length}</strong></span>
     </div>`;
+}
+
+let _objArchivePage = 0;
+function objArchivePage(dir) {
+  const pages = document.querySelectorAll('.obj-archive-page');
+  if (!pages.length) return;
+  pages[_objArchivePage].style.display = 'none';
+  _objArchivePage = Math.max(0, Math.min(pages.length - 1, _objArchivePage + dir));
+  pages[_objArchivePage].style.display = 'block';
+  document.getElementById('objArchPrev').disabled = _objArchivePage === 0;
+  document.getElementById('objArchNext').disabled = _objArchivePage === pages.length - 1;
+  document.getElementById('objArchLabel').textContent = `Strana ${_objArchivePage + 1} z ${pages.length}`;
 }
 
 function initCarousel(total) {
@@ -1117,6 +1137,16 @@ async function generateProfile() {
 let dbUser = null;
 function getTrialDays() {
   return (dbUser && dbUser.trial_days) || parseInt(localStorage.getItem('ziju_trial_days') || '0') || 7;
+}
+function getPlanDays() {
+  const lvl = getAccessLevel();
+  if (lvl === 'active30' || lvl === 'expired30') return 30;
+  if (lvl === 'active90' || lvl === 'expired90' || lvl === 'yearly') return 90;
+  return getTrialDays();
+}
+function isPaidUser() {
+  const lvl = getAccessLevel();
+  return ['active30','expired30','active90','expired90','yearly'].includes(lvl);
 }
 
 async function loadDbUser() {
@@ -1511,10 +1541,24 @@ async function renderObjevovna() {
         </div>`);
     }
     if (pastDaysHtml.length) {
+      const pageSize = 10;
+      const totalPages = Math.ceil(pastDaysHtml.length / pageSize);
+      const pagesHtml = [];
+      for (let p = 0; p < totalPages; p++) {
+        const slice = pastDaysHtml.slice(p * pageSize, (p + 1) * pageSize);
+        pagesHtml.push(`<div class="obj-archive-page" style="display:${p===0?'block':'none'}" data-page="${p}">${slice.join('')}</div>`);
+      }
+      const navHtml = totalPages > 1 ? `
+        <div class="obj-archive-nav">
+          <button class="obj-archive-nav-btn" id="objArchPrev" onclick="objArchivePage(-1)" disabled>‹ Zpět</button>
+          <span class="obj-archive-nav-label" id="objArchLabel">Strana 1 z ${totalPages}</span>
+          <button class="obj-archive-nav-btn" id="objArchNext" onclick="objArchivePage(1)">Další ›</button>
+        </div>` : '';
       archiveHtml = `
         <div class="obj-archive">
           <div class="obj-archive-title">📚 Archív překvapení</div>
-          ${pastDaysHtml.join('')}
+          <div id="objArchivePages">${pagesHtml.join('')}</div>
+          ${navHtml}
         </div>`;
     }
   }
@@ -1547,7 +1591,6 @@ async function renderObjevovna() {
     <div class="obj-heading">🎁 Objevovna</div>
     <div style="font-size:13px;color:#c9a0ff;line-height:1.6;margin-bottom:16px;border-bottom:1px solid rgba(255,255,255,.12);padding-bottom:14px">
       Každý den přibude nové překvapení — tip, nástroj nebo inspirace, o které jste možná ještě neslyšeli.
-      Za ${trialDaysTotal} dní budete mít celkem ${trialDaysTotal} příspěvků. Vždy vidíte nejnovější nahoře a pod ním archív předchozích dní.
     </div>
     ${statusHtml}
     ${todayHtml}
@@ -1575,6 +1618,7 @@ function showProfile(data) {
   try { renderPreview(); } catch(e) { console.error('renderPreview', e); }
   try { renderCoach(); } catch(e) { console.error('renderCoach', e); }
   try { renderTopBanner(); } catch(e) { console.error('renderTopBanner', e); }
+  try { renderVitalityScore(); } catch(e) { console.error('renderVitalityScore', e); }
   try { renderObjevovna(); } catch(e) { console.error('renderObjevovna', e); }
   try { renderCenik(); } catch(e) { console.error('renderCenik', e); }
   renderSvedectviPublic().catch(e => console.error('renderSvedectviPublic', e));
@@ -1626,17 +1670,20 @@ function renderOdemykani() {
   el.innerHTML = extensionBanner + denBlock;
   // Aktualizuj nadpis plánu
   const planHeading = document.getElementById('plan7Heading');
-  if (planHeading) planHeading.textContent = `Toto je plán pro vašich ${trialDays} dní`;
+  if (planHeading) planHeading.textContent = `Toto je plán pro vašich ${getPlanDays()} dní`;
 }
 
 // ── Aktuální novinka ──────────────────────────────────────────
 // Chcete-li novinku zobrazit: vyplňte NOVINKA_TEXT a NOVINKA_DO (datum kdy zmizí).
 // Chcete-li novinku skrýt: nechte NOVINKA_TEXT prázdný řetězec.
-const NOVINKA_TEXT = `<strong>📋 Jak vytěžit maximum z vašich 10 dní?</strong><br><br>
-<strong>📅 Plán aktivit</strong> — každý den jedna konkrétní aktivita, přesně pro vás. Stačí přejet prstem doprava a uvidíte, co vás čeká zítra, pozítří… až do dne desátého.<br><br>
+function getNovinkaText() {
+  const dni = getPlanDays();
+  return `<strong>📋 Jak vytěžit maximum z vašich ${dni} dní?</strong><br><br>
+<strong>📅 Plán aktivit</strong> — každý den jedna konkrétní aktivita, přesně pro vás. Stačí přejet prstem doprava a uvidíte, co vás čeká zítra, pozítří…<br><br>
 <strong>🎁 Objevovna</strong> — každý den přibude nové překvapení. Tip, nástroj nebo inspirace, o které jste možná ještě neslyšeli. Rozhodně to nestihněte propásnout.<br><br>
-<strong>⭐ Hodnocení</strong> — pod každou aktivitou řekněte, jestli jste ji splnili, nebo ji odložíte na jindy. Pomůže vám to udržet přehled o tom, co jste za 10 dní zvládli.<br><br>
-<strong>Co z toho získáte?</strong> Za 10 dní budete vědět, které aktivity vám skutečně sedí, a budete mít základ pro svůj vlastní dlouhodobý plán vitality.`;
+<strong>⭐ Hodnocení</strong> — pod každou aktivitou řekněte, jestli jste ji splnili, nebo ji odložíte na jindy. Pomůže vám to udržet přehled o tom, co jste za ${dni} dní zvládli.<br><br>
+<strong>Co z toho získáte?</strong> Budete vědět, které aktivity vám skutečně sedí, a budete mít základ pro svůj vlastní dlouhodobý plán vitality.`;
+}
 const NOVINKA_DO   = '2026-07-27'; // zobrazuje se do tohoto data (včetně)
 
 async function renderSvedectviPublic() {
@@ -1685,8 +1732,8 @@ async function renderSvedectvi() {
   const jmeno = (dbUser && dbUser.jmeno) ? dbUser.jmeno : '';
   const od15 = new Date() >= new Date('2026-07-15T00:00:00');
 
-  // Slevový kód — zobraz dole
-  if (status === 'approved' && elKod) {
+  // Slevový kód — zobraz dole jen pro neplatící
+  if (status === 'approved' && elKod && !isPaidUser()) {
     elKod.style.display = '';
     if (kod) {
       elKod.innerHTML = `<div class="sved-section">
@@ -1828,25 +1875,69 @@ async function renderTopBanner() {
       ${historickyText}
       ${membersHtml}
     </div>
-    ${new Date() >= new Date('2026-07-15T00:00:00') ? `
+    ${!isPaidUser() && new Date() >= new Date('2026-07-15T00:00:00') ? `
     <div style="background:linear-gradient(135deg,#fde8e8 0%,#fad0d0 100%);border:2px solid #e53935;border-radius:20px;padding:16px 22px;margin-bottom:20px">
       <div style="font-size:15px;font-weight:700;color:#7a1a1a">🎁 Získejte 50% slevu na 30denní program</div>
       <div style="font-size:13px;color:#5a1a1a;margin-top:6px;line-height:1.6">Napište do formuláře níže své první dojmy — co se vám líbí, co vás upoutalo, co třeba ne.</div>
       <div style="font-size:12px;color:#7a1a1a;margin-top:8px;font-style:italic">Platí pro všechny, kdo se zaregistrovali do 7denní výzvy s datumem do 21. 7. 2026 včetně.</div>
-    </div>` : `
-    <div style="background:linear-gradient(135deg,#fde8e8 0%,#fad0d0 100%);border:2px solid #e53935;border-radius:20px;padding:16px 22px;margin-bottom:20px">
-      <div style="font-size:15px;font-weight:700;color:#7a1a1a">🎁 Zítra vás čeká velké překvapení.</div>
-    </div>`}`;
+    </div>` : ''}`;
 }
 
 function renderNovinka() {
   const el = document.getElementById('novinkaSection');
   if (!el) return;
-  if (!NOVINKA_TEXT || new Date() > new Date(NOVINKA_DO + 'T23:59:59')) { el.innerHTML = ''; return; }
+  const novinkaText = getNovinkaText();
+  if (!novinkaText || new Date() > new Date(NOVINKA_DO + 'T23:59:59')) { el.innerHTML = ''; return; }
   el.innerHTML = `
     <div style="background:linear-gradient(135deg,#e8eaff 0%,#d8dcff 100%);border:2px solid #6070e0;border-radius:20px;padding:20px 22px;margin-bottom:20px">
       <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#3040a0;margin-bottom:8px">📋 Jak na to</div>
-      <div style="font-size:14px;color:#1a2060;line-height:1.7">${NOVINKA_TEXT}</div>
+      <div style="font-size:14px;color:#1a2060;line-height:1.7">${novinkaText}</div>
+    </div>`;
+}
+
+const KAT_WEIGHT = { pohyb:1.5, spanek:1.3, nalada:1.2, spolecnost:1.0, chut:1.0, mozek:1.0, motivace:0.8 };
+
+function calcCurrentVitality(baseScore) {
+  const reactions = loadReactions();
+  const totalDays = getPlanDays();
+  // Váhy aktivit — každý den má 1 aktivitu
+  let maxPoints = 0, earned = 0;
+  for (let i = 0; i < totalDays; i++) {
+    const kat = (window._planItems && window._planItems[i]) ? (window._planItems[i].kat || 'motivace') : 'motivace';
+    const w = KAT_WEIGHT[kat] || 1.0;
+    maxPoints += w;
+    const r = reactions[i];
+    if (r === '🌟') earned += 1.0 * w;
+    else if (r === '🤔') earned += 0.3 * w;
+  }
+  if (maxPoints === 0) return baseScore;
+  const completionRate = earned / maxPoints;
+  const room = 100 - baseScore;
+  return Math.min(100, baseScore + completionRate * room);
+}
+
+function renderVitalityScore() {
+  const el = document.getElementById('vitalityScoreSection');
+  if (!el) return;
+  // Načti základní skóre z profilu
+  let baseScore = 0;
+  try {
+    const profil = JSON.parse(localStorage.getItem('ziju60_profil') || 'null');
+    baseScore = profil?.skore_vitality || (dbUser?.skore_vitality) || 0;
+  } catch {}
+  if (!baseScore) { el.style.display = 'none'; return; }
+  const current = calcCurrentVitality(baseScore);
+  const diff = current - baseScore;
+  const diffText = diff > 0 ? `<span style="color:#2a8a3a;font-size:13px;font-weight:700">▲ +${diff.toFixed(1)}</span>` :
+                   diff < 0 ? `<span style="color:#c0392b;font-size:13px;font-weight:700">▼ ${diff.toFixed(1)}</span>` :
+                   `<span style="color:#888;font-size:13px">beze změny</span>`;
+  el.style.display = '';
+  el.innerHTML = `
+    <div style="background:linear-gradient(135deg,#fff8f0 0%,#ffecd6 100%);border:1.5px solid #f0ddb8;border-radius:22px;padding:20px 24px;margin-bottom:20px;text-align:center">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#b07840;margin-bottom:10px">📊 Aktuální skóre vitality</div>
+      <div style="font-size:42px;font-weight:700;color:#ff8a3d;font-family:Georgia,serif;line-height:1">${current.toFixed(1)}<span style="font-size:20px;color:#b07840">/100</span></div>
+      <div style="margin-top:8px">${diffText} oproti základnímu skóre ${baseScore}</div>
+      <div style="font-size:12px;color:#a07040;margin-top:6px">Roste s každou splněnou aktivitou</div>
     </div>`;
 }
 
