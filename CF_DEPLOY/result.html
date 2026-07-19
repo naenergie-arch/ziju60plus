@@ -1317,7 +1317,7 @@ async function init() {
         <a href="/quiz.html" onclick="localStorage.removeItem('${STORAGE_KEY}')">Vytvořit nový profil →</a>
       </div>`;
     showProfile(saved);
-    loadDbUser().then(() => { try { renderCenik(); renderTopBanner(); } catch(e) {} }).catch(() => {});
+    loadDbUser().then(() => { try { renderCenik(); renderTopBanner(); initChat(); } catch(e) {} }).catch(() => {});
     return;
   }
 
