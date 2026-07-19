@@ -1647,6 +1647,9 @@ const ODEMYKANI = [
 function renderOdemykani() {
   const el = document.getElementById('odemykaniSection');
   if (!el) return;
+  // Vždy aktualizuj nadpis plánu bez ohledu na úroveň
+  const planHeading = document.getElementById('plan7Heading');
+  if (planHeading) planHeading.textContent = `Toto je plán pro vašich ${getPlanDays()} dní`;
   const lvl = getAccessLevel();
   if (lvl !== 'free_active') { el.innerHTML = ''; return; }
   const trialDays = getTrialDays();
@@ -1668,9 +1671,6 @@ function renderOdemykani() {
       <div style="font-size:14px;color:#2a4a6a;line-height:1.6">${n.text}</div>
     </div>` : '';
   el.innerHTML = extensionBanner + denBlock;
-  // Aktualizuj nadpis plánu
-  const planHeading = document.getElementById('plan7Heading');
-  if (planHeading) planHeading.textContent = `Toto je plán pro vašich ${getPlanDays()} dní`;
 }
 
 // ── Aktuální novinka ──────────────────────────────────────────
