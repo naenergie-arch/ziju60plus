@@ -1978,16 +1978,17 @@ function renderVitalityScore() {
   if (!baseScore) { el.style.display = 'none'; return; }
   const current = calcCurrentVitality(baseScore);
   const diff = current - baseScore;
-  const diffText = diff > 0 ? `<span style="color:#2a8a3a;font-size:13px;font-weight:700">▲ +${diff.toFixed(1)}</span>` :
-                   diff < 0 ? `<span style="color:#c0392b;font-size:13px;font-weight:700">▼ ${diff.toFixed(1)}</span>` :
-                   `<span style="color:#888;font-size:13px">beze změny</span>`;
+  const diffLine = diff > 0
+    ? `<span style="color:#2a8a3a;font-size:13px;font-weight:700">▲ +${diff.toFixed(1)} oproti vašemu základnímu skóre (${baseScore})</span>`
+    : diff < 0
+    ? `<span style="color:#c0392b;font-size:13px;font-weight:700">▼ ${diff.toFixed(1)} oproti vašemu základnímu skóre (${baseScore})</span>`
+    : `<span style="color:#888;font-size:13px">Základní skóre ${baseScore} — roste se splněnými aktivitami</span>`;
   el.style.display = '';
   el.innerHTML = `
     <div style="background:linear-gradient(135deg,#fff8f0 0%,#ffecd6 100%);border:1.5px solid #f0ddb8;border-radius:22px;padding:20px 24px;margin-bottom:20px;text-align:center">
       <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#b07840;margin-bottom:10px">📊 Aktuální skóre vitality</div>
       <div style="font-size:42px;font-weight:700;color:#ff8a3d;font-family:Georgia,serif;line-height:1">${current.toFixed(1)}<span style="font-size:20px;color:#b07840">/100</span></div>
-      <div style="margin-top:8px">${diffText} oproti základnímu skóre ${baseScore}</div>
-      <div style="font-size:12px;color:#a07040;margin-top:6px">Roste s každou splněnou aktivitou</div>
+      <div style="margin-top:8px">${diffLine}</div>
     </div>`;
 }
 
