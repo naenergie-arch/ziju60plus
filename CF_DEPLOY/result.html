@@ -1556,9 +1556,14 @@ async function renderObjevovna() {
         </div>` : '';
       archiveHtml = `
         <div class="obj-archive">
-          <div class="obj-archive-title">📚 Archív překvapení</div>
-          <div id="objArchivePages">${pagesHtml.join('')}</div>
-          ${navHtml}
+          <div class="obj-archive-title" style="display:flex;align-items:center;justify-content:space-between">
+            <span>📚 Archív překvapení</span>
+            <button onclick="const b=document.getElementById('objArchiveBody');const open=b.style.display!=='none';b.style.display=open?'none':'block';this.textContent=open?'Zobrazit ▾':'Skrýt ▴'" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:4px 12px;color:#e0d0ff;font-size:12px;cursor:pointer">Skrýt ▴</button>
+          </div>
+          <div id="objArchiveBody">
+            <div id="objArchivePages">${pagesHtml.join('')}</div>
+            ${navHtml}
+          </div>
         </div>`;
     }
   }
