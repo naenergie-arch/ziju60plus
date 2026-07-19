@@ -1960,7 +1960,7 @@ function calcCurrentVitality(baseScore) {
     if (r === '🌟') earned += 1.0 * w;
     else if (r === '🤔') earned += 0.3 * w;
   }
-  if (maxPoints === 0) return baseScore;
+  if (maxPoints === 0 || earned === 0) return null;
   const completionRate = earned / maxPoints;
   const room = 100 - baseScore;
   return Math.min(100, baseScore + completionRate * room);
@@ -1977,6 +1977,7 @@ function renderVitalityScore() {
   } catch {}
   if (!baseScore) { el.style.display = 'none'; return; }
   const current = calcCurrentVitality(baseScore);
+  if (current === null) { el.style.display = 'none'; return; }
   const diff = current - baseScore;
   const diffLine = diff > 0
     ? `<span style="color:#2a8a3a;font-size:13px;font-weight:700">▲ +${diff.toFixed(1)} oproti vašemu základnímu skóre (${baseScore})</span>`
