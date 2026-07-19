@@ -1047,18 +1047,15 @@ function daysLeft(ts, totalDays) {
 }
 
 async function startCheckout(plan) {
-  // Blokace 30d/90d objednávek dokud běží free trial
-  if (plan === 'access30' || plan === 'direct90') {
-    alert('Objednání bude možné po vyčerpání vašich bezplatných dní. Slevový kód použijete při objednávce.');
-    return;
-  }
   gtrack('cenik_klik', { plan: plan });
   const btn = document.querySelector(`[data-plan="${plan}"]`);
+  const couponInput = document.getElementById('couponCode');
+  const coupon = couponInput ? couponInput.value.trim() : '';
   if (btn) { btn.textContent = 'Přesměrováváme…'; btn.disabled = true; }
   try {
     const r = await fetch('/api/create-checkout', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ plan })
+      body: JSON.stringify({ plan, coupon: coupon || undefined })
     });
     const d = await r.json();
     if (d.url) window.location.href = d.url;
@@ -1079,6 +1076,12 @@ function renderCenik() {
 
   let html = '';
 
+  const couponHtml = `
+    <div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <input id="couponCode" type="text" placeholder="Slevový kód (nepovinné)"
+        style="flex:1;min-width:140px;padding:8px 12px;border:1px solid #d4b896;border-radius:8px;font-size:13px;font-family:inherit;background:#fffaf4;color:#3a2008">
+    </div>`;
+
   if (level === 'free_active') {
     const trialDays = getTrialDays();
     const currentDay = getTrialDay();
@@ -1086,13 +1089,11 @@ function renderCenik() {
     html = `
       <div class="access-strip">
         <div class="access-days">⏳ Zbývá vám <strong>${left} ${left === 1 ? 'den' : left < 5 ? 'dny' : 'dní'}</strong> z bezplatného profilu</div>
-        <div class="access-btns">
-          <button class="price-btn" disabled style="opacity:0.45;cursor:not-allowed">30 dní za 299 Kč →</button>
-          <button class="price-btn" disabled style="opacity:0.45;cursor:not-allowed;background:#3a2008">90 dní za 699 Kč → <small style="font-weight:400;font-style:normal">+ AI asistent</small></button>
+        ${couponHtml}
+        <div class="access-btns" style="margin-top:10px">
+          <button class="price-btn" data-plan="access30" onclick="startCheckout('access30')">30 dní za 299 Kč →</button>
+          <button class="price-btn" data-plan="direct90" onclick="startCheckout('direct90')" style="background:#3a2008">90 dní za 699 Kč → <small style="font-weight:400;font-style:normal">+ AI asistent</small></button>
           <button class="btn-later" onclick="document.getElementById('cenikSection').style.display='none'">Zatím nechci</button>
-        </div>
-        <div style="margin-top:10px;padding:10px 14px;background:rgba(255,180,60,0.12);border:1px solid rgba(255,180,60,0.35);border-radius:10px;font-size:13px;color:#7a5a00;line-height:1.5;text-align:center">
-          🎁 <strong>Máte slevový kód?</strong> Objednání bude možné po vyčerpání bezplatných dní — kód použijete při objednávce.
         </div>
         <div class="price-note">Po 30 dnech možnost prodloužit na 90 dní za pouhých 400 Kč</div>
       </div>`;
@@ -1102,7 +1103,8 @@ function renderCenik() {
       <div class="access-strip expired">
         <div class="access-days">🔒 Vaše bezplatné období skončilo</div>
         <div class="access-sub">Váš profil je stále uložen. Pro přístup k doporučením pokračujte:</div>
-        <div class="access-btns">
+        ${couponHtml}
+        <div class="access-btns" style="margin-top:10px">
           <button class="price-btn" data-plan="access30" onclick="startCheckout('access30')">30 dní za 299 Kč →</button>
           <button class="price-btn" data-plan="direct90" onclick="startCheckout('direct90')" style="background:#3a2008">90 dní za 699 Kč → <small style="font-weight:400;font-style:normal">+ AI asistent</small></button>
         </div>

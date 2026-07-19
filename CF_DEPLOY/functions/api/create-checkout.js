@@ -21,17 +21,12 @@ export async function onRequestPost(context) {
   const SITE_URL = "https://ziju60plus.cz";
 
   let plan = "access30";
+  let coupon = null;
   try {
     const body = await request.json();
     if (body.plan && PRICES[body.plan]) plan = body.plan;
+    if (body.coupon && typeof body.coupon === "string") coupon = body.coupon.trim() || null;
   } catch (_) {}
-
-  // Dočasná blokace 30d a 90d — slevové kódy v oběhu, objednávky otevřeme po vyčerpání free dní
-  if (plan === "access30" || plan === "direct90") {
-    return new Response(JSON.stringify({ error: "ORDERS_BLOCKED", message: "Objednání bude možné po vyčerpání bezplatných dní." }), {
-      status: 403, headers: { "Content-Type": "application/json" },
-    });
-  }
 
   const priceId = PRICES[plan];
   const isSubscription = plan === "yearly";
@@ -44,6 +39,12 @@ export async function onRequestPost(context) {
     cancel_url: `${SITE_URL}/result.html`,
     metadata: { plan, plan_label: PLAN_LABELS[plan] },
   };
+
+  if (coupon) {
+    sessionConfig.discounts = [{ coupon }];
+  } else {
+    sessionConfig.allow_promotion_codes = true;
+  }
 
   if (isSubscription) {
     sessionConfig.mode = "subscription";
