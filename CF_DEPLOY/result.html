@@ -1674,6 +1674,7 @@ function showProfile(data) {
   try { renderOdemykani(); } catch(e) { console.error('renderOdemykani', e); }
   try { renderNovinka(); } catch(e) { console.error('renderNovinka', e); }
   try { renderDiag(); } catch(e) { console.error('renderDiag', e); }
+  try { initChat(); } catch(e) { console.error('initChat', e); }
 }
 
 // ── Odemykání obsahu podle dne trialu ────────────────────────
