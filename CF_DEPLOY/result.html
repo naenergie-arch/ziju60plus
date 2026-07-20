@@ -2315,12 +2315,12 @@ async function sendFeedback() {
   const closeB = document.getElementById('chatClose');
 
   // Zobraz tlačítko jen pro 90denní přístup
-  function initChat() {
+  window.initChat = function() {
     const isPreview = new URLSearchParams(window.location.search).get('preview') === '90d';
     const rawLevel = (dbUser && dbUser.access_level) || '';
     if (!isPreview && rawLevel !== '90d' && rawLevel !== 'yearly') return;
     btn.style.display = 'flex';
-  }
+  };
 
   // Limit zpráv za den
   function getLimitData() {
